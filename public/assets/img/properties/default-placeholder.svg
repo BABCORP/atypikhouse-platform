@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-label="Illustration d'un hébergement insolite AtypikHouse">
+  <rect width="1200" height="800" fill="#f4eadb"/>
+  <circle cx="940" cy="150" r="80" fill="#d6a373"/>
+  <path d="M0 580 C180 500 300 560 440 510 C620 445 760 500 920 455 C1040 420 1130 460 1200 430 V800 H0 Z" fill="#6e8b63"/>
+  <path d="M0 650 C220 560 390 620 560 560 C710 505 850 560 1000 520 C1090 496 1150 518 1200 500 V800 H0 Z" fill="#2f684d"/>
+  <path d="M420 450 L600 300 L780 450 V650 H420 Z" fill="#183b2b"/>
+  <path d="M505 650 V500 H615 V650 Z" fill="#b86f45"/>
+  <path d="M390 455 L600 275 L810 455" fill="none" stroke="#fffaf1" stroke-width="28" stroke-linecap="round"/>
+  <text x="600" y="735" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#fffaf1">AtypikHouse</text>
+</svg>

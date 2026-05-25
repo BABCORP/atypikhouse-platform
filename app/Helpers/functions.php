@@ -1,0 +1,136 @@
+<?php
+
+use App\Core\Database;
+
+function config(string $key, mixed $default = null): mixed
+{
+    static $config = null;
+    $config ??= require dirname(__DIR__, 2) . '/config/app.php';
+    return $config[$key] ?? $default;
+}
+
+function e(?string $value): string
+{
+    return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+function url(string $path = ''): string
+{
+    $base = config('base_url');
+    return $base . '/' . ltrim($path, '/');
+}
+
+function asset(string $path): string
+{
+    return url('assets/' . ltrim($path, '/'));
+}
+
+function image_url(?string $path): string
+{
+    $path = $path ?: 'assets/img/properties/default-placeholder.svg';
+    if (str_starts_with($path, 'media/')) {
+        return url($path);
+    }
+    return asset(str_replace('assets/', '', $path));
+}
+
+function redirect(string $path): never
+{
+    header('Location: ' . url($path));
+    exit;
+}
+
+function csrf_token(): string
+{
+    if (empty($_SESSION['_csrf'])) {
+        $_SESSION['_csrf'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['_csrf'];
+}
+
+function csrf_field(): string
+{
+    return '<input type="hidden" name="_csrf" value="' . e(csrf_token()) . '">';
+}
+
+function verify_csrf(): void
+{
+    $token = $_POST['_csrf'] ?? '';
+    $sessionToken = $_SESSION['_csrf'] ?? '';
+    if ($token === '' || $sessionToken === '' || !hash_equals($sessionToken, $token)) {
+        http_response_code(419);
+        exit('Jeton CSRF invalide.');
+    }
+}
+
+function flash(string $key, ?string $message = null): ?string
+{
+    if ($message !== null) {
+        $_SESSION['flash'][$key] = $message;
+        return null;
+    }
+
+    $value = $_SESSION['flash'][$key] ?? null;
+    unset($_SESSION['flash'][$key]);
+    return $value;
+}
+
+function old(string $key, mixed $default = ''): string
+{
+    return e($_SESSION['_old'][$key] ?? $default);
+}
+
+function remember_old(array $data): void
+{
+    $_SESSION['_old'] = $data;
+}
+
+function clear_old(): void
+{
+    unset($_SESSION['_old']);
+}
+
+function slugify(string $text): string
+{
+    $text = iconv('UTF-8', 'ASCII//TRANSLIT', $text);
+    $text = preg_replace('~[^\\pL\\d]+~u', '-', $text ?: '');
+    $text = trim((string) $text, '-');
+    $text = strtolower($text);
+    $text = preg_replace('~[^-a-z0-9]+~', '', $text);
+    return $text ?: 'item-' . time();
+}
+
+function input(string $key, mixed $default = null): mixed
+{
+    return $_POST[$key] ?? $_GET[$key] ?? $default;
+}
+
+function audit(?int $userId, string $action, string $entityType, ?int $entityId = null): void
+{
+    try {
+        $stmt = Database::connection()->prepare('INSERT INTO audit_logs (user_id, action, entity_type, entity_id, ip_address, created_at) VALUES (?, ?, ?, ?, ?, NOW())');
+        $stmt->execute([$userId, $action, $entityType, $entityId, $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1']);
+    } catch (Throwable) {
+        // Audit must never break the user journey.
+    }
+}
+
+function money(float|int|string $amount): string
+{
+    return number_format((float) $amount, 2, ',', ' ') . ' EUR';
+}
+
+function nights_between(string $start, string $end): int
+{
+    try {
+        return (int) (new DateTimeImmutable($start))->diff(new DateTimeImmutable($end))->days;
+    } catch (Throwable) {
+        return 0;
+    }
+}
+
+function valid_date(string $date): bool
+{
+    $value = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
+    return $value !== false && $value->format('Y-m-d') === $date;
+}

@@ -1,0 +1,80 @@
+<?php
+
+use App\Controllers\AdminController;
+use App\Controllers\AuthController;
+use App\Controllers\BookingController;
+use App\Controllers\OwnerController;
+use App\Controllers\PublicController;
+use App\Controllers\TenantController;
+use App\Controllers\MediaController;
+
+$router->get('/', [PublicController::class, 'home']);
+$router->get('/concept', [PublicController::class, 'concept']);
+$router->get('/devenir-hote', [PublicController::class, 'host']);
+$router->get('/hebergements', [PublicController::class, 'catalogue']);
+$router->get('/hebergements/{slug}', [PublicController::class, 'property']);
+$router->get('/blog', [PublicController::class, 'blog']);
+$router->get('/blog/{slug}', [PublicController::class, 'blogPost']);
+$router->get('/contact', [PublicController::class, 'contact']);
+$router->post('/contact', [PublicController::class, 'sendContact']);
+$router->get('/faq', [PublicController::class, 'faq']);
+$router->get('/mentions-legales', [PublicController::class, 'legal']);
+$router->get('/cgu', [PublicController::class, 'legal']);
+$router->get('/cgv', [PublicController::class, 'legal']);
+$router->get('/politique-confidentialite', [PublicController::class, 'legal']);
+$router->get('/cookies', [PublicController::class, 'legal']);
+
+$router->get('/connexion', [AuthController::class, 'login']);
+$router->post('/connexion', [AuthController::class, 'authenticate']);
+$router->get('/inscription', [AuthController::class, 'register']);
+$router->post('/inscription', [AuthController::class, 'store']);
+$router->post('/deconnexion', [AuthController::class, 'logout']);
+$router->get('/media/properties/{filename}', [MediaController::class, 'propertyImage']);
+
+$router->post('/reservation/{propertyId}', [BookingController::class, 'start']);
+$router->get('/paiement/{bookingId}', [BookingController::class, 'payment']);
+$router->post('/paiement/{bookingId}', [BookingController::class, 'simulatePayment']);
+$router->post('/avis/{bookingId}', [BookingController::class, 'review']);
+
+$router->get('/locataire/dashboard', [TenantController::class, 'dashboard']);
+$router->get('/locataire/reservations', [TenantController::class, 'reservations']);
+$router->get('/locataire/reservations/{id}', [TenantController::class, 'reservation']);
+$router->get('/locataire/avis', [TenantController::class, 'reviews']);
+$router->get('/locataire/profil', [TenantController::class, 'profile']);
+$router->post('/locataire/profil', [TenantController::class, 'updateProfile']);
+$router->post('/locataire/profil/mot-de-passe', [TenantController::class, 'updatePassword']);
+
+$router->get('/proprietaire/dashboard', [OwnerController::class, 'dashboard']);
+$router->get('/proprietaire/logements', [OwnerController::class, 'properties']);
+$router->get('/proprietaire/logements/ajouter', [OwnerController::class, 'createProperty']);
+$router->post('/proprietaire/logements/ajouter', [OwnerController::class, 'storeProperty']);
+$router->get('/proprietaire/logements/{id}/modifier', [OwnerController::class, 'editProperty']);
+$router->post('/proprietaire/logements/{id}/modifier', [OwnerController::class, 'updateProperty']);
+$router->post('/proprietaire/logements/{id}/soumettre', [OwnerController::class, 'submitProperty']);
+$router->post('/proprietaire/logements/{id}/supprimer', [OwnerController::class, 'deleteProperty']);
+$router->get('/proprietaire/disponibilites', [OwnerController::class, 'availability']);
+$router->post('/proprietaire/disponibilites', [OwnerController::class, 'storeAvailability']);
+$router->get('/proprietaire/reservations', [OwnerController::class, 'reservations']);
+$router->get('/proprietaire/profil', [OwnerController::class, 'profile']);
+$router->post('/proprietaire/profil', [OwnerController::class, 'updateProfile']);
+
+$router->get('/admin/dashboard', [AdminController::class, 'dashboard']);
+$router->get('/admin/utilisateurs', [AdminController::class, 'users']);
+$router->post('/admin/utilisateurs/{id}/statut', [AdminController::class, 'updateUserStatus']);
+$router->get('/admin/proprietaires', [AdminController::class, 'owners']);
+$router->post('/admin/proprietaires/{id}/statut', [AdminController::class, 'updateOwnerStatus']);
+$router->get('/admin/logements', [AdminController::class, 'properties']);
+$router->post('/admin/logements/{id}/statut', [AdminController::class, 'updatePropertyStatus']);
+$router->get('/admin/reservations', [AdminController::class, 'bookings']);
+$router->post('/admin/reservations/{id}/statut', [AdminController::class, 'updateBookingStatus']);
+$router->get('/admin/avis', [AdminController::class, 'reviews']);
+$router->post('/admin/avis/{id}/statut', [AdminController::class, 'updateReviewStatus']);
+$router->post('/admin/avis/{id}/supprimer', [AdminController::class, 'deleteReview']);
+$router->get('/admin/blog', [AdminController::class, 'blog']);
+$router->post('/admin/blog', [AdminController::class, 'storeBlog']);
+$router->get('/admin/blog/{id}/modifier', [AdminController::class, 'editBlog']);
+$router->post('/admin/blog/{id}/modifier', [AdminController::class, 'updateBlog']);
+$router->post('/admin/blog/{id}/supprimer', [AdminController::class, 'deleteBlog']);
+$router->get('/admin/messages', [AdminController::class, 'messages']);
+$router->post('/admin/messages/{id}/statut', [AdminController::class, 'updateMessageStatus']);
+$router->get('/admin/logs', [AdminController::class, 'logs']);

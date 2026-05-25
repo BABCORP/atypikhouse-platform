@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>http://localhost:8000/</loc></url>
+  <url><loc>http://localhost:8000/concept</loc></url>
+  <url><loc>http://localhost:8000/hebergements</loc></url>
+  <url><loc>http://localhost:8000/blog</loc></url>
+  <url><loc>http://localhost:8000/devenir-hote</loc></url>
+  <url><loc>http://localhost:8000/contact</loc></url>
+  <url><loc>http://localhost:8000/faq</loc></url>
+  <url><loc>http://localhost:8000/mentions-legales</loc></url>
+  <url><loc>http://localhost:8000/cgu</loc></url>
+  <url><loc>http://localhost:8000/cgv</loc></url>
+  <url><loc>http://localhost:8000/politique-confidentialite</loc></url>
+  <url><loc>http://localhost:8000/cookies</loc></url>
+</urlset>

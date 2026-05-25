@@ -1,0 +1,2 @@
+<?php require __DIR__ . '/_nav.php'; ?>
+<section class="section"><h1>Journaux d’audit</h1><div class="table-wrap"><table><thead><tr><th>Date</th><th>Utilisateur</th><th>Action</th><th>Entité</th><th>IP</th></tr></thead><tbody><?php foreach ($logs as $log): ?><tr><td><?= e($log['created_at']) ?></td><td><?= e($log['email'] ?? 'invité') ?></td><td><?= e($log['action']) ?></td><td><?= e($log['entity_type'].' #'.$log['entity_id']) ?></td><td><?= e($log['ip_address']) ?></td></tr><?php endforeach; ?></tbody></table></div></section>

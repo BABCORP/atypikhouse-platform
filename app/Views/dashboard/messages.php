@@ -1,0 +1,2 @@
+<?php require __DIR__ . '/_nav.php'; ?>
+<section class="section"><h1>Messages de contact</h1><?php foreach ($messages as $message): ?><article class="panel"><h2><?= e($message['subject']) ?></h2><p><?= e($message['name']) ?> · <?= e($message['email']) ?> · <?= e($message['status']) ?></p><p><?= e($message['message']) ?></p><form method="post" action="<?= url('/admin/messages/'.$message['id'].'/statut') ?>"><?= csrf_field() ?><button name="status" value="read">Lu</button><button name="status" value="archived">Archiver</button></form></article><?php endforeach; ?></section>
