@@ -1,4 +1,9 @@
 <section class="section property-detail">
+    <header class="property-heading">
+        <p class="eyebrow"><?= e($property['city']) ?> · <?= e($property['region']) ?></p>
+        <h1><?= e($property['title']) ?></h1>
+        <p class="lead"><?= e($property['short_description']) ?></p>
+    </header>
     <div class="gallery">
         <?php foreach ($images as $image): ?>
             <img src="<?= image_url($image['image_path']) ?>" alt="<?= e($image['alt_text']) ?>">
@@ -6,9 +11,6 @@
     </div>
     <div class="detail-grid">
         <article>
-            <p class="eyebrow"><?= e($property['city']) ?> · <?= e($property['region']) ?></p>
-            <h1><?= e($property['title']) ?></h1>
-            <p class="lead"><?= e($property['short_description']) ?></p>
             <p><?= nl2br(e($property['long_description'])) ?></p>
             <h2>Équipements</h2>
             <div class="pill-list"><?php foreach ($amenities as $amenity): ?><span><?= e($amenity) ?></span><?php endforeach; ?></div>

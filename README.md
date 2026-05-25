@@ -73,6 +73,7 @@ php -S localhost:8000 -t public public/index.php
 - Contact avec protection CSRF.
 - Fichiers SEO : `robots.txt`, `sitemap.xml`, métadonnées et URLs propres.
 - Structure tracking-ready avec attributs `data-track`.
+- Identité visuelle alignée sur la charte AtypikHouse 2026 et photographies de démonstration issues des maquettes fournies.
 
 ## Structure
 
@@ -108,6 +109,6 @@ storage/
 
 ## Notes MVP
 
-Le projet est volontairement léger pour rester compatible avec un environnement PHP local académique. Si un propriétaire ne téléverse aucune image, le MVP utilise un placeholder accessible.
+Le projet est volontairement léger pour rester compatible avec un environnement PHP local académique. Le jeu de démonstration inclut des visuels de maquette ; si un propriétaire ne téléverse aucune image, le MVP utilise un placeholder accessible.
 
 Les vérifications réalisées sur MAMP sont détaillées dans `docs/validation-report.md`.

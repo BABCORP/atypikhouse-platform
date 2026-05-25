@@ -2,25 +2,25 @@
     <div class="hero-content">
         <p class="eyebrow">Nature · évasion · authenticité</p>
         <h1>Vivez l’expérience d’un hébergement insolite</h1>
-        <p>Découvrez une sélection fictive de cabanes perchées, yourtes, tiny houses et dômes responsables pour préparer un séjour qui sort du cadre.</p>
+        <p class="hero-lead">Découvrez des lieux singuliers au coeur de la nature et composez un séjour responsable qui sort du cadre.</p>
         <div class="actions">
             <a class="button" href="<?= url('/hebergements') ?>" data-track="cta_click">Découvrir les hébergements</a>
-            <a class="button secondary" href="<?= url('/devenir-hote') ?>" data-track="cta_click">Devenir hôte</a>
+            <a class="button outline-light" href="<?= url('/devenir-hote') ?>" data-track="cta_click">Devenir hôte</a>
         </div>
     </div>
-    <form class="search-panel" method="get" action="<?= url('/hebergements') ?>" data-track="search_submit">
-        <label>Destination<input name="destination" placeholder="Vosges, Oise, Bretagne..."></label>
+    <form class="search-panel hero-search" method="get" action="<?= url('/hebergements') ?>" data-track="search_submit">
+        <label>Destination<input name="destination" placeholder="Où voulez-vous partir ?"></label>
         <label>Arrivée<input name="start_date" type="date"></label>
         <label>Départ<input name="end_date" type="date"></label>
         <label>Voyageurs<input name="capacity" type="number" min="1" value="2"></label>
-        <button class="button full" type="submit">Rechercher</button>
+        <button class="button" type="submit">Rechercher</button>
     </form>
 </section>
 
 <section class="section">
     <div class="section-heading">
-        <p class="eyebrow">Sélection</p>
-        <h2>Hébergements à découvrir</h2>
+        <div><p class="eyebrow">Sélection</p><h2>Nos séjours coups de coeur</h2></div>
+        <a class="text-link" href="<?= url('/hebergements') ?>">Voir tous les logements</a>
     </div>
     <div class="grid cards">
         <?php foreach ($properties as $property): require __DIR__ . '/_property-card.php'; endforeach; ?>
@@ -28,7 +28,8 @@
 </section>
 
 <section class="section band">
-    <h2>Un tourisme plus responsable, sans complexité</h2>
+    <p class="eyebrow">Simple et responsable</p>
+    <h2>Réserver une parenthèse en trois étapes</h2>
     <div class="features">
         <article><h3>1. Recherchez</h3><p>Filtrez par destination, type de logement, capacité et budget.</p></article>
         <article><h3>2. Réservez fictivement</h3><p>Choisissez vos dates, vérifiez le prix et lancez un paiement test.</p></article>
@@ -45,6 +46,7 @@
 </section>
 
 <section class="section">
+    <p class="eyebrow">Explorer</p>
     <h2>Catégories insolites</h2>
     <div class="pill-list">
         <a href="<?= url('/hebergements?type=treehouse') ?>">Cabanes</a>

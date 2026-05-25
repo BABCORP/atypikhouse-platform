@@ -18,8 +18,17 @@ INSERT INTO properties (id, owner_id, title, slug, type, short_description, long
 (7, 2, 'Lodge insolite en campagne', 'lodge-insolite-en-campagne', 'other', 'Lodge confortable au milieu des champs.', 'Un lodge fictif pensé pour la déconnexion, les week-ends proches de Paris et les séjours responsables.', 'Chemin rural', 'Provins', '77160', 'Île-de-France', 'France', 4, 2, 3, 1, 145.00, 28.00, 4, 'published', NOW(), NOW()),
 (8, 2, 'Maison perchée premium', 'maison-perchee-premium', 'treehouse', 'Maison perchée haut de gamme avec grande terrasse.', 'Hébergement fictif premium pour présenter les pages détail, les avis modérés et le parcours de réservation test.', 'Bois des brumes', 'Fontainebleau', '77300', 'Île-de-France', 'France', 4, 2, 2, 1, 220.00, 45.00, 5, 'published', NOW(), NOW());
 
-INSERT INTO property_images (property_id, image_path, alt_text, is_main, created_at)
-SELECT id, 'assets/img/properties/default-placeholder.svg', CONCAT('Image illustrative de ', title), 1, NOW() FROM properties;
+INSERT INTO property_images (property_id, image_path, alt_text, is_main, created_at) VALUES
+(1, 'assets/img/properties/cabane-passerelle.jpg', 'Cabane vitrée perchée reliée par une passerelle dans la forêt au coucher du soleil', 1, NOW()),
+(1, 'assets/img/properties/cabane-panorama.jpg', 'Cabane contemporaine dans les arbres face à une vallée boisée', 0, NOW()),
+(2, 'assets/img/properties/lodge-nature.jpg', 'Hébergement nature chaleureux entouré de végétation', 1, NOW()),
+(3, 'assets/img/properties/cabane-flottante.jpg', 'Cabane en bois sur les eaux calmes d''un lac de montagne', 1, NOW()),
+(4, 'assets/img/properties/refuge-foret.jpg', 'Petite maison en bois isolée au coeur d''une forêt paisible', 1, NOW()),
+(5, 'assets/img/properties/panorama-montagne.jpg', 'Panorama naturel contemplatif depuis un séjour insolite', 1, NOW()),
+(6, 'assets/img/properties/refuge-foret.jpg', 'Hébergement chaleureux entouré de grands arbres', 1, NOW()),
+(7, 'assets/img/properties/lodge-nature.jpg', 'Lodge nature ouvert sur un environnement végétal', 1, NOW()),
+(8, 'assets/img/properties/cabane-panorama.jpg', 'Maison perchée haut de gamme éclairée dans une forêt au crépuscule', 1, NOW()),
+(8, 'assets/img/properties/cabane-passerelle.jpg', 'Passerelle suspendue menant à une maison perchée premium', 0, NOW());
 
 INSERT INTO property_amenities (property_id, amenity_name) VALUES
 (1,'Spa'),(1,'Terrasse'),(1,'Petit-déjeuner'),(2,'Poêle'),(2,'Observation des étoiles'),(2,'Parking'),
@@ -46,8 +55,8 @@ INSERT INTO reviews (booking_id, property_id, tenant_id, rating, comment, status
 (1, 1, 3, 5, 'Très belle expérience fictive, l’ambiance nature est réussie.', 'published', NOW(), NOW());
 
 INSERT INTO blog_posts (title, slug, excerpt, content, featured_image, status, author_id, created_at, updated_at) VALUES
-('Week-end insolite proche de Paris', 'week-end-insolite-proche-de-paris', 'Idées fictives pour préparer une escapade nature à moins de deux heures de Paris.', 'Entre cabanes perchées, tiny houses et lodges à la campagne, un week-end insolite proche de Paris permet de changer de rythme sans partir loin. Cet article de démonstration présente les bénéfices d’un séjour nature, les critères de choix et les bonnes pratiques pour un tourisme plus responsable.', 'assets/img/properties/default-placeholder.svg', 'published', 1, NOW(), NOW()),
-('Comment choisir un hébergement éco-responsable', 'comment-choisir-un-hebergement-eco-responsable', 'Quelques repères simples pour comparer les logements insolites.', 'Regardez les matériaux, la gestion de l’eau, les mobilités douces, la capacité adaptée et la transparence de l’hôte. Sur AtypikHouse, ces informations sont structurées pour aider la décision.', 'assets/img/properties/default-placeholder.svg', 'published', 1, NOW(), NOW());
+('Week-end insolite proche de Paris', 'week-end-insolite-proche-de-paris', 'Idées fictives pour préparer une escapade nature à moins de deux heures de Paris.', 'Entre cabanes perchées, tiny houses et lodges à la campagne, un week-end insolite proche de Paris permet de changer de rythme sans partir loin. Cet article de démonstration présente les bénéfices d’un séjour nature, les critères de choix et les bonnes pratiques pour un tourisme plus responsable.', 'assets/img/properties/cabane-panorama.jpg', 'published', 1, NOW(), NOW()),
+('Comment choisir un hébergement éco-responsable', 'comment-choisir-un-hebergement-eco-responsable', 'Quelques repères simples pour comparer les logements insolites.', 'Regardez les matériaux, la gestion de l’eau, les mobilités douces, la capacité adaptée et la transparence de l’hôte. Sur AtypikHouse, ces informations sont structurées pour aider la décision.', 'assets/img/properties/refuge-foret.jpg', 'published', 1, NOW(), NOW());
 
 INSERT INTO contact_messages (name, email, subject, message, status, created_at) VALUES
 ('Demo Contact', 'contact@example.test', 'Question sur le projet', 'Message fictif visible dans le tableau de bord administrateur.', 'new', NOW());

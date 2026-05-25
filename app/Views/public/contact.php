@@ -1,12 +1,16 @@
-<section class="page-hero compact"><h1>Contact</h1><p>Une question sur le projet fictif AtypikHouse ? Écrivez-nous.</p></section>
-<section class="section form-layout">
-    <form method="post" class="panel" data-track="form_submit">
+<section class="page-hero compact"><p class="eyebrow">AtypikHouse</p><h1>Nous contacter</h1><p>Une question sur un séjour ou l’espace hôte ? Notre équipe fictive vous répond.</p></section>
+<section class="section contact-layout">
+    <aside class="contact-details"><h2>Nos coordonnées</h2><p><strong>Adresse</strong><br>Pierrefonds, Oise<br>France</p><p><strong>Email</strong><br>contact@atypikhouse.test</p><p><strong>Horaires</strong><br>Lundi - Vendredi<br>9h00 - 18h00</p><p class="notice"><?= e(config('academic_disclaimer')) ?></p></aside>
+    <form method="post" class="panel contact-form" data-track="form_submit">
+        <h2>Envoyez-nous un message</h2>
         <?= csrf_field() ?>
-        <label>Nom<input required name="name" value="<?= old('name') ?>"></label>
-        <label>Email<input required type="email" name="email" value="<?= old('email') ?>"></label>
+        <div class="form-grid">
+        <label>Nom complet<input required name="name" value="<?= old('name') ?>"></label>
+        <label>Adresse email<input required type="email" name="email" value="<?= old('email') ?>"></label>
+        </div>
         <label>Sujet<input required name="subject" value="<?= old('subject') ?>"></label>
-        <label>Message<textarea required name="message"><?= old('message') ?></textarea></label>
-        <button class="button" type="submit">Envoyer</button>
+        <label>Votre message<textarea required name="message"><?= old('message') ?></textarea></label>
+        <label class="consent"><input required type="checkbox" name="privacy_consent" value="1"> J’accepte que mes données soient utilisées pour être recontacté dans le cadre de cette démonstration.</label>
+        <button class="button" type="submit">Envoyer le message</button>
     </form>
-    <aside class="panel"><h2>AtypikHouse SARL fictive</h2><p>Pierrefonds, Oise, France</p><p><?= e(config('academic_disclaimer')) ?></p></aside>
 </section>

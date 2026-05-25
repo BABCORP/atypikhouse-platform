@@ -31,3 +31,17 @@ if (navToggle && mainNav) {
     navToggle.setAttribute("aria-expanded", String(open));
   });
 }
+
+const advancedFilters = document.querySelector(".filter-more");
+if (advancedFilters) {
+  const compactFilters = window.matchMedia("(max-width: 720px)");
+  const syncFilters = () => {
+    if (compactFilters.matches) {
+      advancedFilters.removeAttribute("open");
+    } else {
+      advancedFilters.setAttribute("open", "");
+    }
+  };
+  compactFilters.addEventListener("change", syncFilters);
+  syncFilters();
+}

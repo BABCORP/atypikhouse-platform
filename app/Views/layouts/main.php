@@ -20,7 +20,7 @@
 <body>
 <a class="skip-link" href="#contenu">Aller au contenu</a>
 <header class="site-header">
-    <a class="brand" href="<?= url('/') ?>">AtypikHouse</a>
+    <a class="brand" href="<?= url('/') ?>" aria-label="AtypikHouse, accueil">AtypikHouse</a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="navigation-principale">Menu</button>
     <nav class="main-nav" id="navigation-principale" aria-label="Navigation principale">
         <a href="<?= url('/') ?>">Accueil</a>
@@ -47,19 +47,13 @@
 </main>
 
 <footer class="site-footer">
-    <div>
+    <div class="footer-brand">
         <strong>AtypikHouse</strong>
-        <p>SARL fictive - 12 rue du Château, 60350 Pierrefonds, France.</p>
+        <p>Des séjours insolites et responsables pour renouer avec la nature.</p>
         <p class="disclaimer"><?= e(config('academic_disclaimer')) ?></p>
     </div>
-    <nav aria-label="Liens légaux">
-        <a href="<?= url('/mentions-legales') ?>">Mentions légales</a>
-        <a href="<?= url('/cgu') ?>">CGU</a>
-        <a href="<?= url('/cgv') ?>">CGV</a>
-        <a href="<?= url('/politique-confidentialite') ?>">Confidentialité</a>
-        <a href="<?= url('/cookies') ?>">Cookies</a>
-        <a href="<?= url('/faq') ?>">FAQ</a>
-    </nav>
+    <div class="footer-column"><h2>Explorer</h2><nav aria-label="Explorer AtypikHouse"><a href="<?= url('/hebergements') ?>">Hébergements</a><a href="<?= url('/concept') ?>">Le concept</a><a href="<?= url('/devenir-hote') ?>">Devenir hôte</a><a href="<?= url('/contact') ?>">Contact</a></nav></div>
+    <div class="footer-column"><h2>Informations</h2><nav aria-label="Liens légaux"><a href="<?= url('/mentions-legales') ?>">Mentions légales</a><a href="<?= url('/cgu') ?>">CGU</a><a href="<?= url('/cgv') ?>">CGV</a><a href="<?= url('/politique-confidentialite') ?>">Confidentialité</a><a href="<?= url('/cookies') ?>">Cookies</a></nav></div>
 </footer>
 <script src="<?= asset('js/main.js') ?>" defer></script>
 </body>

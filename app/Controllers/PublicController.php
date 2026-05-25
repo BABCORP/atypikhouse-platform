@@ -130,6 +130,11 @@ final class PublicController extends Controller
             flash('error', 'Adresse email invalide.');
             $this->redirect('/contact');
         }
+        if (input('privacy_consent') !== '1') {
+            remember_old($_POST);
+            flash('error', 'Veuillez accepter l’utilisation de vos données pour être recontacté.');
+            $this->redirect('/contact');
+        }
         (new ContactMessage())->create($_POST);
         audit($_SESSION['user_id'] ?? null, 'contact_form_submit', 'contact_message');
         clear_old();
