@@ -37,6 +37,22 @@
     </div>
 </section>
 
+<section class="section split">
+    <div>
+        <p class="eyebrow">Tourisme responsable</p>
+        <h2>Des hébergements insolites pensés pour ralentir</h2>
+        <p>AtypikHouse valorise les séjours nature, l’éco-score, les équipements utiles et les propriétaires engagés. Les données restent fictives, mais le parcours reproduit un vrai modèle de marketplace.</p>
+        <a class="text-link" href="<?= url('/concept') ?>" data-track="cta_click">Comprendre le concept</a>
+    </div>
+    <form class="panel newsletter-form" method="post" action="<?= url('/newsletter') ?>" data-track="newsletter_submit">
+        <?= csrf_field() ?>
+        <h2>Recevoir l’inspiration séjour nature</h2>
+        <label>Email<input required type="email" name="email" placeholder="vous@example.test"></label>
+        <label class="checkbox"><input required type="checkbox" name="newsletter_consent" value="1"> J’accepte l’inscription newsletter fictive sans envoi réel.</label>
+        <button class="button full" type="submit">S’inscrire</button>
+    </form>
+</section>
+
 <section class="section testimonials">
     <div>
         <p class="eyebrow">Confiance</p>

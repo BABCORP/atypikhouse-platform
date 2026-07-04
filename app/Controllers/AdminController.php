@@ -43,9 +43,70 @@ final class AdminController extends Controller
             http_response_code(422);
             exit('Statut invalide.');
         }
-        (new User())->updateStatus($id, $status);
+        $model = new User();
+        $user = $model->find($id);
+        if ($user && $user['role'] === 'admin' && $user['status'] === 'active' && $status !== 'active' && $model->activeAdminCount() <= 1) {
+            flash('error', 'Impossible de suspendre le dernier administrateur actif.');
+            $this->redirect('/admin/utilisateurs');
+        }
+        $model->updateStatus($id, $status);
         audit((int) $admin['id'], 'user_status_update', 'user', $id);
         flash('success', 'Statut utilisateur mis à jour.');
+        $this->redirect('/admin/utilisateurs');
+    }
+
+    public function editUser(int $id): void
+    {
+        Auth::requireRole('admin');
+        $user = (new User())->find($id);
+        if (!$user) {
+            http_response_code(404);
+            exit('Utilisateur introuvable.');
+        }
+        $this->view('dashboard/user-edit', ['title' => 'Modifier un utilisateur', 'editUser' => $user]);
+    }
+
+    public function updateUser(int $id): void
+    {
+        $admin = Auth::requireRole('admin');
+        verify_csrf();
+        $model = new User();
+        $user = $model->find($id);
+        if (!$user) {
+            http_response_code(404);
+            exit('Utilisateur introuvable.');
+        }
+        $role = (string) input('role');
+        $status = (string) input('status');
+        if (!in_array($role, ['tenant', 'owner', 'admin'], true) || !in_array($status, ['active', 'pending', 'suspended'], true)) {
+            flash('error', 'Rôle ou statut invalide.');
+            $this->redirect('/admin/utilisateurs/' . $id . '/modifier');
+        }
+        if (!filter_var(input('email'), FILTER_VALIDATE_EMAIL)) {
+            flash('error', 'Adresse email invalide.');
+            $this->redirect('/admin/utilisateurs/' . $id . '/modifier');
+        }
+        if ($model->emailExistsForOther((string) input('email'), $id)) {
+            flash('error', 'Cette adresse email est déjà utilisée.');
+            $this->redirect('/admin/utilisateurs/' . $id . '/modifier');
+        }
+        $wouldRemoveLastAdmin = $user['role'] === 'admin'
+            && $user['status'] === 'active'
+            && ($role !== 'admin' || $status !== 'active')
+            && $model->activeAdminCount() <= 1;
+        if ($wouldRemoveLastAdmin) {
+            flash('error', 'Impossible de retirer, suspendre ou rétrograder le dernier administrateur actif.');
+            $this->redirect('/admin/utilisateurs/' . $id . '/modifier');
+        }
+        $model->updateAdminUser($id, $_POST);
+        audit((int) $admin['id'], 'user_update', 'user', $id);
+        if ($user['role'] !== $role) {
+            audit((int) $admin['id'], 'user_role_update', 'user', $id);
+        }
+        if ($user['status'] !== $status) {
+            audit((int) $admin['id'], 'user_status_update', 'user', $id);
+        }
+        flash('success', 'Utilisateur mis à jour.');
         $this->redirect('/admin/utilisateurs');
     }
 
@@ -94,7 +155,18 @@ final class AdminController extends Controller
     public function bookings(): void
     {
         Auth::requireRole('admin');
-        $this->view('dashboard/bookings', ['title' => 'Toutes les réservations', 'bookings' => (new Booking())->all(), 'scope' => 'admin']);
+        $this->view('dashboard/bookings', ['title' => 'Toutes les réservations', 'bookings' => (new Booking())->all(['status' => input('status') ?: null]), 'scope' => 'admin']);
+    }
+
+    public function bookingDetail(int $id): void
+    {
+        Auth::requireRole('admin');
+        $booking = (new Booking())->findForAdmin($id);
+        if (!$booking) {
+            http_response_code(404);
+            exit('Réservation introuvable.');
+        }
+        $this->view('dashboard/admin-booking-detail', ['title' => 'Réservation #' . $id, 'booking' => $booking]);
     }
 
     public function updateBookingStatus(int $id): void
@@ -109,7 +181,7 @@ final class AdminController extends Controller
         (new Booking())->updateStatus($id, $status);
         audit((int) $admin['id'], 'booking_status_update', 'booking', $id);
         flash('success', 'Réservation mise à jour.');
-        $this->redirect('/admin/reservations');
+        $this->redirect($_SERVER['HTTP_REFERER'] ?? '/admin/reservations');
     }
 
     public function reviews(): void

@@ -4,8 +4,12 @@
     <p>Les réponses essentielles sur la démonstration AtypikHouse.</p>
 </section>
 <section class="section faq">
-    <details open><summary>Puis-je effectuer une réservation réelle ?</summary><p>Non. <?= e(config('academic_disclaimer')) ?></p></details>
-    <details><summary>Le paiement est-il réel ?</summary><p>Non. Le parcours propose uniquement une simulation de succès ou d’échec, sans numéro de carte.</p></details>
-    <details><summary>Comment devenir hôte ?</summary><p>Créez un compte propriétaire, ajoutez un logement en brouillon puis soumettez-le à la validation administrateur.</p></details>
-    <details><summary>Comment les avis sont-ils publiés ?</summary><p>Un locataire peut rédiger un avis après une réservation terminée. L’avis doit ensuite être validé par l’administration.</p></details>
+    <details open><summary>Comment réserver un hébergement ?</summary><p>Depuis une fiche logement publiée, choisissez vos dates, le nombre de voyageurs, puis lancez la réservation fictive et le paiement test.</p></details>
+    <details><summary>Le paiement est-il réel ?</summary><p>Non. <?= e(config('academic_disclaimer')) ?> Aucun numéro de carte bancaire réel n’est demandé.</p></details>
+    <details><summary>Comment devenir hôte ?</summary><p>Créez un compte propriétaire, complétez le profil hôte, ajoutez un logement puis soumettez-le à la validation administrateur.</p></details>
+    <details><summary>Comment les logements sont-ils validés ?</summary><p>Un administrateur vérifie le contenu, le statut et la cohérence éditoriale avant publication dans le catalogue.</p></details>
+    <details><summary>Comment fonctionnent les avis ?</summary><p>Un locataire peut déposer un avis après une réservation terminée. L’avis est publié seulement après modération.</p></details>
+    <details><summary>Peut-on annuler une réservation ?</summary><p>Dans cette MVP, l’administrateur peut changer le statut d’une réservation pour simuler une annulation ou une fin de séjour.</p></details>
+    <details><summary>Quelles données personnelles sont utilisées ?</summary><p>Les données servent uniquement à la démonstration locale académique : compte, contact, réservation fictive et audit technique.</p></details>
+    <details><summary>Qu’est-ce qu’un séjour éco-responsable ?</summary><p>Dans le projet, cela se traduit par l’éco-score, les équipements sobres, la mise en avant de la nature et un contenu orienté tourisme responsable.</p></details>
 </section>

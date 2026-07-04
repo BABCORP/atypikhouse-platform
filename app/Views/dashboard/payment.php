@@ -3,9 +3,15 @@
         <h1>Paiement fictif</h1>
         <?= csrf_field() ?>
         <p><strong><?= e(config('academic_disclaimer')) ?></strong></p>
-        <p>Réservation #<?= (int)$booking['id'] ?> · Total test : <?= money($booking['total_price']) ?></p>
+        <dl class="detail-list">
+            <dt>Réservation</dt><dd>#<?= (int) $booking['id'] ?></dd>
+            <dt>Nuits</dt><dd><?= (int) $booking['nights'] ?></dd>
+            <dt>Sous-total hébergement</dt><dd><?= money($booking['subtotal']) ?></dd>
+            <dt>Frais de ménage</dt><dd><?= money($booking['cleaning_fee']) ?></dd>
+            <dt>Total test</dt><dd><strong><?= money($booking['total_price']) ?></strong></dd>
+        </dl>
         <p>Aucun numéro de carte réel n’est demandé. Choisissez simplement un scénario de démonstration.</p>
-        <button class="button full" name="scenario" value="success" type="submit">Simuler le paiement réussi</button>
-        <button class="button secondary full" name="scenario" value="failure" type="submit">Simuler un échec</button>
+        <button class="button full" name="scenario" value="success" type="submit" data-track="booking_payment_test_success">Simuler le paiement réussi</button>
+        <button class="button secondary full" name="scenario" value="failure" type="submit" data-track="booking_payment_test_failure">Simuler un échec</button>
     </form>
 </section>

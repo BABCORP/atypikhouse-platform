@@ -51,6 +51,61 @@ final class AuthController extends Controller
         $this->view('auth/register', ['title' => 'Inscription', 'role' => input('role', 'tenant')]);
     }
 
+    public function forgotPassword(): void
+    {
+        $this->view('auth/forgot-password', [
+            'title' => 'Mot de passe oublié',
+            'metaDescription' => 'Réinitialisation locale de démonstration pour le projet étudiant AtypikHouse.',
+        ]);
+    }
+
+    public function sendResetLink(): void
+    {
+        verify_csrf();
+        $email = strtolower(trim((string) input('email')));
+        if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $user = (new User())->findByEmail($email);
+            if ($user && $user['status'] !== 'suspended') {
+                $token = bin2hex(random_bytes(32));
+                (new User())->createPasswordReset((int) $user['id'], hash('sha256', $token));
+                audit((int) $user['id'], 'password_reset_requested', 'user', (int) $user['id']);
+                flash('demo_link', 'Lien de démonstration local : ' . url('/reinitialiser-mot-de-passe/' . $token));
+            }
+        }
+        flash('success', 'Si un compte actif existe pour cette adresse, un lien de réinitialisation de démonstration est disponible.');
+        $this->redirect('/mot-de-passe-oublie');
+    }
+
+    public function resetPassword(string $token): void
+    {
+        $reset = (new User())->findPasswordReset(hash('sha256', $token));
+        if (!$reset) {
+            flash('error', 'Lien expiré ou invalide.');
+            $this->redirect('/mot-de-passe-oublie');
+        }
+        $this->view('auth/reset-password', ['title' => 'Nouveau mot de passe', 'token' => $token]);
+    }
+
+    public function updateResetPassword(string $token): void
+    {
+        verify_csrf();
+        $model = new User();
+        $reset = $model->findPasswordReset(hash('sha256', $token));
+        if (!$reset) {
+            flash('error', 'Lien expiré ou invalide.');
+            $this->redirect('/mot-de-passe-oublie');
+        }
+        if (strlen((string) input('password')) < 8 || input('password') !== input('password_confirmation')) {
+            flash('error', 'Le mot de passe doit contenir au moins 8 caractères et être confirmé.');
+            $this->redirect('/reinitialiser-mot-de-passe/' . $token);
+        }
+        $model->updatePassword((int) $reset['user_id'], (string) input('password'));
+        $model->deletePasswordResets((int) $reset['user_id']);
+        audit((int) $reset['user_id'], 'password_reset_completed', 'user', (int) $reset['user_id']);
+        flash('success', 'Mot de passe mis à jour. Vous pouvez vous connecter.');
+        $this->redirect('/connexion');
+    }
+
     public function store(): void
     {
         verify_csrf();

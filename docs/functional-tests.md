@@ -26,6 +26,7 @@
 - Vérifier le calcul : prix par nuit x nuits + frais de ménage.
 - Simuler un paiement réussi, vérifier `status=confirmed` et `payment_status=test_paid`.
 - Simuler un paiement échoué, vérifier que la réservation reste non confirmée.
+- Depuis `/proprietaire/disponibilites`, définir un prix spécifique sur une nuit future, réserver cette nuit côté locataire et vérifier que le total utilise le prix override + frais de ménage.
 
 ## Propriétaire
 
@@ -34,16 +35,22 @@
 - Modifier son propre logement.
 - Tenter d’éditer l’URL d’un logement d’un autre propriétaire, vérifier le refus.
 - Soumettre un logement à validation.
-- Définir une date indisponible dans `/proprietaire/disponibilites`.
+- Définir une plage indisponible dans `/proprietaire/disponibilites` et vérifier que les dates sont bloquées.
+- Définir une plage disponible avec prix spécifique, vérifier l’aperçu des disponibilités à venir.
+- Modifier le texte alternatif d’une image, définir une image principale puis supprimer une image.
 - Vérifier que seules les réservations de ses logements sont visibles.
+- Filtrer les réservations reçues par logement, statut et dates.
 
 ## Admin
 
 - Ouvrir `/admin/dashboard`, vérifier les statistiques globales.
 - Lister les utilisateurs et suspendre un compte.
+- Modifier un utilisateur depuis `/admin/utilisateurs/{id}/modifier` : prénom, nom, email, téléphone, rôle et statut.
+- Vérifier qu’il est impossible de suspendre, rétrograder ou désactiver le dernier administrateur actif.
 - Approuver ou rejeter un profil propriétaire.
 - Publier, rejeter ou archiver un logement.
 - Modifier le statut d’une réservation.
+- Ouvrir `/admin/reservations/{id}` et vérifier le détail complet : locataire, logement, dates, prix, paiement test et statut.
 - Publier ou rejeter un avis.
 - Supprimer un avis depuis la modération.
 - Créer un article de blog.
@@ -67,3 +74,5 @@
 - Saisir `<script>alert(1)</script>` dans un message, vérifier que l’affichage est échappé.
 - Vérifier qu’un propriétaire ne peut pas modifier un logement qui ne lui appartient pas.
 - Vérifier qu’un locataire ne peut pas consulter la réservation d’un autre locataire.
+- Demander `/mot-de-passe-oublie`, vérifier le message neutre, ouvrir le lien local de démonstration, changer le mot de passe puis vérifier que le token est supprimé.
+- Refuser les cookies et vérifier que les placeholders GA/GTM ne sont pas chargés ; accepter et vérifier le push `cookie_consent_accept` dans `dataLayer`.

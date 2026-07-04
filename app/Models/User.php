@@ -20,6 +20,13 @@ final class User extends Model
         return $stmt->fetch() ?: null;
     }
 
+    public function emailExistsForOther(string $email, int $userId): bool
+    {
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM users WHERE email = ? AND id <> ?');
+        $stmt->execute([strtolower(trim($email)), $userId]);
+        return (int) $stmt->fetchColumn() > 0;
+    }
+
     public function create(array $data): int
     {
         $stmt = $this->db->prepare('INSERT INTO users (first_name, last_name, email, password_hash, phone, role, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, "active", NOW(), NOW())');
@@ -72,6 +79,25 @@ final class User extends Model
         $stmt->execute([$status, $id]);
     }
 
+    public function updateAdminUser(int $id, array $data): void
+    {
+        $stmt = $this->db->prepare('UPDATE users SET first_name = ?, last_name = ?, email = ?, phone = ?, role = ?, status = ?, updated_at = NOW() WHERE id = ?');
+        $stmt->execute([
+            trim($data['first_name']),
+            trim($data['last_name']),
+            strtolower(trim($data['email'])),
+            trim($data['phone'] ?? ''),
+            $data['role'],
+            $data['status'],
+            $id,
+        ]);
+    }
+
+    public function activeAdminCount(): int
+    {
+        return (int) $this->db->query('SELECT COUNT(*) FROM users WHERE role = "admin" AND status = "active"')->fetchColumn();
+    }
+
     public function updateProfile(int $id, array $data): void
     {
         $stmt = $this->db->prepare('UPDATE users SET first_name = ?, last_name = ?, phone = ?, updated_at = NOW() WHERE id = ?');
@@ -82,6 +108,25 @@ final class User extends Model
     {
         $stmt = $this->db->prepare('UPDATE users SET password_hash = ?, updated_at = NOW() WHERE id = ?');
         $stmt->execute([password_hash($password, PASSWORD_DEFAULT), $id]);
+    }
+
+    public function createPasswordReset(int $userId, string $tokenHash): void
+    {
+        $this->db->prepare('DELETE FROM password_resets WHERE user_id = ?')->execute([$userId]);
+        $stmt = $this->db->prepare('INSERT INTO password_resets (user_id, token, expires_at, created_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR), NOW())');
+        $stmt->execute([$userId, $tokenHash]);
+    }
+
+    public function findPasswordReset(string $tokenHash): ?array
+    {
+        $stmt = $this->db->prepare('SELECT pr.*, u.email FROM password_resets pr JOIN users u ON u.id = pr.user_id WHERE pr.token = ? AND pr.expires_at >= NOW() LIMIT 1');
+        $stmt->execute([$tokenHash]);
+        return $stmt->fetch() ?: null;
+    }
+
+    public function deletePasswordResets(int $userId): void
+    {
+        $this->db->prepare('DELETE FROM password_resets WHERE user_id = ?')->execute([$userId]);
     }
 
     public function ownerProfiles(): array

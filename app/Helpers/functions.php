@@ -134,3 +134,56 @@ function valid_date(string $date): bool
     $value = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
     return $value !== false && $value->format('Y-m-d') === $date;
 }
+
+function status_label(?string $status): string
+{
+    return [
+        'active' => 'Actif',
+        'pending' => 'En attente',
+        'suspended' => 'Suspendu',
+        'draft' => 'Brouillon',
+        'published' => 'Publié',
+        'rejected' => 'Refusé',
+        'archived' => 'Archivé',
+        'pending_payment' => 'Paiement en attente',
+        'confirmed' => 'Confirmée',
+        'cancelled' => 'Annulée',
+        'completed' => 'Terminée',
+        'not_paid' => 'Non payé',
+        'test_paid' => 'Payé en test',
+        'refunded' => 'Remboursé',
+        'test_pending' => 'Test en attente',
+        'test_success' => 'Test réussi',
+        'test_failed' => 'Test échoué',
+        'test_refunded' => 'Test remboursé',
+        'approved' => 'Approuvé',
+        'read' => 'Lu',
+        'new' => 'Nouveau',
+    ][$status ?? ''] ?? (string) $status;
+}
+
+function role_label(?string $role): string
+{
+    return [
+        'tenant' => 'Locataire',
+        'owner' => 'Propriétaire',
+        'admin' => 'Administrateur',
+    ][$role ?? ''] ?? (string) $role;
+}
+
+function property_type_label(?string $type): string
+{
+    return [
+        'treehouse' => 'Cabane dans les arbres',
+        'yurt' => 'Yourte nature',
+        'floating_cabin' => 'Cabane flottante',
+        'tiny_house' => 'Tiny house',
+        'dome' => 'Dôme',
+        'other' => 'Autre insolite',
+    ][$type ?? ''] ?? (string) $type;
+}
+
+function current_url(): string
+{
+    return url(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/');
+}

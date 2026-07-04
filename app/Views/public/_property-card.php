@@ -5,7 +5,7 @@
     </div>
     <div class="card-body">
         <h3><a href="<?= url('/hebergements/' . $property['slug']) ?>"><?= e($property['title']) ?></a></h3>
-        <p class="card-location"><?= e($property['city']) ?> · <?= e(str_replace('_', ' ', $property['type'])) ?></p>
+        <p class="card-location"><?= e($property['city']) ?> · <?= property_type_label($property['type']) ?></p>
         <div class="meta-line">
             <span><?= (int) $property['capacity'] ?> voyageur(s)</span>
             <span aria-label="Note"><?= number_format((float) ($property['avg_rating'] ?? 0), 1, ',', ' ') ?>/5</span>

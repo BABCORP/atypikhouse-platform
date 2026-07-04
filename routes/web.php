@@ -17,6 +17,7 @@ $router->get('/blog', [PublicController::class, 'blog']);
 $router->get('/blog/{slug}', [PublicController::class, 'blogPost']);
 $router->get('/contact', [PublicController::class, 'contact']);
 $router->post('/contact', [PublicController::class, 'sendContact']);
+$router->post('/newsletter', [PublicController::class, 'newsletter']);
 $router->get('/faq', [PublicController::class, 'faq']);
 $router->get('/mentions-legales', [PublicController::class, 'legal']);
 $router->get('/cgu', [PublicController::class, 'legal']);
@@ -26,6 +27,10 @@ $router->get('/cookies', [PublicController::class, 'legal']);
 
 $router->get('/connexion', [AuthController::class, 'login']);
 $router->post('/connexion', [AuthController::class, 'authenticate']);
+$router->get('/mot-de-passe-oublie', [AuthController::class, 'forgotPassword']);
+$router->post('/mot-de-passe-oublie', [AuthController::class, 'sendResetLink']);
+$router->get('/reinitialiser-mot-de-passe/{token}', [AuthController::class, 'resetPassword']);
+$router->post('/reinitialiser-mot-de-passe/{token}', [AuthController::class, 'updateResetPassword']);
 $router->get('/inscription', [AuthController::class, 'register']);
 $router->post('/inscription', [AuthController::class, 'store']);
 $router->post('/deconnexion', [AuthController::class, 'logout']);
@@ -52,6 +57,9 @@ $router->get('/proprietaire/logements/{id}/modifier', [OwnerController::class, '
 $router->post('/proprietaire/logements/{id}/modifier', [OwnerController::class, 'updateProperty']);
 $router->post('/proprietaire/logements/{id}/soumettre', [OwnerController::class, 'submitProperty']);
 $router->post('/proprietaire/logements/{id}/supprimer', [OwnerController::class, 'deleteProperty']);
+$router->post('/proprietaire/logements/{propertyId}/images/{imageId}/principale', [OwnerController::class, 'setMainImage']);
+$router->post('/proprietaire/logements/{propertyId}/images/{imageId}/alt', [OwnerController::class, 'updateImageAlt']);
+$router->post('/proprietaire/logements/{propertyId}/images/{imageId}/supprimer', [OwnerController::class, 'deleteImage']);
 $router->get('/proprietaire/disponibilites', [OwnerController::class, 'availability']);
 $router->post('/proprietaire/disponibilites', [OwnerController::class, 'storeAvailability']);
 $router->get('/proprietaire/reservations', [OwnerController::class, 'reservations']);
@@ -60,12 +68,15 @@ $router->post('/proprietaire/profil', [OwnerController::class, 'updateProfile'])
 
 $router->get('/admin/dashboard', [AdminController::class, 'dashboard']);
 $router->get('/admin/utilisateurs', [AdminController::class, 'users']);
+$router->get('/admin/utilisateurs/{id}/modifier', [AdminController::class, 'editUser']);
+$router->post('/admin/utilisateurs/{id}/modifier', [AdminController::class, 'updateUser']);
 $router->post('/admin/utilisateurs/{id}/statut', [AdminController::class, 'updateUserStatus']);
 $router->get('/admin/proprietaires', [AdminController::class, 'owners']);
 $router->post('/admin/proprietaires/{id}/statut', [AdminController::class, 'updateOwnerStatus']);
 $router->get('/admin/logements', [AdminController::class, 'properties']);
 $router->post('/admin/logements/{id}/statut', [AdminController::class, 'updatePropertyStatus']);
 $router->get('/admin/reservations', [AdminController::class, 'bookings']);
+$router->get('/admin/reservations/{id}', [AdminController::class, 'bookingDetail']);
 $router->post('/admin/reservations/{id}/statut', [AdminController::class, 'updateBookingStatus']);
 $router->get('/admin/avis', [AdminController::class, 'reviews']);
 $router->post('/admin/avis/{id}/statut', [AdminController::class, 'updateReviewStatus']);

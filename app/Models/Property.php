@@ -117,6 +117,13 @@ final class Property extends Model
         return $stmt->fetchAll();
     }
 
+    public function imageForOwnedProperty(int $propertyId, int $imageId, int $ownerId): ?array
+    {
+        $stmt = $this->db->prepare('SELECT pi.* FROM property_images pi JOIN properties p ON p.id = pi.property_id WHERE pi.id = ? AND pi.property_id = ? AND p.owner_id = ? LIMIT 1');
+        $stmt->execute([$imageId, $propertyId, $ownerId]);
+        return $stmt->fetch() ?: null;
+    }
+
     public function create(int $ownerId, array $data, ?string $uploadedImage = null): int
     {
         $slug = slugify($data['title']);
@@ -178,6 +185,50 @@ final class Property extends Model
         }
     }
 
+    public function addGalleryImage(int $propertyId, int $ownerId, string $path, string $altText): bool
+    {
+        if (!$this->findOwned($propertyId, $ownerId)) {
+            return false;
+        }
+        $this->db->prepare('UPDATE property_images SET is_main = 0 WHERE property_id = ?')->execute([$propertyId]);
+        $this->addImage($propertyId, $path, $altText);
+        return true;
+    }
+
+    public function updateImageAlt(int $propertyId, int $imageId, int $ownerId, string $altText): bool
+    {
+        if (!$this->imageForOwnedProperty($propertyId, $imageId, $ownerId)) {
+            return false;
+        }
+        $stmt = $this->db->prepare('UPDATE property_images SET alt_text = ? WHERE id = ? AND property_id = ?');
+        $stmt->execute([trim($altText), $imageId, $propertyId]);
+        return true;
+    }
+
+    public function setMainImage(int $propertyId, int $imageId, int $ownerId): bool
+    {
+        if (!$this->imageForOwnedProperty($propertyId, $imageId, $ownerId)) {
+            return false;
+        }
+        $this->db->prepare('UPDATE property_images SET is_main = 0 WHERE property_id = ?')->execute([$propertyId]);
+        $this->db->prepare('UPDATE property_images SET is_main = 1 WHERE id = ? AND property_id = ?')->execute([$imageId, $propertyId]);
+        return true;
+    }
+
+    public function deleteImage(int $propertyId, int $imageId, int $ownerId): bool
+    {
+        $image = $this->imageForOwnedProperty($propertyId, $imageId, $ownerId);
+        if (!$image) {
+            return false;
+        }
+        $this->db->prepare('DELETE FROM property_images WHERE id = ? AND property_id = ?')->execute([$imageId, $propertyId]);
+        $this->ensureImage($propertyId);
+        if ((int) $image['is_main'] === 1) {
+            $this->db->prepare('UPDATE property_images SET is_main = 1 WHERE property_id = ? ORDER BY id ASC LIMIT 1')->execute([$propertyId]);
+        }
+        return true;
+    }
+
     public function submit(int $id, int $ownerId): void
     {
         $stmt = $this->db->prepare('UPDATE properties SET status = "pending", updated_at = NOW() WHERE id = ? AND owner_id = ? AND status IN ("draft", "rejected")');
@@ -208,11 +259,33 @@ final class Property extends Model
         $stmt->execute([$propertyId, $date, $isAvailable ? 1 : 0, $priceOverride]);
     }
 
+    public function setAvailabilityRange(int $propertyId, string $start, string $end, bool $isAvailable, ?float $priceOverride): int
+    {
+        $current = new \DateTimeImmutable($start);
+        $last = new \DateTimeImmutable($end);
+        $count = 0;
+        while ($current <= $last) {
+            $this->setAvailability($propertyId, $current->format('Y-m-d'), $isAvailable, $priceOverride);
+            $current = $current->modify('+1 day');
+            $count++;
+        }
+        return $count;
+    }
+
     public function availabilities(int $propertyId): array
     {
         $stmt = $this->db->prepare('SELECT * FROM property_availabilities WHERE property_id = ? AND date >= CURDATE() ORDER BY date ASC LIMIT 45');
         $stmt->execute([$propertyId]);
         return $stmt->fetchAll();
+    }
+
+    private function ensureImage(int $propertyId): void
+    {
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM property_images WHERE property_id = ?');
+        $stmt->execute([$propertyId]);
+        if ((int) $stmt->fetchColumn() === 0) {
+            $this->addImage($propertyId, 'assets/img/properties/default-placeholder.svg', 'Image temporaire du logement');
+        }
     }
 
     private function replaceAmenities(int $propertyId, string|array $amenities): void

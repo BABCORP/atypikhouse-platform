@@ -35,6 +35,11 @@ if (!config('debug')) {
     ini_set('display_errors', '0');
 }
 
+header('X-Frame-Options: SAMEORIGIN');
+header('X-Content-Type-Options: nosniff');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()');
+
 $router = new App\Core\Router();
 require dirname(__DIR__) . '/routes/web.php';
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

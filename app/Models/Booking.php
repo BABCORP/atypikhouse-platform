@@ -25,10 +25,11 @@ final class Booking extends Model
 
     public function create(array $property, int $tenantId, array $data): int
     {
-        $nights = nights_between($data['start_date'], $data['end_date']);
-        $subtotal = $nights * (float) $property['price_per_night'];
+        $pricing = $this->calculatePrice((int) $property['id'], (string) $data['start_date'], (string) $data['end_date'], (float) $property['price_per_night'], (float) $property['cleaning_fee']);
+        $nights = $pricing['nights'];
+        $subtotal = $pricing['subtotal'];
         $cleaning = (float) $property['cleaning_fee'];
-        $total = $subtotal + $cleaning;
+        $total = $pricing['total'];
 
         $stmt = $this->db->prepare('INSERT INTO bookings (property_id, tenant_id, start_date, end_date, nights, guests_count, subtotal, cleaning_fee, total_price, status, payment_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, "pending_payment", "not_paid", NOW(), NOW())');
         $stmt->execute([
@@ -43,6 +44,48 @@ final class Booking extends Model
             $total,
         ]);
         return (int) $this->db->lastInsertId();
+    }
+
+    public function calculatePrice(int $propertyId, string $start, string $end, float $basePrice, float $cleaningFee): array
+    {
+        $prices = $this->nightlyPrices($propertyId, $start, $end, $basePrice);
+        $subtotal = array_sum(array_column($prices, 'price'));
+
+        return [
+            'nights' => count($prices),
+            'nights_prices' => $prices,
+            'subtotal' => $subtotal,
+            'cleaning_fee' => $cleaningFee,
+            'total' => $subtotal + $cleaningFee,
+        ];
+    }
+
+    public function nightlyPrices(int $propertyId, string $start, string $end, float $basePrice): array
+    {
+        if (!valid_date($start) || !valid_date($end) || nights_between($start, $end) < 1) {
+            return [];
+        }
+
+        $stmt = $this->db->prepare('SELECT date, price_override FROM property_availabilities WHERE property_id = ? AND date >= ? AND date < ? AND price_override IS NOT NULL');
+        $stmt->execute([$propertyId, $start, $end]);
+        $overrides = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $overrides[$row['date']] = (float) $row['price_override'];
+        }
+
+        $prices = [];
+        $current = new \DateTimeImmutable($start);
+        $last = new \DateTimeImmutable($end);
+        while ($current < $last) {
+            $date = $current->format('Y-m-d');
+            $prices[] = [
+                'date' => $date,
+                'price' => $overrides[$date] ?? $basePrice,
+                'is_override' => array_key_exists($date, $overrides),
+            ];
+            $current = $current->modify('+1 day');
+        }
+        return $prices;
     }
 
     public function findForTenant(int $id, int $tenantId): ?array
@@ -66,17 +109,58 @@ final class Booking extends Model
         return $stmt->fetchAll();
     }
 
-    public function ownerBookings(int $ownerId): array
+    public function ownerBookings(int $ownerId, array $filters = []): array
     {
-        $stmt = $this->db->prepare('SELECT b.*, p.title, p.slug, u.email AS tenant_email FROM bookings b JOIN properties p ON p.id = b.property_id JOIN users u ON u.id = b.tenant_id WHERE p.owner_id = ? ORDER BY b.start_date DESC');
-        $stmt->execute([$ownerId]);
+        $sql = 'SELECT b.*, p.title, p.slug, u.email AS tenant_email FROM bookings b JOIN properties p ON p.id = b.property_id JOIN users u ON u.id = b.tenant_id WHERE p.owner_id = ?';
+        $params = [$ownerId];
+        if (!empty($filters['property_id'])) {
+            $sql .= ' AND p.id = ?';
+            $params[] = (int) $filters['property_id'];
+        }
+        if (!empty($filters['status'])) {
+            $sql .= ' AND b.status = ?';
+            $params[] = $filters['status'];
+        }
+        if (!empty($filters['start_date']) && valid_date($filters['start_date'])) {
+            $sql .= ' AND b.start_date >= ?';
+            $params[] = $filters['start_date'];
+        }
+        if (!empty($filters['end_date']) && valid_date($filters['end_date'])) {
+            $sql .= ' AND b.end_date <= ?';
+            $params[] = $filters['end_date'];
+        }
+        $sql .= ' ORDER BY b.start_date DESC';
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
-    public function all(): array
+    public function all(array $filters = []): array
     {
-        $stmt = $this->db->query('SELECT b.*, p.title, u.email AS tenant_email FROM bookings b JOIN properties p ON p.id = b.property_id JOIN users u ON u.id = b.tenant_id ORDER BY b.created_at DESC');
+        $sql = 'SELECT b.*, p.title, p.slug, u.email AS tenant_email FROM bookings b JOIN properties p ON p.id = b.property_id JOIN users u ON u.id = b.tenant_id WHERE 1=1';
+        $params = [];
+        if (!empty($filters['status'])) {
+            $sql .= ' AND b.status = ?';
+            $params[] = $filters['status'];
+        }
+        $sql .= ' ORDER BY b.created_at DESC';
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll();
+    }
+
+    public function findForAdmin(int $id): ?array
+    {
+        $stmt = $this->db->prepare('SELECT b.*, p.title, p.slug, p.city, p.owner_id, u.first_name AS tenant_first_name, u.last_name AS tenant_last_name, u.email AS tenant_email, pay.test_transaction_id, pay.status AS payment_provider_status, pay.created_at AS payment_created_at
+            FROM bookings b
+            JOIN properties p ON p.id = b.property_id
+            JOIN users u ON u.id = b.tenant_id
+            LEFT JOIN payments pay ON pay.booking_id = b.id
+            WHERE b.id = ?
+            ORDER BY pay.created_at DESC
+            LIMIT 1');
+        $stmt->execute([$id]);
+        return $stmt->fetch() ?: null;
     }
 
     public function simulatePayment(int $bookingId, bool $success): bool

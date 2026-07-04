@@ -31,7 +31,7 @@ DB_PORT=3306
 DB_DATABASE=atypikhouse
 DB_USERNAME=root
 DB_PASSWORD=
-APP_URL=http://localhost:8000
+APP_URL=http://127.0.0.1:8010
 ```
 
 Configuration habituelle avec MAMP :
@@ -43,13 +43,13 @@ export DB_DATABASE=atypikhouse
 export DB_USERNAME=root
 export DB_PASSWORD=root
 export DB_SOCKET=/Applications/MAMP/tmp/mysql/mysql.sock
-export APP_URL=http://localhost:8000
+export APP_URL=http://127.0.0.1:8010
 ```
 
 5. Lancer en local depuis la racine :
 
 ```bash
-php -S localhost:8000 -t public public/index.php
+php -S 127.0.0.1:8010 -t public public/index.php
 ```
 
 ## Comptes de démonstration
@@ -69,10 +69,12 @@ php -S localhost:8000 -t public public/index.php
 - Avis modérés par administrateur.
 - Dashboard locataire : réservations, détail, avis, profil.
 - Dashboard propriétaire : logements, création/modification, upload image contrôlé, soumission, disponibilités, réservations.
-- Dashboard administrateur : statistiques, utilisateurs, propriétaires, logements, réservations, avis, CRUD blog, messages, logs.
+- Dashboard propriétaire : galerie d’images avec texte alternatif, image principale, suppression sécurisée et gestion de plages de disponibilité avec prix spécifique.
+- Dashboard administrateur : statistiques, édition complète des utilisateurs, propriétaires, logements, détail réservation, avis, CRUD blog, messages, logs.
+- Réinitialisation de mot de passe locale de démonstration, sans envoi email réel.
 - Contact avec protection CSRF.
-- Fichiers SEO : `robots.txt`, `sitemap.xml`, métadonnées et URLs propres.
-- Structure tracking-ready avec attributs `data-track`.
+- Fichiers SEO : `robots.txt`, `sitemap.xml`, canonical, Open Graph, JSON-LD blog/logement et URLs propres.
+- Structure tracking-ready avec attributs `data-track`, `dataLayer`, placeholders `GA4_ID`/`GTM_ID` et consentement cookies.
 - Identité visuelle alignée sur la charte AtypikHouse 2026 et photographies de démonstration issues des maquettes fournies.
 
 ## Structure
@@ -105,10 +107,19 @@ storage/
 - Limitation simple des tentatives de connexion.
 - Upload d’images limité à JPG/PNG/WEBP, 5 Mo maximum, fichiers stockés dans `storage/uploads`.
 - Audit logs pour actions sensibles.
+- Headers de sécurité légers : `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`.
 - Aucun paiement réel, aucun numéro de carte réel.
+
+## Données, cookies et analytics
+
+Les formulaires contact/newsletter stockent des données uniquement dans la base locale de démonstration. La newsletter réutilise `contact_messages` avec le sujet `Newsletter`; aucune intégration Brevo ni aucun email réel n’est déclenché.
+
+Le bandeau cookies mémorise le choix dans `localStorage`. GA4/GTM ne sont chargés que si un identifiant est fourni par variable d’environnement et si le consentement est accepté.
 
 ## Notes MVP
 
 Le projet est volontairement léger pour rester compatible avec un environnement PHP local académique. Le jeu de démonstration inclut des visuels de maquette ; si un propriétaire ne téléverse aucune image, le MVP utilise un placeholder accessible.
+
+Limites assumées : pas d’email réel, pas de paiement réel, pas de passerelle Brevo/Stripe, pas de calendrier JavaScript avancé, pas de système de suppression RGPD automatisé complet. Ces points sont simulés ou documentés pour la soutenance.
 
 Les vérifications réalisées sur MAMP sont détaillées dans `docs/validation-report.md`.

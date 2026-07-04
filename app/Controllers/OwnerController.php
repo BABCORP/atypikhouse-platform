@@ -57,7 +57,13 @@ final class OwnerController extends Controller
             http_response_code(404);
             exit('Logement introuvable.');
         }
-        $this->view('dashboard/property-form', ['title' => 'Modifier un logement', 'property' => $property]);
+        $model = new Property();
+        $this->view('dashboard/property-form', [
+            'title' => 'Modifier un logement',
+            'property' => $property,
+            'images' => $model->images($id),
+            'amenities' => $model->amenities($id),
+        ]);
     }
 
     public function updateProperty(int $id): void
@@ -73,8 +79,50 @@ final class OwnerController extends Controller
         }
         (new Property())->update($id, (int) $user['id'], $_POST, $image);
         audit((int) $user['id'], 'property_update', 'property', $id);
+        if ($image) {
+            audit((int) $user['id'], 'property_image_add', 'property', $id);
+        }
         flash('success', 'Logement mis à jour.');
         $this->redirect('/proprietaire/logements');
+    }
+
+    public function updateImageAlt(int $propertyId, int $imageId): void
+    {
+        $user = Auth::requireRole('owner');
+        verify_csrf();
+        if (!(new Property())->updateImageAlt($propertyId, $imageId, (int) $user['id'], (string) input('alt_text', ''))) {
+            http_response_code(403);
+            exit('Accès refusé.');
+        }
+        audit((int) $user['id'], 'property_image_alt_update', 'property_image', $imageId);
+        flash('success', 'Texte alternatif mis à jour.');
+        $this->redirect('/proprietaire/logements/' . $propertyId . '/modifier');
+    }
+
+    public function setMainImage(int $propertyId, int $imageId): void
+    {
+        $user = Auth::requireRole('owner');
+        verify_csrf();
+        if (!(new Property())->setMainImage($propertyId, $imageId, (int) $user['id'])) {
+            http_response_code(403);
+            exit('Accès refusé.');
+        }
+        audit((int) $user['id'], 'property_image_main_update', 'property_image', $imageId);
+        flash('success', 'Image principale mise à jour.');
+        $this->redirect('/proprietaire/logements/' . $propertyId . '/modifier');
+    }
+
+    public function deleteImage(int $propertyId, int $imageId): void
+    {
+        $user = Auth::requireRole('owner');
+        verify_csrf();
+        if (!(new Property())->deleteImage($propertyId, $imageId, (int) $user['id'])) {
+            http_response_code(403);
+            exit('Accès refusé.');
+        }
+        audit((int) $user['id'], 'property_image_delete', 'property_image', $imageId);
+        flash('success', 'Image supprimée. Un visuel temporaire est conservé si nécessaire.');
+        $this->redirect('/proprietaire/logements/' . $propertyId . '/modifier');
     }
 
     public function submitProperty(int $id): void
@@ -99,31 +147,59 @@ final class OwnerController extends Controller
     public function availability(): void
     {
         $user = Auth::requireRole('owner');
-        $this->view('dashboard/availability', ['title' => 'Disponibilités', 'properties' => (new Property())->ownerProperties((int) $user['id'])]);
+        $model = new Property();
+        $properties = $model->ownerProperties((int) $user['id']);
+        $selectedId = (int) (input('property_id') ?: ($properties[0]['id'] ?? 0));
+        $selected = $selectedId ? $model->findOwned($selectedId, (int) $user['id']) : null;
+        $this->view('dashboard/availability', [
+            'title' => 'Disponibilités',
+            'properties' => $properties,
+            'selectedPropertyId' => $selected ? (int) $selected['id'] : null,
+            'availabilities' => $selected ? $model->availabilities((int) $selected['id']) : [],
+        ]);
     }
 
     public function storeAvailability(): void
     {
         $user = Auth::requireRole('owner');
         verify_csrf();
+        $start = (string) input('start_date', input('date', ''));
+        $end = (string) input('end_date', $start);
         $property = (new Property())->findOwned((int) input('property_id'), (int) $user['id']);
         if (!$property) {
             http_response_code(403);
             exit('Accès refusé.');
         }
-        if (!valid_date((string) input('date')) || input('date') < date('Y-m-d')) {
-            flash('error', 'Choisissez une date valide et future.');
+        if (!valid_date($start) || !valid_date($end) || $start < date('Y-m-d') || $end < $start) {
+            flash('error', 'Choisissez une plage de dates valide et future.');
             $this->redirect('/proprietaire/disponibilites');
         }
-        (new Property())->setAvailability((int) $property['id'], (string) input('date'), input('is_available') === '1', input('price_override') !== '' ? (float) input('price_override') : null);
-        flash('success', 'Disponibilité enregistrée.');
+        if (nights_between($start, (new \DateTimeImmutable($end))->modify('+1 day')->format('Y-m-d')) > 90) {
+            flash('error', 'La plage ne peut pas dépasser 90 jours.');
+            $this->redirect('/proprietaire/disponibilites');
+        }
+        $count = (new Property())->setAvailabilityRange((int) $property['id'], $start, $end, input('is_available') === '1', input('price_override') !== '' ? (float) input('price_override') : null);
+        audit((int) $user['id'], 'availability_range_update', 'property', (int) $property['id']);
+        flash('success', $count . ' date(s) de disponibilité enregistrée(s).');
         $this->redirect('/proprietaire/disponibilites');
     }
 
     public function reservations(): void
     {
         $user = Auth::requireRole('owner');
-        $this->view('dashboard/bookings', ['title' => 'Réservations reçues', 'bookings' => (new Booking())->ownerBookings((int) $user['id']), 'scope' => 'owner']);
+        $filters = [
+            'property_id' => trim((string) input('property_id', '')),
+            'status' => trim((string) input('status', '')),
+            'start_date' => trim((string) input('start_date', '')),
+            'end_date' => trim((string) input('end_date', '')),
+        ];
+        $this->view('dashboard/bookings', [
+            'title' => 'Réservations reçues',
+            'bookings' => (new Booking())->ownerBookings((int) $user['id'], $filters),
+            'properties' => (new Property())->ownerProperties((int) $user['id']),
+            'filters' => $filters,
+            'scope' => 'owner',
+        ]);
     }
 
     public function profile(): void
