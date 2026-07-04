@@ -151,11 +151,22 @@ final class OwnerController extends Controller
         $properties = $model->ownerProperties((int) $user['id']);
         $selectedId = (int) (input('property_id') ?: ($properties[0]['id'] ?? 0));
         $selected = $selectedId ? $model->findOwned($selectedId, (int) $user['id']) : null;
+        $availabilities = $selected ? $model->availabilities((int) $selected['id']) : [];
+        $bookedDates = $selected ? (new Booking())->bookedDatesForOwnerProperty((int) $selected['id'], (int) $user['id']) : [];
         $this->view('dashboard/availability', [
             'title' => 'Disponibilités',
             'properties' => $properties,
             'selectedPropertyId' => $selected ? (int) $selected['id'] : null,
-            'availabilities' => $selected ? $model->availabilities((int) $selected['id']) : [],
+            'availabilities' => $availabilities,
+            'calendarData' => [
+                'selectedPropertyId' => $selected ? (int) $selected['id'] : null,
+                'availabilities' => array_map(static fn (array $row): array => [
+                    'date' => $row['date'],
+                    'is_available' => (int) $row['is_available'],
+                    'price_override' => $row['price_override'] !== null ? (float) $row['price_override'] : null,
+                ], $availabilities),
+                'booked_dates' => $bookedDates,
+            ],
         ]);
     }
 

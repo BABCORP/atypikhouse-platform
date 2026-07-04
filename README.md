@@ -70,11 +70,13 @@ php -S 127.0.0.1:8010 -t public public/index.php
 - Dashboard locataire : réservations, détail, avis, profil.
 - Dashboard propriétaire : logements, création/modification, upload image contrôlé, soumission, disponibilités, réservations.
 - Dashboard propriétaire : galerie d’images avec texte alternatif, image principale, suppression sécurisée et gestion de plages de disponibilité avec prix spécifique.
+- Calendrier mensuel propriétaire en JavaScript vanilla pour visualiser disponibilités, indisponibilités, prix spécifiques et dates réservées.
 - Dashboard administrateur : statistiques, édition complète des utilisateurs, propriétaires, logements, détail réservation, avis, CRUD blog, messages, logs.
 - Réinitialisation de mot de passe locale de démonstration, sans envoi email réel.
 - Contact avec protection CSRF.
 - Fichiers SEO : `robots.txt`, `sitemap.xml`, canonical, Open Graph, JSON-LD blog/logement et URLs propres.
 - Structure tracking-ready avec attributs `data-track`, `dataLayer`, placeholders `GA4_ID`/`GTM_ID` et consentement cookies.
+- Formulaire `/mes-donnees` pour simuler les demandes RGPD : accès, rectification, suppression et opposition.
 - Identité visuelle alignée sur la charte AtypikHouse 2026 et photographies de démonstration issues des maquettes fournies.
 
 ## Structure
@@ -114,12 +116,22 @@ storage/
 
 Les formulaires contact/newsletter stockent des données uniquement dans la base locale de démonstration. La newsletter réutilise `contact_messages` avec le sujet `Newsletter`; aucune intégration Brevo ni aucun email réel n’est déclenché.
 
+Variables prévues pour une future intégration Brevo :
+
+```bash
+BREVO_API_KEY=
+BREVO_LIST_ID=
+BREVO_ENABLED=false
+```
+
+Même si `BREVO_ENABLED=true`, le MVP garde une protection académique : la structure d’intégration est prête, mais aucun appel réseau réel n’est déclenché par défaut.
+
 Le bandeau cookies mémorise le choix dans `localStorage`. GA4/GTM ne sont chargés que si un identifiant est fourni par variable d’environnement et si le consentement est accepté.
 
 ## Notes MVP
 
 Le projet est volontairement léger pour rester compatible avec un environnement PHP local académique. Le jeu de démonstration inclut des visuels de maquette ; si un propriétaire ne téléverse aucune image, le MVP utilise un placeholder accessible.
 
-Limites assumées : pas d’email réel, pas de paiement réel, pas de passerelle Brevo/Stripe, pas de calendrier JavaScript avancé, pas de système de suppression RGPD automatisé complet. Ces points sont simulés ou documentés pour la soutenance.
+Limites assumées : pas d’email réel, pas de paiement réel, pas de passerelle Brevo/Stripe, pas de calendrier planning professionnel avec drag-and-drop, pas de système de suppression RGPD automatisé complet. Ces points sont simulés ou documentés pour la soutenance.
 
 Les vérifications réalisées sur MAMP sont détaillées dans `docs/validation-report.md`.

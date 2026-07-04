@@ -23,7 +23,8 @@ Un visiteur peut consulter l’accueil, le concept, le catalogue, les fiches log
 4. Soumettre le logement à validation.
 5. Gérer la galerie : texte alternatif, image principale, ajout/suppression d’image.
 6. Gérer les disponibilités par plage et définir un prix spécifique optionnel.
-7. Suivre les réservations reçues et filtrer par logement, statut ou période.
+7. Utiliser le calendrier mensuel pour visualiser dates disponibles, indisponibles, prix spécifiques et dates réservées.
+8. Suivre les réservations reçues et filtrer par logement, statut ou période.
 
 ## Administrateur
 
@@ -38,6 +39,14 @@ Un visiteur peut consulter l’accueil, le concept, le catalogue, les fiches log
 ## Cookies et suivi
 
 Le visiteur peut accepter ou refuser les cookies de mesure. Aucun identifiant GA4/GTM réel n’est activé par défaut ; la structure est prête pour une intégration future.
+
+## Données personnelles
+
+Le visiteur peut déposer une demande simulée depuis `/mes-donnees`. Les demandes sont stockées dans les messages admin avec un badge RGPD. Il ne s’agit pas d’un traitement juridique réel ni d’une suppression automatique.
+
+## Newsletter
+
+La newsletter fonctionne en mode démonstration : l’email est stocké localement avec consentement. Les variables Brevo sont documentées pour une future intégration, mais aucun email réel n’est envoyé par défaut.
 
 ## Rappel académique
 

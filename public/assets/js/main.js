@@ -90,3 +90,93 @@ if (advancedFilters) {
   compactFilters.addEventListener("change", syncFilters);
   syncFilters();
 }
+
+const calendarRoot = document.querySelector("[data-availability-calendar]");
+if (calendarRoot) {
+  const payload = JSON.parse(calendarRoot.dataset.calendarPayload || "{}");
+  const availabilityByDate = new Map((payload.availabilities || []).map((item) => [item.date, item]));
+  const bookedDates = new Set(payload.booked_dates || []);
+  const title = document.querySelector("[data-calendar-title]");
+  const prev = document.querySelector("[data-calendar-prev]");
+  const next = document.querySelector("[data-calendar-next]");
+  const startInput = document.querySelector("input[name='start_date']");
+  const endInput = document.querySelector("input[name='end_date']");
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  let visibleMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const formatter = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" });
+
+  const isoDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const renderCalendar = () => {
+    const monthStart = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 1);
+    const monthEnd = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 0);
+    const firstOffset = (monthStart.getDay() + 6) % 7;
+    const cells = [];
+
+    if (title) {
+      title.textContent = formatter.format(visibleMonth);
+    }
+
+    for (let i = 0; i < firstOffset; i += 1) {
+      cells.push('<span class="calendar-empty" aria-hidden="true"></span>');
+    }
+
+    for (let day = 1; day <= monthEnd.getDate(); day += 1) {
+      const date = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), day);
+      const iso = isoDate(date);
+      const availability = availabilityByDate.get(iso);
+      const isPast = date < today;
+      const isBooked = bookedDates.has(iso);
+      const hasOverride = availability && availability.price_override !== null;
+      const unavailable = availability && Number(availability.is_available) === 0;
+      const classes = ["calendar-day"];
+      let label = "Prix standard";
+
+      if (isPast) {
+        classes.push("past");
+        label = "Date passée";
+      } else if (isBooked) {
+        classes.push("booked");
+        label = "Réservé";
+      } else if (unavailable) {
+        classes.push("unavailable");
+        label = "Indisponible";
+      } else {
+        classes.push("available");
+        label = "Disponible";
+      }
+      if (hasOverride) {
+        classes.push("override");
+        label = `${Number(availability.price_override).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}`;
+      }
+
+      cells.push(`<button type="button" class="${classes.join(" ")}" data-calendar-date="${iso}" ${isPast || isBooked ? "disabled" : ""} aria-label="${iso} - ${label}"><span>${day}</span><small>${label}</small></button>`);
+    }
+
+    calendarRoot.innerHTML = `<div class="calendar-weekdays" aria-hidden="true"><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span></div><div class="calendar-grid">${cells.join("")}</div>`;
+  };
+
+  prev?.addEventListener("click", () => {
+    visibleMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() - 1, 1);
+    renderCalendar();
+  });
+  next?.addEventListener("click", () => {
+    visibleMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 1);
+    renderCalendar();
+  });
+  calendarRoot.addEventListener("click", (event) => {
+    const button = event.target instanceof Element ? event.target.closest("[data-calendar-date]") : null;
+    if (!button || button.hasAttribute("disabled")) return;
+    const date = button.getAttribute("data-calendar-date");
+    if (startInput) startInput.value = date;
+    if (endInput) endInput.value = date;
+    startInput?.focus();
+  });
+  renderCalendar();
+}

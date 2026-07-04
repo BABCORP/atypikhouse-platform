@@ -37,6 +37,8 @@
 - Soumettre un logement à validation.
 - Définir une plage indisponible dans `/proprietaire/disponibilites` et vérifier que les dates sont bloquées.
 - Définir une plage disponible avec prix spécifique, vérifier l’aperçu des disponibilités à venir.
+- Vérifier le calendrier mensuel : légende, navigation mois précédent/suivant, dates passées désactivées, dates réservées non éditables et prix override visible.
+- Cliquer une date disponible dans le calendrier et vérifier le préremplissage début/fin du formulaire de plage.
 - Modifier le texte alternatif d’une image, définir une image principale puis supprimer une image.
 - Vérifier que seules les réservations de ses logements sont visibles.
 - Filtrer les réservations reçues par logement, statut et dates.
@@ -76,3 +78,5 @@
 - Vérifier qu’un locataire ne peut pas consulter la réservation d’un autre locataire.
 - Demander `/mot-de-passe-oublie`, vérifier le message neutre, ouvrir le lien local de démonstration, changer le mot de passe puis vérifier que le token est supprimé.
 - Refuser les cookies et vérifier que les placeholders GA/GTM ne sont pas chargés ; accepter et vérifier le push `cookie_consent_accept` dans `dataLayer`.
+- Soumettre une newsletter avec consentement, vérifier le message succès et l’audit `newsletter_demo_subscribe`.
+- Soumettre `/mes-donnees` pour une demande d’accès, vérifier l’audit `privacy_request_submit` et l’apparition dans `/admin/messages` avec badge RGPD.

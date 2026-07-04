@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Helpers\NewsletterService;
 use App\Models\BlogPost;
 use App\Models\ContactMessage;
 use App\Models\Property;
@@ -184,15 +185,57 @@ final class PublicController extends Controller
             flash('error', 'Merci d’indiquer une adresse email valide et d’accepter le consentement newsletter de démonstration.');
             $this->redirect($_SERVER['HTTP_REFERER'] ?? '/');
         }
-        (new ContactMessage())->create([
-            'name' => 'Newsletter',
-            'email' => $email,
-            'subject' => 'Newsletter',
-            'message' => 'Inscription newsletter de démonstration locale. Aucun email réel ne sera envoyé.',
-        ]);
-        audit($_SESSION['user_id'] ?? null, 'newsletter_submit', 'contact_message');
-        flash('success', 'Inscription newsletter de démonstration enregistrée.');
+        $mode = (new NewsletterService())->subscribe($email, isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null);
+        flash('success', $mode === 'demo' ? 'Inscription newsletter de démonstration enregistrée.' : 'Inscription enregistrée dans la file Brevo de démonstration sécurisée.');
         $this->redirect($_SERVER['HTTP_REFERER'] ?? '/');
+    }
+
+    public function privacyRequest(): void
+    {
+        $this->view('public/privacy-request', [
+            'title' => 'Demande RGPD de démonstration',
+            'metaDescription' => 'Formulaire de demande RGPD simulée pour le projet étudiant AtypikHouse.',
+            'canonical' => url('/mes-donnees'),
+        ]);
+    }
+
+    public function sendPrivacyRequest(): void
+    {
+        verify_csrf();
+        $type = (string) input('request_type');
+        if (!in_array($type, ['access', 'rectification', 'deletion', 'opposition'], true)) {
+            flash('error', 'Type de demande invalide.');
+            $this->redirect('/mes-donnees');
+        }
+        foreach (['name', 'email', 'message'] as $field) {
+            if (trim((string) input($field, '')) === '') {
+                remember_old($_POST);
+                flash('error', 'Merci de remplir tous les champs de la demande.');
+                $this->redirect('/mes-donnees');
+            }
+        }
+        if (!filter_var(input('email'), FILTER_VALIDATE_EMAIL) || input('privacy_consent') !== '1') {
+            remember_old($_POST);
+            flash('error', 'Adresse email invalide ou consentement manquant.');
+            $this->redirect('/mes-donnees');
+        }
+
+        $labels = [
+            'access' => 'accès',
+            'rectification' => 'rectification',
+            'deletion' => 'suppression',
+            'opposition' => 'opposition',
+        ];
+        (new ContactMessage())->create([
+            'name' => input('name'),
+            'email' => input('email'),
+            'subject' => 'Demande RGPD - ' . $labels[$type],
+            'message' => (string) input('message') . "\n\nDemande académique simulée : " . $labels[$type],
+        ]);
+        audit($_SESSION['user_id'] ?? null, 'privacy_request_submit', 'contact_message');
+        clear_old();
+        flash('success', 'Votre demande RGPD de démonstration a été enregistrée localement.');
+        $this->redirect('/mes-donnees');
     }
 
     public function legal(): void

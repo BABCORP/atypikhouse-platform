@@ -135,6 +135,22 @@ final class Booking extends Model
         return $stmt->fetchAll();
     }
 
+    public function bookedDatesForOwnerProperty(int $propertyId, int $ownerId): array
+    {
+        $stmt = $this->db->prepare('SELECT b.start_date, b.end_date FROM bookings b JOIN properties p ON p.id = b.property_id WHERE b.property_id = ? AND p.owner_id = ? AND b.status IN ("confirmed", "completed") AND b.end_date >= CURDATE() ORDER BY b.start_date ASC');
+        $stmt->execute([$propertyId, $ownerId]);
+        $dates = [];
+        foreach ($stmt->fetchAll() as $booking) {
+            $current = new \DateTimeImmutable($booking['start_date']);
+            $end = new \DateTimeImmutable($booking['end_date']);
+            while ($current < $end) {
+                $dates[] = $current->format('Y-m-d');
+                $current = $current->modify('+1 day');
+            }
+        }
+        return array_values(array_unique($dates));
+    }
+
     public function all(array $filters = []): array
     {
         $sql = 'SELECT b.*, p.title, p.slug, u.email AS tenant_email FROM bookings b JOIN properties p ON p.id = b.property_id JOIN users u ON u.id = b.tenant_id WHERE 1=1';

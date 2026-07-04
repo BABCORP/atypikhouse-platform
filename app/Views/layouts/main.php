@@ -63,7 +63,7 @@
         <p class="disclaimer"><?= e(config('academic_disclaimer')) ?></p>
     </div>
     <div class="footer-column"><h2>Explorer</h2><nav aria-label="Explorer AtypikHouse"><a href="<?= url('/hebergements') ?>">Hébergements</a><a href="<?= url('/concept') ?>">Le concept</a><a href="<?= url('/devenir-hote') ?>">Devenir hôte</a><a href="<?= url('/contact') ?>">Contact</a></nav></div>
-    <div class="footer-column"><h2>Informations</h2><nav aria-label="Liens légaux"><a href="<?= url('/mentions-legales') ?>">Mentions légales</a><a href="<?= url('/cgu') ?>">CGU</a><a href="<?= url('/cgv') ?>">CGV</a><a href="<?= url('/politique-confidentialite') ?>">Confidentialité</a><a href="<?= url('/cookies') ?>">Cookies</a></nav></div>
+    <div class="footer-column"><h2>Informations</h2><nav aria-label="Liens légaux"><a href="<?= url('/mentions-legales') ?>">Mentions légales</a><a href="<?= url('/cgu') ?>">CGU</a><a href="<?= url('/cgv') ?>">CGV</a><a href="<?= url('/politique-confidentialite') ?>">Confidentialité</a><a href="<?= url('/mes-donnees') ?>">Mes données</a><a href="<?= url('/cookies') ?>">Cookies</a></nav></div>
 </footer>
 <div class="cookie-banner" data-cookie-banner hidden>
     <p><strong>Cookies de démonstration</strong><br>Nous utilisons uniquement des cookies de session et, si vous acceptez, des emplacements prêts pour GA4/GTM sans identifiant réel par défaut.</p>

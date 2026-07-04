@@ -9,6 +9,16 @@
     <h2>Données personnelles et RGPD</h2>
     <p>Les données collectées localement concernent les comptes, formulaires, réservations fictives, avis et journaux d’audit. Elles servent uniquement aux tests et à la présentation académique.</p>
     <p>Dans un contexte réel, l’utilisateur disposerait de droits d’accès, rectification, suppression et opposition. Pour cette démonstration, ces droits sont représentés par les écrans de profil, la base locale et le contact fictif.</p>
+    <?php if (($page ?? '') === 'politique-confidentialite'): ?>
+        <h2>Données collectées</h2>
+        <p>Le projet peut stocker localement : identité de compte, email, téléphone facultatif, profil propriétaire, logements saisis, disponibilités, réservations fictives, avis, messages de contact, demandes RGPD simulées, inscriptions newsletter de démonstration et journaux d’audit.</p>
+        <h2>Finalités</h2>
+        <p>Ces données servent à démontrer l’authentification, la séparation des rôles, la réservation sandbox, la modération administrateur, la gestion propriétaire et la traçabilité technique. Aucune exploitation commerciale réelle n’est effectuée.</p>
+        <h2>Durée de conservation fictive</h2>
+        <p>En MVP académique, les données restent dans la base locale jusqu’à réimport du seed, suppression manuelle ou réinitialisation de l’environnement. Il ne s’agit pas d’une politique de conservation applicable à une entreprise réelle.</p>
+        <h2>Droits RGPD simulés</h2>
+        <p>Une demande d’accès, rectification, suppression ou opposition peut être déposée via <a href="<?= url('/mes-donnees') ?>">le formulaire Mes données</a>. La demande est visible en administration, sans suppression automatique afin de préserver la démo.</p>
+    <?php endif; ?>
     <h2>Cookies et mesure d’audience</h2>
     <p>Le site utilise des cookies de session nécessaires au fonctionnement. Les emplacements GA4/GTM existent sous forme de placeholders et ne chargent aucun identifiant réel par défaut. Le bandeau cookies permet d’accepter ou refuser les scripts de mesure éventuels.</p>
     <h2>Modération</h2>

@@ -18,6 +18,8 @@ $router->get('/blog/{slug}', [PublicController::class, 'blogPost']);
 $router->get('/contact', [PublicController::class, 'contact']);
 $router->post('/contact', [PublicController::class, 'sendContact']);
 $router->post('/newsletter', [PublicController::class, 'newsletter']);
+$router->get('/mes-donnees', [PublicController::class, 'privacyRequest']);
+$router->post('/mes-donnees', [PublicController::class, 'sendPrivacyRequest']);
 $router->get('/faq', [PublicController::class, 'faq']);
 $router->get('/mentions-legales', [PublicController::class, 'legal']);
 $router->get('/cgu', [PublicController::class, 'legal']);

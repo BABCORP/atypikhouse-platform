@@ -23,8 +23,11 @@ Environnement : MAMP, PHP 8.3.30, MySQL 8.0.44
 - Ajout et vérification prévue des écrans admin : édition utilisateur et détail réservation.
 - Ajout et vérification prévue de la galerie propriétaire : alt text, image principale, suppression et placeholder.
 - Ajout et vérification prévue des disponibilités par plage, prix override et calcul de total nuit par nuit.
+- Ajout du calendrier propriétaire en JavaScript vanilla : légende, navigation mensuelle, dates passées/réservées désactivées et affichage du prix spécifique.
 - Ajout et vérification prévue du reset password local de démonstration.
 - Ajout des canonical, Open Graph, JSON-LD, sitemap local, robots.txt local, consentement cookies et placeholders analytics.
+- Ajout d’un service `NewsletterService` Brevo-ready en mode démo sécurisé.
+- Ajout du formulaire `/mes-donnees` pour demandes RGPD simulées, visibles dans les messages admin.
 - Ajout de headers de sécurité légers et maintien CSRF/RBAC/ownership.
 
 ## Remise à zéro
@@ -37,4 +40,5 @@ Après les tests mutables, le schéma et le seed ont été réimportés afin de 
 - Le paiement est exclusivement fictif et ne traite aucune donnée bancaire.
 - Les identifiants GA4/GTM restent volontairement vides par défaut.
 - L’emailing/newsletter est uniquement stocké localement ; aucune intégration Brevo réelle n’est branchée en V1.
-- Le calendrier reste un formulaire de plages plutôt qu’un calendrier interactif avancé.
+- Le calendrier est interactif pour la visualisation et le préremplissage, mais ne remplace pas le formulaire serveur de plages qui reste la source sûre.
+- Les demandes RGPD sont simulées et stockées localement ; aucune suppression automatique réelle n’est exécutée.
