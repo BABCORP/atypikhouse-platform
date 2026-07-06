@@ -31,6 +31,21 @@
             </dl>
         </article>
     </div>
+    <article class="panel availability-calendar-panel">
+        <div class="calendar-toolbar">
+            <button class="button ghost compact" type="button" data-calendar-prev>Mois précédent</button>
+            <h2 data-calendar-title>Calendrier du logement</h2>
+            <button class="button ghost compact" type="button" data-calendar-next>Mois suivant</button>
+        </div>
+        <div class="calendar-legend" aria-label="Légende des disponibilités">
+            <span><i class="legend-dot available"></i>Disponible</span>
+            <span><i class="legend-dot unavailable"></i>Indisponible</span>
+            <span><i class="legend-dot override"></i>Prix spécifique</span>
+            <span><i class="legend-dot booked"></i>Réservé</span>
+        </div>
+        <div class="availability-calendar" data-availability-calendar data-calendar-payload="<?= e(json_encode($calendarData ?? [], JSON_UNESCAPED_UNICODE)) ?>" aria-live="polite"></div>
+        <p class="notice">Vue administrateur : les dates réservées proviennent des réservations confirmées ou terminées du logement.</p>
+    </article>
     <form class="panel inline-admin-form" method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/statut') ?>">
         <?= csrf_field() ?>
         <label>Statut

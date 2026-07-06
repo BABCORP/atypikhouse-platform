@@ -170,7 +170,20 @@ final class AdminController extends Controller
             http_response_code(404);
             exit('Réservation introuvable.');
         }
-        $this->view('dashboard/admin-booking-detail', ['title' => 'Réservation #' . $id, 'booking' => $booking]);
+        $propertyModel = new Property();
+        $availabilities = $propertyModel->availabilities((int) $booking['property_id']);
+        $this->view('dashboard/admin-booking-detail', [
+            'title' => 'Réservation #' . $id,
+            'booking' => $booking,
+            'calendarData' => [
+                'availabilities' => array_map(static fn (array $row): array => [
+                    'date' => $row['date'],
+                    'is_available' => (int) $row['is_available'],
+                    'price_override' => $row['price_override'] !== null ? (float) $row['price_override'] : null,
+                ], $availabilities),
+                'booked_dates' => (new Booking())->bookedDatesForProperty((int) $booking['property_id']),
+            ],
+        ]);
     }
 
     public function updateBookingStatus(int $id): void
