@@ -90,7 +90,14 @@ final class Booking extends Model
 
     public function findForTenant(int $id, int $tenantId): ?array
     {
-        $stmt = $this->db->prepare('SELECT b.*, p.title, p.slug, p.city FROM bookings b JOIN properties p ON p.id = b.property_id WHERE b.id = ? AND b.tenant_id = ?');
+        $stmt = $this->db->prepare('SELECT b.*, p.title, p.slug, p.city, u.first_name AS tenant_first_name, u.last_name AS tenant_last_name, u.email AS tenant_email, pay.test_transaction_id
+            FROM bookings b
+            JOIN properties p ON p.id = b.property_id
+            JOIN users u ON u.id = b.tenant_id
+            LEFT JOIN payments pay ON pay.booking_id = b.id
+            WHERE b.id = ? AND b.tenant_id = ?
+            ORDER BY pay.created_at DESC
+            LIMIT 1');
         $stmt->execute([$id, $tenantId]);
         return $stmt->fetch() ?: null;
     }
@@ -151,6 +158,22 @@ final class Booking extends Model
         return array_values(array_unique($dates));
     }
 
+    public function bookedDatesForProperty(int $propertyId): array
+    {
+        $stmt = $this->db->prepare('SELECT start_date, end_date FROM bookings WHERE property_id = ? AND status IN ("confirmed", "completed") AND end_date >= CURDATE() ORDER BY start_date ASC');
+        $stmt->execute([$propertyId]);
+        $dates = [];
+        foreach ($stmt->fetchAll() as $booking) {
+            $current = new \DateTimeImmutable($booking['start_date']);
+            $end = new \DateTimeImmutable($booking['end_date']);
+            while ($current < $end) {
+                $dates[] = $current->format('Y-m-d');
+                $current = $current->modify('+1 day');
+            }
+        }
+        return array_values(array_unique($dates));
+    }
+
     public function all(array $filters = []): array
     {
         $sql = 'SELECT b.*, p.title, p.slug, u.email AS tenant_email FROM bookings b JOIN properties p ON p.id = b.property_id JOIN users u ON u.id = b.tenant_id WHERE 1=1';
@@ -163,6 +186,24 @@ final class Booking extends Model
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
+    }
+
+    public function paginatedAll(array $filters, int $limit, int $offset): array
+    {
+        $sql = ' FROM bookings b JOIN properties p ON p.id = b.property_id JOIN users u ON u.id = b.tenant_id WHERE 1=1';
+        $params = [];
+        if (!empty($filters['status'])) {
+            $sql .= ' AND b.status = ?';
+            $params[] = $filters['status'];
+        }
+
+        $count = $this->db->prepare('SELECT COUNT(*)' . $sql);
+        $count->execute($params);
+
+        $stmt = $this->db->prepare('SELECT b.*, p.title, p.slug, u.email AS tenant_email' . $sql . ' ORDER BY b.created_at DESC LIMIT ' . max(1, $limit) . ' OFFSET ' . max(0, $offset));
+        $stmt->execute($params);
+
+        return ['items' => $stmt->fetchAll(), 'total' => (int) $count->fetchColumn()];
     }
 
     public function findForAdmin(int $id): ?array

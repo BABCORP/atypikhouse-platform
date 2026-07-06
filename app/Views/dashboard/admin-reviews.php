@@ -9,7 +9,7 @@
                 <p><?= e($review['comment']) ?></p>
                 <div class="actions-row">
                     <form class="inline-form" method="post" action="<?= url('/admin/avis/' . $review['id'] . '/statut') ?>"><?= csrf_field() ?><button class="button compact" name="status" value="published" type="submit">Publier</button><button class="button ghost compact" name="status" value="rejected" type="submit">Rejeter</button></form>
-                    <form class="inline-form" method="post" action="<?= url('/admin/avis/' . $review['id'] . '/supprimer') ?>"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
+                    <form class="inline-form" method="post" action="<?= url('/admin/avis/' . $review['id'] . '/supprimer') ?>" data-confirm="Supprimer définitivement cet avis ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
                 </div>
             </article>
         <?php endforeach; ?>

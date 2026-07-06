@@ -13,7 +13,7 @@
                 <?php if (($property['owner_id'] ?? null) && \App\Core\Auth::user()['role'] === 'owner' && in_array($property['status'], ['draft', 'rejected', 'pending'], true)): ?>
                     <a class="button compact ghost" href="<?= url('/proprietaire/logements/' . $property['id'] . '/modifier') ?>">Modifier</a>
                     <?php if (in_array($property['status'], ['draft', 'rejected'], true)): ?><form method="post" class="inline-form" action="<?= url('/proprietaire/logements/' . $property['id'] . '/soumettre') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Soumettre</button></form><?php endif; ?>
-                    <?php if (in_array($property['status'], ['draft', 'rejected'], true)): ?><form method="post" class="inline-form" action="<?= url('/proprietaire/logements/' . $property['id'] . '/supprimer') ?>"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form><?php endif; ?>
+                    <?php if (in_array($property['status'], ['draft', 'rejected'], true)): ?><form method="post" class="inline-form" action="<?= url('/proprietaire/logements/' . $property['id'] . '/supprimer') ?>" data-confirm="Supprimer ce brouillon de logement ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form><?php endif; ?>
                 <?php endif; ?>
             </td>
         </tr>

@@ -25,6 +25,8 @@ mysql -u root -p atypikhouse < database/seed.sql
 
 4. Adapter si besoin `config/database.php` ou définir les variables d’environnement :
 
+Un fichier `.env.example` est fourni comme modèle de configuration locale.
+
 ```bash
 DB_HOST=127.0.0.1
 DB_PORT=3306
@@ -65,6 +67,7 @@ php -S 127.0.0.1:8010 -t public public/index.php
 - Contrôle d’accès par rôle : locataire, propriétaire, administrateur.
 - Catalogue avec filtres destination, type, capacité, prix, équipement et dates.
 - Réservation fictive avec vérification dates, capacité, chevauchement et dates passées.
+- Calendrier public léger sur les fiches logements pour visualiser dates réservées, indisponibles et prix spécifiques.
 - Paiement simulé sans collecte de carte bancaire réelle.
 - Avis modérés par administrateur.
 - Dashboard locataire : réservations, détail, avis, profil.
@@ -72,7 +75,10 @@ php -S 127.0.0.1:8010 -t public public/index.php
 - Dashboard propriétaire : galerie d’images avec texte alternatif, image principale, suppression sécurisée et gestion de plages de disponibilité avec prix spécifique.
 - Calendrier mensuel propriétaire en JavaScript vanilla pour visualiser disponibilités, indisponibilités, prix spécifiques et dates réservées.
 - Dashboard administrateur : statistiques, édition complète des utilisateurs, propriétaires, logements, détail réservation, avis, CRUD blog, messages, logs.
+- Pagination simple et filtres sur plusieurs listes administrateur : utilisateurs, réservations, messages et logs.
 - Réinitialisation de mot de passe locale de démonstration, sans envoi email réel.
+- Reçu/facture fictive imprimable sur le détail de réservation locataire.
+- Pages d’erreur 403/404 propres et confirmations JS sur actions destructives.
 - Contact avec protection CSRF.
 - Fichiers SEO : `robots.txt`, `sitemap.xml`, canonical, Open Graph, JSON-LD blog/logement et URLs propres.
 - Structure tracking-ready avec attributs `data-track`, `dataLayer`, placeholders `GA4_ID`/`GTM_ID` et consentement cookies.
@@ -135,3 +141,5 @@ Le projet est volontairement léger pour rester compatible avec un environnement
 Limites assumées : pas d’email réel, pas de paiement réel, pas de passerelle Brevo/Stripe, pas de calendrier planning professionnel avec drag-and-drop, pas de système de suppression RGPD automatisé complet. Ces points sont simulés ou documentés pour la soutenance.
 
 Les vérifications réalisées sur MAMP sont détaillées dans `docs/validation-report.md`.
+
+Un guide de smoke test local est disponible dans `docs/smoke-test.md`.

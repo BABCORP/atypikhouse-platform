@@ -42,4 +42,11 @@ header('Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyrosco
 
 $router = new App\Core\Router();
 require dirname(__DIR__) . '/routes/web.php';
-$router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+try {
+    $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+} catch (Throwable $exception) {
+    if (config('debug')) {
+        throw $exception;
+    }
+    (new App\Controllers\PublicController())->serverError();
+}

@@ -262,6 +262,10 @@ th { background: var(--sand); }
 .calendar-day.override { background: #fff7e7; border-color: #f0d5a5; }
 .calendar-day.booked, .calendar-day.past { background: #f1eee9; color: #786f65; cursor: not-allowed; opacity: .82; }
 .calendar-day.booked small { color: var(--danger); font-weight: 800; }
+.pagination { display: flex; align-items: center; justify-content: center; gap: .85rem; margin-top: 1.25rem; font-weight: 800; }
+.button.disabled { opacity: .5; pointer-events: none; }
+.invoice-print { margin: 1.5rem 0; border: 2px solid var(--forest); }
+.public-calendar-block { margin-top: 1.25rem; }
 .flash { margin: 1rem clamp(1rem, 6vw, 6rem); padding: 1rem; border-radius: 8px; font-weight: 750; }
 .flash.success { background: #dcf7e9; color: var(--success); }
 .flash.error { background: #fde2e2; color: var(--danger); }
@@ -327,4 +331,13 @@ th { background: var(--sand); }
   .calendar-empty, .calendar-day { min-height: 66px; }
   .calendar-day small { display: none; }
   .cookie-banner { align-items: stretch; flex-direction: column; }
+}
+
+@media print {
+  body { background: white; color: #111; }
+  .site-header, .site-footer, .dashboard-nav, .no-print, .flash, .booking-box, .cookie-banner, form:not(.print-keep) { display: none !important; }
+  .section { padding: 0; max-width: none; }
+  .invoice-print { display: block !important; border: 0; box-shadow: none; margin: 0; padding: 0; }
+  .invoice-print h2 { color: #111; }
+  .invoice-print .detail-list { grid-template-columns: 180px 1fr; }
 }

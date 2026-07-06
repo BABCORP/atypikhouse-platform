@@ -46,8 +46,8 @@ final class BlogPost extends Model
 
     public function update(int $id, array $data): void
     {
-        $stmt = $this->db->prepare('UPDATE blog_posts SET title = ?, slug = ?, excerpt = ?, content = ?, status = ?, updated_at = NOW() WHERE id = ?');
-        $stmt->execute([trim($data['title']), slugify($data['title']), trim($data['excerpt']), trim($data['content']), $data['status'], $id]);
+        $stmt = $this->db->prepare('UPDATE blog_posts SET title = ?, slug = ?, excerpt = ?, content = ?, featured_image = ?, status = ?, updated_at = NOW() WHERE id = ?');
+        $stmt->execute([trim($data['title']), slugify($data['title']), trim($data['excerpt']), trim($data['content']), trim($data['featured_image'] ?? 'assets/img/properties/default-placeholder.svg'), $data['status'], $id]);
     }
 
     public function delete(int $id): void

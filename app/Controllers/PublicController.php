@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Helpers\NewsletterService;
 use App\Models\BlogPost;
+use App\Models\Booking;
 use App\Models\ContactMessage;
 use App\Models\Property;
 use App\Models\Review;
@@ -93,6 +94,14 @@ final class PublicController extends Controller
             'images' => $model->images((int) $property['id']),
             'amenities' => $model->amenities((int) $property['id']),
             'availabilities' => $model->availabilities((int) $property['id']),
+            'calendarData' => [
+                'availabilities' => array_map(static fn (array $row): array => [
+                    'date' => $row['date'],
+                    'is_available' => (int) $row['is_available'],
+                    'price_override' => $row['price_override'] !== null ? (float) $row['price_override'] : null,
+                ], $model->availabilities((int) $property['id'])),
+                'booked_dates' => (new Booking())->bookedDatesForProperty((int) $property['id']),
+            ],
             'reviews' => (new Review())->forProperty((int) $property['id']),
             'related' => $model->published(['type' => $property['type']], 3),
         ]);
@@ -260,10 +269,33 @@ final class PublicController extends Controller
     public function notFound(): void
     {
         http_response_code(404);
-        $this->view('public/static', [
+        $this->view('public/error', [
             'title' => 'Page introuvable',
-            'heading' => 'Page introuvable',
-            'body' => 'La page demandée n’existe pas ou a été déplacée.',
+            'code' => 404,
+            'heading' => 'Cette page reste introuvable',
+            'body' => 'Le lien demandé n’existe pas ou a été déplacé dans cette démonstration AtypikHouse.',
+        ]);
+    }
+
+    public function forbidden(): void
+    {
+        http_response_code(403);
+        $this->view('public/error', [
+            'title' => 'Accès refusé',
+            'code' => 403,
+            'heading' => 'Accès réservé',
+            'body' => 'Votre rôle ne permet pas d’accéder à cette page. Les espaces locataire, propriétaire et administrateur restent séparés.',
+        ]);
+    }
+
+    public function serverError(): void
+    {
+        http_response_code(500);
+        $this->view('public/error', [
+            'title' => 'Erreur de démonstration',
+            'code' => 500,
+            'heading' => 'Une erreur est survenue',
+            'body' => 'La démonstration a rencontré un problème technique. Aucun paiement ni réservation réelle n’est concerné.',
         ]);
     }
 }

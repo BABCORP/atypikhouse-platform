@@ -22,6 +22,27 @@ final class ContactMessage extends Model
         return $this->db->query('SELECT * FROM contact_messages ORDER BY created_at DESC')->fetchAll();
     }
 
+    public function paginated(string $type, int $limit, int $offset): array
+    {
+        $where = ' WHERE 1=1';
+        $params = [];
+        if ($type === 'newsletter') {
+            $where .= ' AND subject = "Newsletter"';
+        } elseif ($type === 'rgpd') {
+            $where .= ' AND subject LIKE "Demande RGPD%"';
+        } elseif ($type === 'contact') {
+            $where .= ' AND subject <> "Newsletter" AND subject NOT LIKE "Demande RGPD%"';
+        }
+
+        $count = $this->db->prepare('SELECT COUNT(*) FROM contact_messages' . $where);
+        $count->execute($params);
+
+        $stmt = $this->db->prepare('SELECT * FROM contact_messages' . $where . ' ORDER BY created_at DESC LIMIT ' . max(1, $limit) . ' OFFSET ' . max(0, $offset));
+        $stmt->execute($params);
+
+        return ['items' => $stmt->fetchAll(), 'total' => (int) $count->fetchColumn()];
+    }
+
     public function updateStatus(int $id, string $status): void
     {
         $stmt = $this->db->prepare('UPDATE contact_messages SET status = ? WHERE id = ?');

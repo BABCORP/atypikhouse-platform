@@ -6,7 +6,7 @@
     </header>
     <div class="gallery">
         <?php foreach ($images as $image): ?>
-            <img src="<?= image_url($image['image_path']) ?>" alt="<?= e($image['alt_text']) ?>">
+            <img loading="lazy" src="<?= image_url($image['image_path']) ?>" alt="<?= e($image['alt_text']) ?>">
         <?php endforeach; ?>
     </div>
     <div class="detail-grid">
@@ -36,6 +36,20 @@
                 <label>Voyageurs<input required name="guests_count" type="number" min="1" max="<?= (int) $property['capacity'] ?>" value="2"></label>
                 <button class="button full" type="submit">Réserver ce séjour</button>
             </form>
+            <div class="public-calendar-block">
+                <div class="calendar-toolbar">
+                    <button class="button ghost compact" type="button" data-calendar-prev>Précédent</button>
+                    <h3 data-calendar-title>Disponibilités</h3>
+                    <button class="button ghost compact" type="button" data-calendar-next>Suivant</button>
+                </div>
+                <div class="calendar-legend" aria-label="Légende des disponibilités">
+                    <span><i class="legend-dot available"></i>Disponible</span>
+                    <span><i class="legend-dot unavailable"></i>Indisponible</span>
+                    <span><i class="legend-dot override"></i>Prix spécifique</span>
+                    <span><i class="legend-dot booked"></i>Réservé</span>
+                </div>
+                <div class="availability-calendar" data-availability-calendar data-calendar-payload="<?= e(json_encode($calendarData ?? [], JSON_UNESCAPED_UNICODE)) ?>" aria-live="polite"></div>
+            </div>
             <h3>Prochaines disponibilités</h3>
             <div class="availability-list">
                 <?php foreach (array_slice($availabilities, 0, 8) as $availability): ?>

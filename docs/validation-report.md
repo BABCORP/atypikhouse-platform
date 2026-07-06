@@ -29,6 +29,10 @@ Environnement : MAMP, PHP 8.3.30, MySQL 8.0.44
 - Ajout d’un service `NewsletterService` Brevo-ready en mode démo sécurisé.
 - Ajout du formulaire `/mes-donnees` pour demandes RGPD simulées, visibles dans les messages admin.
 - Ajout de headers de sécurité légers et maintien CSRF/RBAC/ownership.
+- Ajout `.env.example`, pages d’erreur personnalisées, confirmations destructives et reçu fictif imprimable.
+- Ajout de la pagination/filtres sur utilisateurs, réservations, messages et journaux d’audit.
+- Ajout du calendrier public de disponibilité sur les fiches logements.
+- Ajout du guide `docs/smoke-test.md`.
 
 ## Remise à zéro
 

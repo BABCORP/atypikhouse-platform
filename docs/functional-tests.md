@@ -16,6 +16,7 @@
 - Filtrer par capacité, vérifier que les logements trop petits sont exclus.
 - Filtrer par équipement et dates disponibles.
 - Ouvrir une fiche logement, vérifier galerie, description, équipements, avis et formulaire de réservation.
+- Vérifier le calendrier public : dates passées désactivées, dates indisponibles/réservées bloquées, prix override visible, clic sur une date valide préremplit arrivée/départ.
 
 ## Réservation
 
@@ -26,6 +27,7 @@
 - Vérifier le calcul : prix par nuit x nuits + frais de ménage.
 - Simuler un paiement réussi, vérifier `status=confirmed` et `payment_status=test_paid`.
 - Simuler un paiement échoué, vérifier que la réservation reste non confirmée.
+- Ouvrir le détail réservation locataire, vérifier le reçu fictif imprimable et la mention “Document fictif — aucune transaction réelle”.
 - Depuis `/proprietaire/disponibilites`, définir un prix spécifique sur une nuit future, réserver cette nuit côté locataire et vérifier que le total utilise le prix override + frais de ménage.
 
 ## Propriétaire
@@ -58,7 +60,9 @@
 - Créer un article de blog.
 - Modifier puis supprimer un article de blog.
 - Lire et archiver un message de contact.
-- Consulter les journaux d’audit.
+- Filtrer les messages par contact/newsletter/RGPD, vérifier le badge “À traiter” sur une demande RGPD nouvelle.
+- Consulter les journaux d’audit, filtrer par action/email/date et vérifier la pagination.
+- Vérifier la pagination des utilisateurs, messages et réservations admin.
 
 ## Avis
 
@@ -80,3 +84,5 @@
 - Refuser les cookies et vérifier que les placeholders GA/GTM ne sont pas chargés ; accepter et vérifier le push `cookie_consent_accept` dans `dataLayer`.
 - Soumettre une newsletter avec consentement, vérifier le message succès et l’audit `newsletter_demo_subscribe`.
 - Soumettre `/mes-donnees` pour une demande d’accès, vérifier l’audit `privacy_request_submit` et l’apparition dans `/admin/messages` avec badge RGPD.
+- Vérifier qu’une suppression d’article, d’avis, d’image ou de logement demande confirmation.
+- Ouvrir une URL inexistante, vérifier la page 404 personnalisée.

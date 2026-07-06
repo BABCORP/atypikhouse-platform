@@ -13,6 +13,20 @@ document.addEventListener("click", (event) => {
   window.dataLayer.push({ event: target.getAttribute("data-track") });
 });
 
+document.addEventListener("submit", (event) => {
+  const form = event.target;
+  if (!(form instanceof HTMLFormElement) || !form.dataset.confirm) return;
+  if (!window.confirm(form.dataset.confirm)) {
+    event.preventDefault();
+  }
+});
+
+document.addEventListener("click", (event) => {
+  const button = event.target instanceof Element ? event.target.closest("[data-print-target]") : null;
+  if (!button) return;
+  window.print();
+});
+
 const loadAnalytics = () => {
   const config = window.ATYPIK_ANALYTICS || {};
   if (window.__atypikAnalyticsLoaded) return;
@@ -91,16 +105,17 @@ if (advancedFilters) {
   syncFilters();
 }
 
-const calendarRoot = document.querySelector("[data-availability-calendar]");
-if (calendarRoot) {
+document.querySelectorAll("[data-availability-calendar]").forEach((calendarRoot) => {
   const payload = JSON.parse(calendarRoot.dataset.calendarPayload || "{}");
   const availabilityByDate = new Map((payload.availabilities || []).map((item) => [item.date, item]));
   const bookedDates = new Set(payload.booked_dates || []);
-  const title = document.querySelector("[data-calendar-title]");
-  const prev = document.querySelector("[data-calendar-prev]");
-  const next = document.querySelector("[data-calendar-next]");
-  const startInput = document.querySelector("input[name='start_date']");
-  const endInput = document.querySelector("input[name='end_date']");
+  const container = calendarRoot.closest(".booking-box, .availability-calendar-panel") || document;
+  const title = container.querySelector("[data-calendar-title]");
+  const prev = container.querySelector("[data-calendar-prev]");
+  const next = container.querySelector("[data-calendar-next]");
+  const formContainer = calendarRoot.closest(".booking-box") || document;
+  const startInput = formContainer.querySelector("input[name='start_date']");
+  const endInput = formContainer.querySelector("input[name='end_date']");
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   let visibleMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -156,7 +171,7 @@ if (calendarRoot) {
         label = `${Number(availability.price_override).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}`;
       }
 
-      cells.push(`<button type="button" class="${classes.join(" ")}" data-calendar-date="${iso}" ${isPast || isBooked ? "disabled" : ""} aria-label="${iso} - ${label}"><span>${day}</span><small>${label}</small></button>`);
+      cells.push(`<button type="button" class="${classes.join(" ")}" data-calendar-date="${iso}" ${isPast || isBooked || unavailable ? "disabled" : ""} aria-label="${iso} - ${label}"><span>${day}</span><small>${label}</small></button>`);
     }
 
     calendarRoot.innerHTML = `<div class="calendar-weekdays" aria-hidden="true"><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span></div><div class="calendar-grid">${cells.join("")}</div>`;
@@ -174,9 +189,18 @@ if (calendarRoot) {
     const button = event.target instanceof Element ? event.target.closest("[data-calendar-date]") : null;
     if (!button || button.hasAttribute("disabled")) return;
     const date = button.getAttribute("data-calendar-date");
+    const isBookingCalendar = Boolean(calendarRoot.closest(".booking-box"));
     if (startInput) startInput.value = date;
-    if (endInput) endInput.value = date;
+    if (endInput) {
+      if (isBookingCalendar) {
+        const nextDate = new Date(`${date}T00:00:00`);
+        nextDate.setDate(nextDate.getDate() + 1);
+        endInput.value = isoDate(nextDate);
+      } else {
+        endInput.value = date;
+      }
+    }
     startInput?.focus();
   });
   renderCalendar();
-}
+});

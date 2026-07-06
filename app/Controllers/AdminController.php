@@ -31,7 +31,9 @@ final class AdminController extends Controller
     public function users(): void
     {
         Auth::requireRole('admin');
-        $this->view('dashboard/users', ['title' => 'Utilisateurs', 'users' => (new User())->all(input('role') ?: null, input('status') ?: null)]);
+        $page = max(1, (int) input('page', 1));
+        $result = (new User())->paginated(input('role') ?: null, input('status') ?: null, 20, ($page - 1) * 20);
+        $this->view('dashboard/users', ['title' => 'Utilisateurs', 'users' => $result['items'], 'pagination' => pagination_meta($result['total'], $page)]);
     }
 
     public function updateUserStatus(int $id): void
@@ -155,7 +157,9 @@ final class AdminController extends Controller
     public function bookings(): void
     {
         Auth::requireRole('admin');
-        $this->view('dashboard/bookings', ['title' => 'Toutes les réservations', 'bookings' => (new Booking())->all(['status' => input('status') ?: null]), 'scope' => 'admin']);
+        $page = max(1, (int) input('page', 1));
+        $result = (new Booking())->paginatedAll(['status' => input('status') ?: null], 20, ($page - 1) * 20);
+        $this->view('dashboard/bookings', ['title' => 'Toutes les réservations', 'bookings' => $result['items'], 'pagination' => pagination_meta($result['total'], $page), 'scope' => 'admin']);
     }
 
     public function bookingDetail(int $id): void
@@ -264,7 +268,10 @@ final class AdminController extends Controller
     public function messages(): void
     {
         Auth::requireRole('admin');
-        $this->view('dashboard/messages', ['title' => 'Messages', 'messages' => (new ContactMessage())->all()]);
+        $type = in_array(input('type'), ['contact', 'newsletter', 'rgpd'], true) ? (string) input('type') : 'all';
+        $page = max(1, (int) input('page', 1));
+        $result = (new ContactMessage())->paginated($type, 20, ($page - 1) * 20);
+        $this->view('dashboard/messages', ['title' => 'Messages', 'messages' => $result['items'], 'type' => $type, 'pagination' => pagination_meta($result['total'], $page)]);
     }
 
     public function updateMessageStatus(int $id): void
@@ -284,8 +291,32 @@ final class AdminController extends Controller
     public function logs(): void
     {
         Auth::requireRole('admin');
-        $logs = Database::connection()->query('SELECT al.*, u.email FROM audit_logs al LEFT JOIN users u ON u.id = al.user_id ORDER BY al.created_at DESC LIMIT 200')->fetchAll();
-        $this->view('dashboard/logs', ['title' => 'Journaux d’audit', 'logs' => $logs]);
+        $page = max(1, (int) input('page', 1));
+        $perPage = 20;
+        $where = ' WHERE 1=1';
+        $params = [];
+        if (trim((string) input('action', '')) !== '') {
+            $where .= ' AND al.action LIKE ?';
+            $params[] = '%' . trim((string) input('action')) . '%';
+        }
+        if (trim((string) input('email', '')) !== '') {
+            $where .= ' AND u.email LIKE ?';
+            $params[] = '%' . trim((string) input('email')) . '%';
+        }
+        if (valid_date((string) input('start_date', ''))) {
+            $where .= ' AND DATE(al.created_at) >= ?';
+            $params[] = input('start_date');
+        }
+        if (valid_date((string) input('end_date', ''))) {
+            $where .= ' AND DATE(al.created_at) <= ?';
+            $params[] = input('end_date');
+        }
+        $count = Database::connection()->prepare('SELECT COUNT(*) FROM audit_logs al LEFT JOIN users u ON u.id = al.user_id' . $where);
+        $count->execute($params);
+        $pagination = pagination_meta((int) $count->fetchColumn(), $page, $perPage);
+        $stmt = Database::connection()->prepare('SELECT al.*, u.email FROM audit_logs al LEFT JOIN users u ON u.id = al.user_id' . $where . ' ORDER BY al.created_at DESC LIMIT ' . $perPage . ' OFFSET ' . $pagination['offset']);
+        $stmt->execute($params);
+        $this->view('dashboard/logs', ['title' => 'Journaux d’audit', 'logs' => $stmt->fetchAll(), 'pagination' => $pagination]);
     }
 
     private function validateBlog(): void

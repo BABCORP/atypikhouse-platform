@@ -12,8 +12,9 @@ Un visiteur peut consulter l’accueil, le concept, le catalogue, les fiches log
 4. Lancer la réservation.
 5. Simuler le paiement en succès ou en échec.
 6. Consulter le sous-total, les frais de ménage et le total fictif dans `/locataire/reservations`.
-7. Après passage en réservation complétée, déposer un avis.
-8. En cas d’oubli, utiliser `/mot-de-passe-oublie`; le lien est affiché localement pour la démonstration.
+7. Imprimer le reçu fictif depuis le détail de réservation si nécessaire pour la démonstration.
+8. Après passage en réservation complétée, déposer un avis.
+9. En cas d’oubli, utiliser `/mot-de-passe-oublie`; le lien est affiché localement pour la démonstration.
 
 ## Propriétaire
 
@@ -34,7 +35,8 @@ Un visiteur peut consulter l’accueil, le concept, le catalogue, les fiches log
 4. Modifier les utilisateurs, rôles et statuts, avec protection du dernier admin actif.
 5. Consulter le détail complet d’une réservation et changer son statut.
 6. Publier des articles de blog.
-7. Lire les messages, inscriptions newsletter de démonstration et logs.
+7. Lire les messages, filtrer les demandes RGPD/newsletter, puis archiver ou marquer comme lu.
+8. Utiliser les filtres et la pagination des logs pour contrôler les actions sensibles.
 
 ## Cookies et suivi
 
@@ -47,6 +49,10 @@ Le visiteur peut déposer une demande simulée depuis `/mes-donnees`. Les demand
 ## Newsletter
 
 La newsletter fonctionne en mode démonstration : l’email est stocké localement avec consentement. Les variables Brevo sont documentées pour une future intégration, mais aucun email réel n’est envoyé par défaut.
+
+## Smoke test
+
+Les commandes de contrôle rapide sont documentées dans `docs/smoke-test.md`.
 
 ## Rappel académique
 

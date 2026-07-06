@@ -38,7 +38,8 @@ final class Auth
         $allowed = is_array($roles) ? $roles : [$roles];
         if (!in_array($user['role'], $allowed, true) && $user['role'] !== 'admin') {
             http_response_code(403);
-            exit('Accès refusé.');
+            (new \App\Controllers\PublicController())->forbidden();
+            exit;
         }
         return $user;
     }

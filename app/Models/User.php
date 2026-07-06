@@ -73,6 +73,28 @@ final class User extends Model
         return $stmt->fetchAll();
     }
 
+    public function paginated(?string $role, ?string $status, int $limit, int $offset): array
+    {
+        $where = ' WHERE 1=1';
+        $params = [];
+        if ($role) {
+            $where .= ' AND role = ?';
+            $params[] = $role;
+        }
+        if ($status) {
+            $where .= ' AND status = ?';
+            $params[] = $status;
+        }
+
+        $count = $this->db->prepare('SELECT COUNT(*) FROM users' . $where);
+        $count->execute($params);
+
+        $stmt = $this->db->prepare('SELECT * FROM users' . $where . ' ORDER BY created_at DESC LIMIT ' . max(1, $limit) . ' OFFSET ' . max(0, $offset));
+        $stmt->execute($params);
+
+        return ['items' => $stmt->fetchAll(), 'total' => (int) $count->fetchColumn()];
+    }
+
     public function updateStatus(int $id, string $status): void
     {
         $stmt = $this->db->prepare('UPDATE users SET status = ?, updated_at = NOW() WHERE id = ?');

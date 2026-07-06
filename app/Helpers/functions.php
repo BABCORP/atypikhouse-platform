@@ -187,3 +187,27 @@ function current_url(): string
 {
     return url(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/');
 }
+
+function pagination_meta(int $total, int $page, int $perPage = 20): array
+{
+    $lastPage = max(1, (int) ceil($total / max(1, $perPage)));
+    $page = min(max(1, $page), $lastPage);
+
+    return [
+        'total' => $total,
+        'page' => $page,
+        'per_page' => $perPage,
+        'last_page' => $lastPage,
+        'offset' => ($page - 1) * $perPage,
+        'has_previous' => $page > 1,
+        'has_next' => $page < $lastPage,
+    ];
+}
+
+function pagination_url(int $page): string
+{
+    $params = $_GET;
+    $params['page'] = $page;
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    return url($path . '?' . http_build_query($params));
+}

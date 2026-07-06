@@ -38,7 +38,7 @@
                             <?php if ((int) $image['is_main'] !== 1): ?>
                                 <form method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/principale') ?>"><?= csrf_field() ?><button class="button ghost compact" type="submit">Définir principale</button></form>
                             <?php endif; ?>
-                            <form method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/supprimer') ?>"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
+                            <form method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/supprimer') ?>" data-confirm="Supprimer cette image du logement ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
                         </div>
                     </article>
                 <?php endforeach; ?>

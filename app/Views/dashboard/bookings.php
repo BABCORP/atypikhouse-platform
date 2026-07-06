@@ -42,4 +42,5 @@
         </form>
     <?php endif; ?>
     <?php require __DIR__ . '/_booking-table.php'; ?>
+    <?php require __DIR__ . '/_pagination.php'; ?>
 </section>

@@ -11,7 +11,7 @@
                 <td><?= e($property['owner_email']) ?></td>
                 <td><?= e($property['city']) ?></td>
                 <td><span class="badge <?= e($property['status']) ?>"><?= status_label($property['status']) ?></span></td>
-                <td><form class="inline-form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/statut') ?>"><?= csrf_field() ?><select name="status"><?php foreach (['published', 'rejected', 'archived', 'pending'] as $status): ?><option value="<?= $status ?>" <?= $property['status'] === $status ? 'selected' : '' ?>><?= status_label($status) ?></option><?php endforeach; ?></select><button class="button compact" type="submit">Appliquer</button></form></td>
+                <td><form class="inline-form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/statut') ?>" data-confirm="Confirmer le changement de statut de ce logement ?"><?= csrf_field() ?><select name="status"><?php foreach (['published', 'rejected', 'archived', 'pending'] as $status): ?><option value="<?= $status ?>" <?= $property['status'] === $status ? 'selected' : '' ?>><?= status_label($status) ?></option><?php endforeach; ?></select><button class="button compact" type="submit">Appliquer</button></form></td>
             </tr>
         <?php endforeach; ?>
         </tbody>
