@@ -152,26 +152,38 @@ document.querySelectorAll("[data-availability-calendar]").forEach((calendarRoot)
       const unavailable = availability && Number(availability.is_available) === 0;
       const classes = ["calendar-day"];
       let label = "Prix standard";
+      let shortLabel = "Libre";
+      let ariaLabel = `${iso} - disponible au prix standard`;
 
       if (isPast) {
         classes.push("past");
         label = "Date passée";
+        shortLabel = "Passé";
+        ariaLabel = `${iso} - date passée`;
       } else if (isBooked) {
         classes.push("booked");
         label = "Réservé";
+        shortLabel = "Réservé";
+        ariaLabel = `${iso} - déjà réservé`;
       } else if (unavailable) {
         classes.push("unavailable");
         label = "Indisponible";
+        shortLabel = "Occupé";
+        ariaLabel = `${iso} - indisponible`;
       } else {
         classes.push("available");
         label = "Disponible";
+        shortLabel = "Libre";
+        ariaLabel = `${iso} - disponible`;
       }
       if (hasOverride) {
         classes.push("override");
         label = `${Number(availability.price_override).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}`;
+        shortLabel = `${Number(availability.price_override).toLocaleString("fr-FR", { maximumFractionDigits: 0 })}€`;
+        ariaLabel = `${iso} - disponible avec prix spécifique ${label}`;
       }
 
-      cells.push(`<button type="button" class="${classes.join(" ")}" data-calendar-date="${iso}" ${isPast || isBooked || unavailable ? "disabled" : ""} aria-label="${iso} - ${label}"><span>${day}</span><small>${label}</small></button>`);
+      cells.push(`<button type="button" class="${classes.join(" ")}" data-calendar-date="${iso}" ${isPast || isBooked || unavailable ? "disabled" : ""} aria-label="${ariaLabel}" title="${ariaLabel}"><span>${day}</span><small>${shortLabel}</small></button>`);
     }
 
     calendarRoot.innerHTML = `<div class="calendar-weekdays" aria-hidden="true"><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span></div><div class="calendar-grid">${cells.join("")}</div>`;
