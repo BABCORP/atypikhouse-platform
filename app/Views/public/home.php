@@ -37,46 +37,46 @@
     </div>
 </section>
 
-<section class="section split">
-    <div>
-        <p class="eyebrow">Tourisme responsable</p>
-        <h2>Des hébergements insolites pensés pour ralentir</h2>
-        <p>AtypikHouse valorise les séjours nature, l’éco-score, les équipements utiles et les propriétaires engagés. Les données restent fictives, mais le parcours reproduit un vrai modèle de marketplace.</p>
-        <a class="text-link" href="<?= url('/concept') ?>" data-track="cta_click">Comprendre le concept</a>
+<section class="section home-flow">
+    <div class="home-flow-main">
+        <article class="home-editorial">
+            <p class="eyebrow">Tourisme responsable</p>
+            <h2>Des hébergements insolites pensés pour ralentir</h2>
+            <p>AtypikHouse valorise les séjours nature, l’éco-score, les équipements utiles et les propriétaires engagés. Les données restent fictives, mais le parcours reproduit un vrai modèle de marketplace.</p>
+            <a class="text-link" href="<?= url('/concept') ?>" data-track="cta_click">Comprendre le concept</a>
+        </article>
+        <form class="panel newsletter-form" method="post" action="<?= url('/newsletter') ?>" data-track="newsletter_submit">
+            <?= csrf_field() ?>
+            <p class="eyebrow">Inspiration</p>
+            <h2>Recevoir l’inspiration séjour nature</h2>
+            <label>Email<input required type="email" name="email" placeholder="vous@example.test"></label>
+            <label class="checkbox"><input required type="checkbox" name="newsletter_consent" value="1"> J’accepte l’inscription newsletter fictive sans envoi réel.</label>
+            <button class="button full" type="submit">S’inscrire</button>
+        </form>
     </div>
-    <form class="panel newsletter-form" method="post" action="<?= url('/newsletter') ?>" data-track="newsletter_submit">
-        <?= csrf_field() ?>
-        <h2>Recevoir l’inspiration séjour nature</h2>
-        <label>Email<input required type="email" name="email" placeholder="vous@example.test"></label>
-        <label class="checkbox"><input required type="checkbox" name="newsletter_consent" value="1"> J’accepte l’inscription newsletter fictive sans envoi réel.</label>
-        <button class="button full" type="submit">S’inscrire</button>
-    </form>
-</section>
-
-<section class="section testimonials">
-    <div>
-        <p class="eyebrow">Confiance</p>
-        <h2>Des expériences pensées pour se reconnecter</h2>
+    <div class="home-flow-secondary">
+        <article class="home-proof">
+            <p class="eyebrow">Confiance</p>
+            <h2>Des expériences pensées pour se reconnecter</h2>
+            <blockquote>“Très belle expérience fictive, l’ambiance nature est réussie.” <small>- Tania, voyageuse démo</small></blockquote>
+        </article>
+        <article class="home-categories">
+            <p class="eyebrow">Explorer</p>
+            <h2>Catégories insolites</h2>
+            <div class="pill-list">
+                <a href="<?= url('/hebergements?type=treehouse') ?>">Cabanes</a>
+                <a href="<?= url('/hebergements?type=yurt') ?>">Yourtes</a>
+                <a href="<?= url('/hebergements?type=floating_cabin') ?>">Cabanes flottantes</a>
+                <a href="<?= url('/hebergements?type=tiny_house') ?>">Tiny houses</a>
+                <a href="<?= url('/hebergements?type=dome') ?>">Dômes</a>
+            </div>
+        </article>
     </div>
-    <blockquote>“Très belle expérience fictive, l’ambiance nature est réussie.” <small>- Tania, voyageuse démo</small></blockquote>
-</section>
-
-<section class="section">
-    <p class="eyebrow">Explorer</p>
-    <h2>Catégories insolites</h2>
-    <div class="pill-list">
-        <a href="<?= url('/hebergements?type=treehouse') ?>">Cabanes</a>
-        <a href="<?= url('/hebergements?type=yurt') ?>">Yourtes</a>
-        <a href="<?= url('/hebergements?type=floating_cabin') ?>">Cabanes flottantes</a>
-        <a href="<?= url('/hebergements?type=tiny_house') ?>">Tiny houses</a>
-        <a href="<?= url('/hebergements?type=dome') ?>">Dômes</a>
+    <div class="home-final-cta">
+        <div>
+            <p class="eyebrow">Une question ?</p>
+            <h2>Préparez votre prochaine escapade insolite</h2>
+        </div>
+        <a class="button secondary" href="<?= url('/contact') ?>" data-track="cta_click">Nous contacter</a>
     </div>
-</section>
-
-<section class="section contact-cta">
-    <div>
-        <p class="eyebrow">Une question ?</p>
-        <h2>Préparez votre prochaine escapade insolite</h2>
-    </div>
-    <a class="button secondary" href="<?= url('/contact') ?>" data-track="cta_click">Nous contacter</a>
 </section>
