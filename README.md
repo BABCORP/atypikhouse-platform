@@ -84,7 +84,7 @@ php -S 127.0.0.1:8010 -t public public/index.php
 - Structure tracking-ready avec attributs `data-track`, `dataLayer`, placeholders `GA4_ID`/`GTM_ID` et consentement cookies.
 - Formulaire `/mes-donnees` pour simuler les demandes RGPD : accès, rectification, suppression et opposition.
 - Identité visuelle alignée sur la charte AtypikHouse 2026 et photographies de démonstration issues des maquettes fournies.
-- Données de démonstration enrichies : locataires fictifs, réservations terminées et avis publiés pour rendre chaque fiche logement crédible.
+- Données de démonstration enrichies : 12 logements publiés, locataires fictifs, réservations terminées et avis publiés pour rendre chaque fiche logement crédible.
 - Contenus logements harmonisés avec les visuels : titres affichés, descriptions, équipements et textes alternatifs ont été réécrits pour rester cohérents avec les photos locales.
 
 ## Structure

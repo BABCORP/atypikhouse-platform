@@ -7,7 +7,7 @@ Environnement : MAMP, PHP 8.3.30, MySQL 8.0.44
 
 - Lint PHP sur l’ensemble des fichiers `app/`, `config/`, `public/` et `routes/` : aucun défaut de syntaxe.
 - Import réel de `database/schema.sql` et `database/seed.sql`.
-- Contrôle du seed : 11 utilisateurs fictifs, 8 logements publiés, 10 images de démonstration, 19 réservations de démonstration et 18 avis publiés.
+- Contrôle du seed : 11 utilisateurs fictifs, 12 logements publiés, 15 images de démonstration, 27 réservations de démonstration et 26 avis publiés.
 - Chargement HTTP des pages accueil, catalogue filtré, fiche logement, FAQ et connexion : réponses `200`.
 - Connexion locataire avec le compte de démonstration et accès à son dashboard.
 - Réservation fictive et paiement test réussi : passage de `pending_payment` à `confirmed` avec `payment_status=test_paid`.
@@ -35,6 +35,7 @@ Environnement : MAMP, PHP 8.3.30, MySQL 8.0.44
 - Ajout du guide `docs/smoke-test.md`.
 - Remplacement des visuels incohérents de démonstration, notamment l'image tropicale/piscine précédemment utilisée sur des logements en France, par des fichiers locaux plus crédibles fournis pour la maquette : cabane bois avec spa, hébergement insolite en jardin, tiny house/pod bois et dôme nature.
 - Harmonisation éditoriale des logements seedés : titres visibles, types, descriptions courtes/longues, équipements et textes alternatifs ont été ajustés pour mieux correspondre aux photographies locales.
+- Ajout de 4 logements fictifs supplémentaires à partir des visuels fournis : cabane flottante sur l’étang, dôme vitré au milieu des vergers, kota familial en pleine campagne et lodge en bois avec bain nordique.
 - Ajout d'avis clients fictifs publiés pour chaque logement seedé, associés à des locataires de démonstration et à des réservations passées terminées.
 
 ## Remise à zéro
