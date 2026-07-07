@@ -63,6 +63,7 @@
         <p class="disclaimer"><?= e(config('academic_disclaimer')) ?></p>
     </div>
     <div class="footer-column"><h2>Explorer</h2><nav aria-label="Explorer AtypikHouse"><a href="<?= url('/hebergements') ?>">Hébergements</a><a href="<?= url('/concept') ?>">Le concept</a><a href="<?= url('/devenir-hote') ?>">Devenir hôte</a><a href="<?= url('/contact') ?>">Contact</a></nav></div>
+    <div class="footer-column"><h2>Suivez-nous</h2><nav aria-label="Réseaux sociaux AtypikHouse"><a href="https://www.instagram.com/atypikhouse__off/" target="_blank" rel="noopener noreferrer" aria-label="Suivre AtypikHouse sur Instagram">@atypikhouse__off</a></nav></div>
     <div class="footer-column"><h2>Informations</h2><nav aria-label="Liens légaux"><a href="<?= url('/mentions-legales') ?>">Mentions légales</a><a href="<?= url('/cgu') ?>">CGU</a><a href="<?= url('/cgv') ?>">CGV</a><a href="<?= url('/politique-confidentialite') ?>">Confidentialité</a><a href="<?= url('/mes-donnees') ?>">Mes données</a><a href="<?= url('/cookies') ?>">Cookies</a></nav></div>
 </footer>
 <div class="cookie-banner" data-cookie-banner hidden>

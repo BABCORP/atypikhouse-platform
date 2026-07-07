@@ -464,27 +464,28 @@ fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 1rem 0; }
 .concept-difference {
   width: min(100% - 48px, 1120px);
   display: grid;
-  grid-template-columns: minmax(280px, .68fr) minmax(0, 1fr);
-  gap: clamp(2rem, 6vw, 5rem);
+  grid-template-columns: minmax(280px, .82fr) minmax(0, 1.18fr);
+  gap: clamp(2rem, 5vw, 4rem);
   align-items: start;
 }
 .concept-values {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem 1.15rem;
-  padding-top: .5rem;
+  grid-auto-rows: 1fr;
+  gap: 1.15rem;
+  align-items: stretch;
 }
 .concept-card {
-  min-height: 215px;
-  padding: 1.35rem 1.35rem 1.45rem;
-  transition: transform .18s ease, box-shadow .18s ease;
+  min-height: 245px;
+  height: 100%;
+  padding: 1.45rem;
+  transition: box-shadow .18s ease;
 }
 .concept-card:hover {
   box-shadow: 0 16px 38px rgba(24,60,42,.1);
 }
-.concept-card--trust { transform: translateY(-1.2rem); }
-.concept-card--simple { transform: translateY(1.15rem); background: #fffdf9; }
-.concept-card--responsible { transform: translateY(.1rem); }
+.concept-card--trust, .concept-card--simple, .concept-card--responsible { transform: none; }
+.concept-card--simple { background: #fffdf9; }
 .concept-card--nature { background: #fbf7f0; }
 .concept-card h3 { margin: 1rem 0 .6rem; }
 .concept-how {
