@@ -19,15 +19,15 @@ INSERT INTO properties (id, owner_id, title, slug, type, short_description, long
 (8, 2, 'Maison perchée premium', 'maison-perchee-premium', 'treehouse', 'Maison perchée haut de gamme avec grande terrasse.', 'Hébergement fictif premium pour présenter les pages détail, les avis modérés et le parcours de réservation test.', 'Bois des brumes', 'Fontainebleau', '77300', 'Île-de-France', 'France', 4, 2, 2, 1, 220.00, 45.00, 5, 'published', NOW(), NOW());
 
 INSERT INTO property_images (property_id, image_path, alt_text, is_main, created_at) VALUES
-(1, 'assets/img/properties/cabane-passerelle.jpg', 'Cabane vitrée perchée reliée par une passerelle dans la forêt au coucher du soleil', 1, NOW()),
-(1, 'assets/img/properties/cabane-panorama.jpg', 'Cabane contemporaine dans les arbres face à une vallée boisée', 0, NOW()),
-(2, 'assets/img/properties/lodge-nature.jpg', 'Hébergement nature chaleureux entouré de végétation', 1, NOW()),
+(1, 'assets/img/properties/cabane-spa-pierrefonds-01.avif', 'Cabane en bois avec terrasse et bain nordique dans une forêt tempérée près de Pierrefonds', 1, NOW()),
+(1, 'assets/img/properties/cabane-passerelle.jpg', 'Cabane vitrée perchée reliée par une passerelle dans la forêt au coucher du soleil', 0, NOW()),
+(2, 'assets/img/properties/roulotte-familiale-campagne-01.avif', 'Hébergement insolite en bois dans un jardin naturel en Hauts-de-France', 1, NOW()),
 (3, 'assets/img/properties/cabane-flottante.jpg', 'Cabane en bois sur les eaux calmes d''un lac de montagne', 1, NOW()),
-(4, 'assets/img/properties/refuge-foret.jpg', 'Petite maison en bois isolée au coeur d''une forêt paisible', 1, NOW()),
-(5, 'assets/img/properties/panorama-montagne.jpg', 'Panorama naturel contemplatif depuis un séjour insolite', 1, NOW()),
-(6, 'assets/img/properties/refuge-foret.jpg', 'Hébergement chaleureux entouré de grands arbres', 1, NOW()),
-(7, 'assets/img/properties/lodge-nature.jpg', 'Lodge nature ouvert sur un environnement végétal', 1, NOW()),
-(8, 'assets/img/properties/cabane-panorama.jpg', 'Maison perchée haut de gamme éclairée dans une forêt au crépuscule', 1, NOW()),
+(4, 'assets/img/properties/tiny-house-ecologique-01.jpg', 'Tiny house écologique arrondie en bois avec terrasse dans un environnement naturel', 1, NOW()),
+(5, 'assets/img/properties/dome-romantique-nature-01.jpg', 'Dôme insolite installé sur une terrasse bois au milieu de la végétation', 1, NOW()),
+(6, 'assets/img/properties/roulotte-familiale-campagne-01.avif', 'Petit hébergement familial en bois avec terrasse dans un jardin arboré', 1, NOW()),
+(7, 'assets/img/properties/refuge-foret.jpg', 'Lodge en bois sobre au coeur d''une forêt tempérée', 1, NOW()),
+(8, 'assets/img/properties/maison-perchee-fontainebleau-01.jpg', 'Maison perchée haut de gamme éclairée dans une forêt au crépuscule', 1, NOW()),
 (8, 'assets/img/properties/cabane-passerelle.jpg', 'Passerelle suspendue menant à une maison perchée premium', 0, NOW());
 
 INSERT INTO property_amenities (property_id, amenity_name) VALUES
