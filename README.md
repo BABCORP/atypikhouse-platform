@@ -84,6 +84,7 @@ php -S 127.0.0.1:8010 -t public public/index.php
 - Structure tracking-ready avec attributs `data-track`, `dataLayer`, placeholders `GA4_ID`/`GTM_ID` et consentement cookies.
 - Formulaire `/mes-donnees` pour simuler les demandes RGPD : accès, rectification, suppression et opposition.
 - Identité visuelle alignée sur la charte AtypikHouse 2026 et photographies de démonstration issues des maquettes fournies.
+- Données de démonstration enrichies : locataires fictifs, réservations terminées et avis publiés pour rendre chaque fiche logement crédible.
 
 ## Structure
 
@@ -137,6 +138,8 @@ Le bandeau cookies mémorise le choix dans `localStorage`. GA4/GTM ne sont charg
 ## Notes MVP
 
 Le projet est volontairement léger pour rester compatible avec un environnement PHP local académique. Le jeu de démonstration inclut des visuels de maquette ; si un propriétaire ne téléverse aucune image, le MVP utilise un placeholder accessible.
+
+Les avis présents dans le seed sont entièrement fictifs et servent uniquement à la démonstration académique. Ils ne correspondent à aucun vrai client ni à aucune réservation réelle.
 
 Limites assumées : pas d’email réel, pas de paiement réel, pas de passerelle Brevo/Stripe, pas de calendrier planning professionnel avec drag-and-drop, pas de système de suppression RGPD automatisé complet. Ces points sont simulés ou documentés pour la soutenance.
 

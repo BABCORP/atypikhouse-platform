@@ -16,6 +16,7 @@
 - Filtrer par capacité, vérifier que les logements trop petits sont exclus.
 - Filtrer par équipement et dates disponibles.
 - Ouvrir une fiche logement, vérifier galerie, description, équipements, avis et formulaire de réservation.
+- Vérifier que chaque fiche logement seedée affiche au moins deux avis publiés et n’affiche pas “Aucun avis publié pour le moment”.
 - Vérifier le calendrier public : dates passées désactivées, dates indisponibles/réservées bloquées, prix override visible, clic sur une date valide préremplit arrivée/départ.
 
 ## Réservation
@@ -72,6 +73,7 @@
 - Publier l’avis depuis l’admin.
 - Vérifier que l’avis publié apparaît sur la fiche logement.
 - Vérifier qu’un avis ne peut pas être créé sans réservation complétée.
+- Vérifier que les avis de démonstration restent visibles dans `/admin/avis` avec le logement et le locataire fictif associés.
 
 ## Sécurité
 
