@@ -85,6 +85,7 @@ php -S 127.0.0.1:8010 -t public public/index.php
 - Formulaire `/mes-donnees` pour simuler les demandes RGPD : accès, rectification, suppression et opposition.
 - Identité visuelle alignée sur la charte AtypikHouse 2026 et photographies de démonstration issues des maquettes fournies.
 - Données de démonstration enrichies : locataires fictifs, réservations terminées et avis publiés pour rendre chaque fiche logement crédible.
+- Contenus logements harmonisés avec les visuels : titres affichés, descriptions, équipements et textes alternatifs ont été réécrits pour rester cohérents avec les photos locales.
 
 ## Structure
 
@@ -138,6 +139,8 @@ Le bandeau cookies mémorise le choix dans `localStorage`. GA4/GTM ne sont charg
 ## Notes MVP
 
 Le projet est volontairement léger pour rester compatible avec un environnement PHP local académique. Le jeu de démonstration inclut des visuels de maquette ; si un propriétaire ne téléverse aucune image, le MVP utilise un placeholder accessible.
+
+Les slugs de certains logements historiques sont conservés pour éviter de casser les URLs de démonstration, même lorsque le titre affiché a été ajusté pour mieux correspondre au visuel.
 
 Les avis présents dans le seed sont entièrement fictifs et servent uniquement à la démonstration académique. Ils ne correspondent à aucun vrai client ni à aucune réservation réelle.
 

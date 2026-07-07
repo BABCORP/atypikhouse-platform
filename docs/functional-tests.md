@@ -16,6 +16,7 @@
 - Filtrer par capacité, vérifier que les logements trop petits sont exclus.
 - Filtrer par équipement et dates disponibles.
 - Ouvrir une fiche logement, vérifier galerie, description, équipements, avis et formulaire de réservation.
+- Vérifier que chaque titre de logement, description courte, description longue, équipements et texte alternatif correspondent au visuel principal affiché.
 - Vérifier que chaque fiche logement seedée affiche au moins deux avis publiés et n’affiche pas “Aucun avis publié pour le moment”.
 - Vérifier le calendrier public : dates passées désactivées, dates indisponibles/réservées bloquées, prix override visible, clic sur une date valide préremplit arrivée/départ.
 

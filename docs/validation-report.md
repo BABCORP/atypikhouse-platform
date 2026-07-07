@@ -34,6 +34,7 @@ Environnement : MAMP, PHP 8.3.30, MySQL 8.0.44
 - Ajout du calendrier public de disponibilité sur les fiches logements.
 - Ajout du guide `docs/smoke-test.md`.
 - Remplacement des visuels incohérents de démonstration, notamment l'image tropicale/piscine précédemment utilisée sur des logements en France, par des fichiers locaux plus crédibles fournis pour la maquette : cabane bois avec spa, hébergement insolite en jardin, tiny house/pod bois et dôme nature.
+- Harmonisation éditoriale des logements seedés : titres visibles, types, descriptions courtes/longues, équipements et textes alternatifs ont été ajustés pour mieux correspondre aux photographies locales.
 - Ajout d'avis clients fictifs publiés pour chaque logement seedé, associés à des locataires de démonstration et à des réservations passées terminées.
 
 ## Remise à zéro
@@ -43,7 +44,7 @@ Après les tests mutables, le schéma et le seed ont été réimportés afin de 
 ## Limites de démonstration
 
 - Les logements seedés utilisent des photographies de démonstration locales fournies pour le projet académique. Les droits et sources exactes de ces visuels devront être confirmés avant toute mise en production réelle.
-- Une vraie photo de yourte en environnement Hauts-de-France reste à sélectionner pour une cohérence parfaite ; l'image actuelle évite le rendu tropical et sert de visuel temporaire de démonstration.
+- Certains slugs historiques sont conservés pour ne pas casser les URLs de démonstration, même lorsque le titre affiché a été renommé pour coller au visuel.
 - Les avis seedés sont fictifs, créés uniquement pour rendre la démonstration plus réaliste ; ils ne représentent aucun vrai client ni aucune vraie réservation.
 - Le paiement est exclusivement fictif et ne traite aucune donnée bancaire.
 - Les identifiants GA4/GTM restent volontairement vides par défaut.
