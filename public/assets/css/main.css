@@ -320,6 +320,146 @@ fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 1rem 0; }
   background: var(--clay);
 }
 
+.concept-page {
+  background: linear-gradient(180deg, rgba(241,232,220,.66), rgba(253,250,245,0) 30rem), var(--cream);
+}
+.concept-hero {
+  width: min(100% - 48px, 1220px);
+  margin-inline: auto;
+  padding: clamp(3rem, 7vw, 6rem) 0 clamp(2rem, 5vw, 4rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+  gap: clamp(1.5rem, 5vw, 4rem);
+  align-items: end;
+}
+.concept-hero__content { max-width: 760px; }
+.concept-hero h1 { font-size: clamp(2.7rem, 6vw, 5.2rem); margin: .35rem 0 1rem; }
+.concept-hero__content > p:not(.eyebrow) { max-width: 660px; color: var(--muted); font-size: 1.12rem; }
+.concept-hero__panel {
+  min-height: 220px;
+  display: grid;
+  align-content: end;
+  gap: .65rem;
+  padding: 1.5rem;
+  color: white;
+  background: linear-gradient(180deg, rgba(24,60,42,.2), rgba(24,60,42,.9)), url("../img/properties/maison-perchee-fontainebleau-01.jpg") center/cover;
+  border-radius: 8px;
+  box-shadow: 0 22px 54px rgba(24,60,42,.18);
+}
+.concept-hero__panel strong { font-family: "Lora", Georgia, serif; font-size: 1.5rem; }
+.concept-hero__panel span { color: #f7eadc; font-weight: 650; }
+.concept-section {
+  width: min(100% - 48px, 1220px);
+  margin-inline: auto;
+  padding: clamp(2.4rem, 5vw, 4.5rem) 0;
+}
+.concept-section__intro { max-width: 760px; }
+.concept-section__intro > p:not(.eyebrow),
+.concept-copy p,
+.concept-visual__text p,
+.concept-card p,
+.concept-audience-card p,
+.concept-steps p,
+.concept-cta p { color: var(--muted); }
+.concept-vision {
+  display: grid;
+  grid-template-columns: minmax(260px, .7fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 5vw, 4rem);
+  align-items: start;
+  border-top: 1px solid var(--line);
+}
+.concept-copy { display: grid; gap: 1rem; font-size: 1.02rem; }
+.concept-copy p { margin: 0; }
+.concept-audiences {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  padding-top: 0;
+}
+.concept-audience-card,
+.concept-card,
+.concept-steps article {
+  background: rgba(255,255,255,.94);
+  border: 1px solid #ded3c6;
+  border-radius: 8px;
+  box-shadow: 0 14px 36px rgba(24,60,42,.08);
+}
+.concept-audience-card { min-height: 250px; padding: clamp(1.35rem, 3vw, 2rem); }
+.concept-icon,
+.concept-card__mark,
+.concept-steps span {
+  display: inline-grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  background: #f3dfcf;
+  color: var(--clay);
+  font-weight: 900;
+}
+.concept-audience-card h2 { margin-top: 1.2rem; }
+.concept-visual {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr);
+  gap: clamp(1.5rem, 5vw, 3.5rem);
+  align-items: center;
+  padding: clamp(1rem, 3vw, 1.4rem);
+  background: #f3eadf;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.concept-visual__media img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 18px 42px rgba(24,60,42,.14);
+}
+.concept-visual__text { padding: clamp(.25rem, 2vw, 1rem); }
+.concept-difference {
+  display: grid;
+  grid-template-columns: minmax(280px, .72fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 5vw, 4rem);
+  align-items: center;
+}
+.concept-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.concept-card {
+  min-height: 245px;
+  padding: 1.45rem;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.concept-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 44px rgba(24,60,42,.12);
+}
+.concept-card h3 { margin: 1rem 0 .6rem; }
+.concept-how { border-top: 1px solid var(--line); }
+.concept-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.4rem;
+}
+.concept-steps article { padding: 1.3rem; }
+.concept-steps h3 { margin: 1rem 0 .55rem; }
+.concept-cta {
+  width: min(100% - 48px, 1120px);
+  margin: 0 auto clamp(3rem, 6vw, 5rem);
+  padding: clamp(2rem, 5vw, 3.5rem);
+  text-align: center;
+  color: white;
+  background: linear-gradient(135deg, rgba(24,60,42,.96), rgba(37,84,59,.92)), url("../img/properties/cabane-passerelle.jpg") center/cover;
+  border-radius: 8px;
+  box-shadow: 0 22px 56px rgba(24,60,42,.18);
+}
+.concept-cta h2 { color: white; margin-inline: auto; max-width: 760px; }
+.concept-cta p { max-width: 760px; margin: 0 auto 1.35rem; color: #f7eadc; }
+.concept-cta .eyebrow { color: #f1c8ac; }
+
 .property-detail-page {
   padding: clamp(2.5rem, 5vw, 4rem) 0;
 }
@@ -544,6 +684,15 @@ th { background: var(--sand); }
   .hero { min-height: 660px; padding-top: 3.5rem; }
   .hero h1 { font-size: 3rem; }
   .hero-search, .form-layout, .detail-grid, .property-detail .gallery, .dashboard-columns, .dashboard-grid, .dashboard-grid.two, .contact-layout, .split, .steps, .home-flow-main, .home-flow-secondary { grid-template-columns: 1fr; }
+  .concept-hero,
+  .concept-vision,
+  .concept-audiences,
+  .concept-visual,
+  .concept-difference,
+  .concept-steps { grid-template-columns: 1fr; }
+  .concept-hero { align-items: start; }
+  .concept-hero__panel { min-height: 190px; }
+  .concept-values { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .search-hero__inner { grid-template-columns: 1fr; align-items: start; }
   .search-hero__intro { max-width: 720px; padding-bottom: 0; }
   .search-form__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -573,6 +722,17 @@ th { background: var(--sand); }
   .hero-search label:nth-child(2), .hero-search label:nth-child(3) { display: none; }
   .page-hero { padding: 2.6rem 1rem 4.7rem; }
   .page-hero h1 { font-size: 2.25rem; }
+  .concept-hero,
+  .concept-section,
+  .concept-cta { width: min(100% - 28px, 100%); }
+  .concept-hero { padding-top: 2.4rem; }
+  .concept-hero h1 { font-size: 2.55rem; }
+  .concept-hero__panel { min-height: 170px; padding: 1.1rem; }
+  .concept-values { grid-template-columns: 1fr; }
+  .concept-card, .concept-audience-card { min-height: 0; }
+  .concept-visual { padding: .85rem; }
+  .concept-visual__media img { aspect-ratio: 4 / 3; }
+  .concept-cta { margin-bottom: 2.4rem; }
   .property-detail-page { padding: 2rem 0 2.5rem; }
   .property-detail-container { width: min(100% - 28px, 100%); }
   .property-heading { margin-bottom: 1.15rem; }
