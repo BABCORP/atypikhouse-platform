@@ -321,22 +321,25 @@ fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 1rem 0; }
 }
 
 .concept-page {
-  background: linear-gradient(180deg, rgba(241,232,220,.66), rgba(253,250,245,0) 30rem), var(--cream);
+  background:
+    linear-gradient(180deg, rgba(241,232,220,.7), rgba(253,250,245,0) 29rem),
+    linear-gradient(90deg, rgba(24,60,42,.035), transparent 42%),
+    var(--cream);
 }
 .concept-hero {
-  width: min(100% - 48px, 1220px);
+  width: min(100% - 48px, 1180px);
   margin-inline: auto;
-  padding: clamp(3rem, 7vw, 6rem) 0 clamp(2rem, 5vw, 4rem);
+  padding: clamp(3rem, 7vw, 6.4rem) 0 clamp(2.5rem, 5vw, 4.7rem);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
-  gap: clamp(1.5rem, 5vw, 4rem);
-  align-items: end;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  gap: clamp(2rem, 6vw, 5.5rem);
+  align-items: center;
 }
-.concept-hero__content { max-width: 760px; }
+.concept-hero__content { max-width: 720px; }
 .concept-hero h1 { font-size: clamp(2.7rem, 6vw, 5.2rem); margin: .35rem 0 1rem; }
 .concept-hero__content > p:not(.eyebrow) { max-width: 660px; color: var(--muted); font-size: 1.12rem; }
 .concept-hero__panel {
-  min-height: 220px;
+  min-height: 255px;
   display: grid;
   align-content: end;
   gap: .65rem;
@@ -344,14 +347,15 @@ fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 1rem 0; }
   color: white;
   background: linear-gradient(180deg, rgba(24,60,42,.2), rgba(24,60,42,.9)), url("../img/properties/maison-perchee-fontainebleau-01.jpg") center/cover;
   border-radius: 8px;
-  box-shadow: 0 22px 54px rgba(24,60,42,.18);
+  box-shadow: 0 20px 52px rgba(24,60,42,.16);
+  transform: translateY(1.1rem);
 }
 .concept-hero__panel strong { font-family: "Lora", Georgia, serif; font-size: 1.5rem; }
 .concept-hero__panel span { color: #f7eadc; font-weight: 650; }
 .concept-section {
-  width: min(100% - 48px, 1220px);
+  width: min(100% - 48px, 1180px);
   margin-inline: auto;
-  padding: clamp(2.4rem, 5vw, 4.5rem) 0;
+  padding: clamp(2.7rem, 5vw, 5rem) 0;
 }
 .concept-section__intro { max-width: 760px; }
 .concept-section__intro > p:not(.eyebrow),
@@ -362,18 +366,29 @@ fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 1rem 0; }
 .concept-steps p,
 .concept-cta p { color: var(--muted); }
 .concept-vision {
+  width: min(100% - 48px, 1080px);
   display: grid;
-  grid-template-columns: minmax(260px, .7fr) minmax(0, 1fr);
-  gap: clamp(1.5rem, 5vw, 4rem);
+  grid-template-columns: minmax(260px, .58fr) minmax(0, 1fr);
+  gap: clamp(1.75rem, 6vw, 5.2rem);
   align-items: start;
   border-top: 1px solid var(--line);
 }
 .concept-copy { display: grid; gap: 1rem; font-size: 1.02rem; }
 .concept-copy p { margin: 0; }
+.concept-note {
+  max-width: 560px;
+  margin-top: .5rem !important;
+  padding: 1rem 0 0 1.1rem;
+  border-left: 3px solid var(--clay);
+  font-family: "Lora", Georgia, serif;
+  font-size: 1.08rem;
+  color: var(--forest) !important;
+}
 .concept-audiences {
+  width: min(100% - 48px, 1080px);
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+  gap: clamp(1rem, 3vw, 1.6rem);
   padding-top: 0;
 }
 .concept-audience-card,
@@ -382,9 +397,19 @@ fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 1rem 0; }
   background: rgba(255,255,255,.94);
   border: 1px solid #ded3c6;
   border-radius: 8px;
-  box-shadow: 0 14px 36px rgba(24,60,42,.08);
+  box-shadow: 0 10px 28px rgba(24,60,42,.055);
 }
-.concept-audience-card { min-height: 250px; padding: clamp(1.35rem, 3vw, 2rem); }
+.concept-audience-card {
+  min-height: 230px;
+  padding: clamp(1.45rem, 3vw, 2.15rem);
+}
+.concept-audience-card--traveler {
+  transform: translateY(.8rem);
+}
+.concept-audience-card--host {
+  background: #fffdf9;
+  transform: translateY(-.45rem);
+}
 .concept-icon,
 .concept-card__mark,
 .concept-steps span {
@@ -393,58 +418,87 @@ fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 1rem 0; }
   width: 46px;
   height: 46px;
   border-radius: 999px;
-  background: #f3dfcf;
+  background: #f4ded0;
   color: var(--clay);
   font-weight: 900;
 }
 .concept-audience-card h2 { margin-top: 1.2rem; }
 .concept-visual {
+  width: min(100% - 48px, 1080px);
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr);
-  gap: clamp(1.5rem, 5vw, 3.5rem);
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr);
+  gap: clamp(1.8rem, 5vw, 4.2rem);
   align-items: center;
-  padding: clamp(1rem, 3vw, 1.4rem);
-  background: #f3eadf;
+  padding: clamp(1.1rem, 3vw, 1.7rem) clamp(1.1rem, 3vw, 1.7rem) clamp(1.1rem, 3vw, 1.7rem) clamp(1.1rem, 3vw, 1.25rem);
+  background: linear-gradient(135deg, #f3eadf, #efe1d2);
   border: 1px solid var(--line);
   border-radius: 8px;
+  position: relative;
+  overflow: visible;
+}
+.concept-visual::before {
+  content: "";
+  position: absolute;
+  inset: auto 10% -18px auto;
+  width: 170px;
+  height: 2px;
+  background: var(--clay);
+  opacity: .45;
 }
 .concept-visual__media img {
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9.5;
   object-fit: cover;
   border-radius: 8px;
-  box-shadow: 0 18px 42px rgba(24,60,42,.14);
+  box-shadow: 0 18px 42px rgba(24,60,42,.13);
+  transform: translate(-.35rem, -.75rem);
+}
+.concept-visual__media p {
+  max-width: 520px;
+  margin: .25rem 0 0 .4rem;
+  color: var(--muted);
+  font-size: .88rem;
+  font-style: italic;
 }
 .concept-visual__text { padding: clamp(.25rem, 2vw, 1rem); }
 .concept-difference {
+  width: min(100% - 48px, 1120px);
   display: grid;
-  grid-template-columns: minmax(280px, .72fr) minmax(0, 1fr);
-  gap: clamp(1.5rem, 5vw, 4rem);
-  align-items: center;
+  grid-template-columns: minmax(280px, .68fr) minmax(0, 1fr);
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: start;
 }
 .concept-values {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 1rem 1.15rem;
+  padding-top: .5rem;
 }
 .concept-card {
-  min-height: 245px;
-  padding: 1.45rem;
+  min-height: 215px;
+  padding: 1.35rem 1.35rem 1.45rem;
   transition: transform .18s ease, box-shadow .18s ease;
 }
 .concept-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 18px 44px rgba(24,60,42,.12);
+  box-shadow: 0 16px 38px rgba(24,60,42,.1);
 }
+.concept-card--trust { transform: translateY(-1.2rem); }
+.concept-card--simple { transform: translateY(1.15rem); background: #fffdf9; }
+.concept-card--responsible { transform: translateY(.1rem); }
+.concept-card--nature { background: #fbf7f0; }
 .concept-card h3 { margin: 1rem 0 .6rem; }
-.concept-how { border-top: 1px solid var(--line); }
+.concept-how {
+  width: min(100% - 48px, 1120px);
+  border-top: 1px solid var(--line);
+}
 .concept-steps {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
-  margin-top: 1.4rem;
+  grid-template-columns: 1.05fr .95fr 1fr 1.08fr;
+  gap: .9rem;
+  margin-top: 1.7rem;
 }
 .concept-steps article { padding: 1.3rem; }
+.concept-steps article:nth-child(even) { transform: translateY(1.2rem); }
 .concept-steps h3 { margin: 1rem 0 .55rem; }
 .concept-cta {
   width: min(100% - 48px, 1120px);
@@ -691,6 +745,14 @@ th { background: var(--sand); }
   .concept-difference,
   .concept-steps { grid-template-columns: 1fr; }
   .concept-hero { align-items: start; }
+  .concept-hero__panel,
+  .concept-audience-card--traveler,
+  .concept-audience-card--host,
+  .concept-visual__media img,
+  .concept-card--trust,
+  .concept-card--simple,
+  .concept-card--responsible,
+  .concept-steps article:nth-child(even) { transform: none; }
   .concept-hero__panel { min-height: 190px; }
   .concept-values { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .search-hero__inner { grid-template-columns: 1fr; align-items: start; }
@@ -728,9 +790,12 @@ th { background: var(--sand); }
   .concept-hero { padding-top: 2.4rem; }
   .concept-hero h1 { font-size: 2.55rem; }
   .concept-hero__panel { min-height: 170px; padding: 1.1rem; }
+  .concept-note { padding-left: .85rem; font-size: 1rem; }
   .concept-values { grid-template-columns: 1fr; }
   .concept-card, .concept-audience-card { min-height: 0; }
   .concept-visual { padding: .85rem; }
+  .concept-visual::before { display: none; }
+  .concept-visual__media p { margin-left: 0; }
   .concept-visual__media img { aspect-ratio: 4 / 3; }
   .concept-cta { margin-bottom: 2.4rem; }
   .property-detail-page { padding: 2rem 0 2.5rem; }

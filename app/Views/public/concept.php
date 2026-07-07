@@ -23,16 +23,17 @@
         <div class="concept-copy">
             <p>AtypikHouse n’est pas une simple vitrine. Le projet montre comment une marketplace peut guider des voyageurs vers des hébergements atypiques, tout en donnant aux propriétaires un espace clair pour présenter leurs logements, gérer leurs disponibilités et suivre leurs réservations fictives.</p>
             <p>L’univers repose sur la nature, l’évasion, l’authenticité et la simplicité. Chaque parcours a été pensé pour rester compréhensible en démonstration : chercher un séjour, consulter une fiche, simuler une réservation, puis publier un avis modéré.</p>
+            <p class="concept-note">L’idée n’est pas de vendre plus vite, mais de rendre le parcours plus lisible, plus rassurant et plus proche de l’imaginaire du séjour nature.</p>
         </div>
     </section>
 
     <section class="concept-section concept-audiences">
-        <article class="concept-audience-card">
+        <article class="concept-audience-card concept-audience-card--traveler">
             <span class="concept-icon" aria-hidden="true">01</span>
             <h2>Pour les voyageurs</h2>
             <p>Une expérience claire pour comparer des cabanes, tiny houses, dômes ou logements nature, se projeter dans un séjour et comprendre le prix avant une simulation de paiement.</p>
         </article>
-        <article class="concept-audience-card">
+        <article class="concept-audience-card concept-audience-card--host">
             <span class="concept-icon" aria-hidden="true">02</span>
             <h2>Pour les hôtes</h2>
             <p>Un espace propriétaire pour ajouter un logement, gérer les images, ouvrir ou fermer des disponibilités, suivre les réservations et soumettre les annonces à validation.</p>
@@ -42,6 +43,7 @@
     <section class="concept-section concept-visual">
         <div class="concept-visual__media">
             <img loading="lazy" src="<?= asset('img/properties/cabane-flottante-etang-02.avif') ?>" alt="Cabane flottante vitrée sur un étang calme entouré d’arbres">
+            <p>Un exemple de fiche pensée pour raconter un lieu avant de parler de réservation.</p>
         </div>
         <div class="concept-visual__text">
             <p class="eyebrow">Expérience immersive</p>
@@ -58,22 +60,22 @@
             <p>Le projet privilégie la projection émotionnelle, le tourisme responsable et une expérience simple pour deux publics : voyageurs en quête d’évasion et propriétaires souhaitant gérer leurs logements depuis un espace clair.</p>
         </div>
         <div class="concept-values">
-            <article class="concept-card">
+            <article class="concept-card concept-card--nature">
                 <span class="concept-card__mark" aria-hidden="true">N</span>
                 <h3>Nature</h3>
                 <p>Des séjours pensés pour se reconnecter au paysage, au calme et aux grands espaces.</p>
             </article>
-            <article class="concept-card">
+            <article class="concept-card concept-card--trust">
                 <span class="concept-card__mark" aria-hidden="true">C</span>
                 <h3>Confiance</h3>
                 <p>Des logements validés, des avis modérés et une séparation claire des rôles.</p>
             </article>
-            <article class="concept-card">
+            <article class="concept-card concept-card--simple">
                 <span class="concept-card__mark" aria-hidden="true">S</span>
                 <h3>Simplicité</h3>
                 <p>Une recherche fluide, une réservation fictive et un espace utilisateur facile à comprendre.</p>
             </article>
-            <article class="concept-card">
+            <article class="concept-card concept-card--responsible">
                 <span class="concept-card__mark" aria-hidden="true">R</span>
                 <h3>Responsabilité</h3>
                 <p>Une approche orientée tourisme responsable, sobriété et valorisation des séjours nature.</p>
