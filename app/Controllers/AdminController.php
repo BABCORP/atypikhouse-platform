@@ -260,22 +260,22 @@ final class AdminController extends Controller
 
     public function approveProperty(int $id): void
     {
-        $this->quickPropertyStatus($id, 'published', 'property_approved', 'Logement publié.');
+        $this->quickPropertyStatus($id, 'published', 'property_approved', 'Le logement a été approuvé et publié dans le catalogue.', '/admin/logements/' . $id);
     }
 
     public function rejectProperty(int $id): void
     {
-        $this->quickPropertyStatus($id, 'rejected', 'property_rejected', 'Logement refusé.');
+        $this->quickPropertyStatus($id, 'rejected', 'property_rejected', 'Le logement a été refusé et reste invisible publiquement.', '/admin/logements/' . $id);
     }
 
     public function disableProperty(int $id): void
     {
-        $this->quickPropertyStatus($id, 'paused', 'property_paused', 'Le logement a été mis en pause. Il n’est plus visible dans le catalogue public.');
+        $this->quickPropertyStatus($id, 'paused', 'property_paused', 'Le logement a été mis en pause. Il n’est plus visible dans le catalogue public.', '/admin/logements/' . $id);
     }
 
     public function pauseProperty(int $id): void
     {
-        $this->quickPropertyStatus($id, 'paused', 'property_paused', 'Le logement a été mis en pause. Il n’est plus visible dans le catalogue public.');
+        $this->quickPropertyStatus($id, 'paused', 'property_paused', 'Le logement a été mis en pause. Il n’est plus visible dans le catalogue public.', '/admin/logements/' . $id);
     }
 
     public function reactivateProperty(int $id): void
@@ -288,14 +288,14 @@ final class AdminController extends Controller
         }
         if ($property['status'] !== 'paused') {
             flash('error', 'Seuls les logements en pause peuvent être réactivés directement.');
-            $this->redirect($_SERVER['HTTP_REFERER'] ?? '/admin/logements');
+            $this->redirect('/admin/logements');
         }
-        $this->quickPropertyStatus($id, 'published', 'property_reactivated', 'Le logement a été réactivé et est de nouveau visible dans le catalogue.');
+        $this->quickPropertyStatus($id, 'published', 'property_reactivated', 'Le logement a été réactivé et est de nouveau visible dans le catalogue public.', '/admin/logements/' . $id);
     }
 
     public function deleteProperty(int $id): void
     {
-        $this->quickPropertyStatus($id, 'deleted', 'property_deleted', 'Le logement a été supprimé du catalogue. Les données liées sont conservées pour l’historique du projet.');
+        $this->quickPropertyStatus($id, 'deleted', 'property_deleted', 'Le logement a été supprimé du catalogue. Son historique reste conservé dans le back-office.', '/admin/logements');
     }
 
     public function bookings(): void
@@ -569,14 +569,19 @@ final class AdminController extends Controller
         }
     }
 
-    private function quickPropertyStatus(int $id, string $status, string $action, string $message): void
+    private function quickPropertyStatus(int $id, string $status, string $action, string $message, ?string $redirectTo = null): void
     {
         $admin = Auth::requireRole('admin');
         verify_csrf();
-        (new Property())->updateStatus($id, $status);
+        $propertyModel = new Property();
+        if (!$propertyModel->find($id)) {
+            http_response_code(404);
+            exit('Logement introuvable.');
+        }
+        $propertyModel->updateStatus($id, $status);
         audit((int) $admin['id'], $action, 'property', $id);
         flash('success', $message);
-        $this->redirect($_SERVER['HTTP_REFERER'] ?? '/admin/logements');
+        $this->redirect($redirectTo ?? '/admin/logements');
     }
 
     private function quickBookingStatus(int $id, string $status, string $action, string $message): void
