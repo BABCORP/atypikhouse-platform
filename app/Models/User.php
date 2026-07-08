@@ -73,10 +73,17 @@ final class User extends Model
         return $stmt->fetchAll();
     }
 
-    public function paginated(?string $role, ?string $status, int $limit, int $offset): array
+    public function paginated(?string $role, ?string $status, int $limit, int $offset, ?string $search = null): array
     {
         $where = ' WHERE 1=1';
         $params = [];
+        if ($search && trim($search) !== '') {
+            $where .= ' AND (first_name LIKE ? OR last_name LIKE ? OR email LIKE ?)';
+            $term = '%' . trim($search) . '%';
+            $params[] = $term;
+            $params[] = $term;
+            $params[] = $term;
+        }
         if ($role) {
             $where .= ' AND role = ?';
             $params[] = $role;
@@ -151,9 +158,32 @@ final class User extends Model
         $this->db->prepare('DELETE FROM password_resets WHERE user_id = ?')->execute([$userId]);
     }
 
-    public function ownerProfiles(): array
+    public function ownerProfiles(?string $status = null, ?string $search = null): array
     {
-        $stmt = $this->db->query('SELECT op.*, u.first_name, u.last_name, u.email FROM owner_profiles op JOIN users u ON u.id = op.user_id ORDER BY op.created_at DESC');
+        $sql = 'SELECT op.*, u.first_name, u.last_name, u.email, u.status AS user_status,
+            COUNT(p.id) AS properties_count,
+            SUM(CASE WHEN p.status = "published" THEN 1 ELSE 0 END) AS published_properties,
+            SUM(CASE WHEN p.status = "pending" THEN 1 ELSE 0 END) AS pending_properties
+            FROM owner_profiles op
+            JOIN users u ON u.id = op.user_id
+            LEFT JOIN properties p ON p.owner_id = u.id
+            WHERE 1=1';
+        $params = [];
+        if ($status) {
+            $sql .= ' AND op.verification_status = ?';
+            $params[] = $status;
+        }
+        if ($search && trim($search) !== '') {
+            $sql .= ' AND (u.email LIKE ? OR u.first_name LIKE ? OR u.last_name LIKE ? OR op.company_name LIKE ?)';
+            $term = '%' . trim($search) . '%';
+            $params[] = $term;
+            $params[] = $term;
+            $params[] = $term;
+            $params[] = $term;
+        }
+        $sql .= ' GROUP BY op.id, u.id ORDER BY op.created_at DESC';
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 

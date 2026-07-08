@@ -21,9 +21,15 @@
                     <?php if ($message['subject'] === 'Newsletter'): ?><span class="badge muted">Newsletter démo</span><?php endif; ?>
                 </p>
                 <p><?= e($message['message']) ?></p>
-                <form class="inline-form" method="post" action="<?= url('/admin/messages/' . $message['id'] . '/statut') ?>" data-confirm="Confirmer la mise à jour du statut de ce message ?"><?= csrf_field() ?><button class="button compact" name="status" value="read" type="submit">Marquer lu</button><button class="button ghost compact" name="status" value="archived" type="submit">Archiver</button></form>
+                <div class="actions-row">
+                    <a class="button ghost compact" href="<?= url('/admin/messages/' . $message['id']) ?>">Voir</a>
+                    <form class="inline-form" method="post" action="<?= url('/admin/messages/' . $message['id'] . '/lu') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Marquer lu</button></form>
+                    <form class="inline-form" method="post" action="<?= url('/admin/messages/' . $message['id'] . '/traite') ?>"><?= csrf_field() ?><button class="button ghost compact" type="submit">Traité</button></form>
+                    <form class="inline-form" method="post" action="<?= url('/admin/messages/' . $message['id'] . '/archiver') ?>" data-confirm="Archiver ce message ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Archiver</button></form>
+                </div>
             </article>
         <?php endforeach; ?>
+        <?php if (empty($messages)): ?><p class="empty-state">Aucun message ne correspond aux critères.</p><?php endif; ?>
     </div>
     <?php require __DIR__ . '/_pagination.php'; ?>
 </section>

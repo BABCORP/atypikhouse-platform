@@ -43,6 +43,13 @@ final class ContactMessage extends Model
         return ['items' => $stmt->fetchAll(), 'total' => (int) $count->fetchColumn()];
     }
 
+    public function find(int $id): ?array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM contact_messages WHERE id = ? LIMIT 1');
+        $stmt->execute([$id]);
+        return $stmt->fetch() ?: null;
+    }
+
     public function updateStatus(int $id, string $status): void
     {
         $stmt = $this->db->prepare('UPDATE contact_messages SET status = ? WHERE id = ?');

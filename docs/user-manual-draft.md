@@ -30,13 +30,17 @@ Un visiteur peut consulter l’accueil, le concept, le catalogue, les fiches log
 ## Administrateur
 
 1. Se connecter avec le compte admin.
-2. Consulter les statistiques.
-3. Modérer les propriétaires, logements et avis.
-4. Modifier les utilisateurs, rôles et statuts, avec protection du dernier admin actif.
-5. Consulter le détail complet d’une réservation et changer son statut.
-6. Publier des articles de blog.
-7. Lire les messages, filtrer les demandes RGPD/newsletter, puis archiver ou marquer comme lu.
-8. Utiliser les filtres et la pagination des logs pour contrôler les actions sensibles.
+2. Consulter les statistiques, les derniers logs, les derniers messages et les logements en attente.
+3. Rechercher un utilisateur, ouvrir sa fiche, modifier ses informations, suspendre ou réactiver son compte.
+4. Contrôler les propriétaires : validation du profil, statut du compte et nombre de logements.
+5. Filtrer les logements, ouvrir le détail admin, vérifier les images/équipements, modifier la fiche puis publier, refuser, mettre en pause, réactiver ou supprimer logiquement.
+6. Filtrer les réservations, consulter le détail complet, annuler ou marquer une réservation comme terminée.
+7. Modérer les avis avec filtres par statut, note, logement ou auteur.
+8. Créer, modifier, publier, dépublier ou supprimer les articles de blog.
+9. Ouvrir les messages contact/newsletter/RGPD, les marquer comme lus, traités ou archivés.
+10. Utiliser les filtres et la pagination des logs pour contrôler les actions sensibles.
+
+Un logement mis en pause ou supprimé logiquement n’est plus visible dans le catalogue public. Les réservations, avis, images et logs restent conservés pour l’historique de la démonstration.
 
 ## Cookies et suivi
 

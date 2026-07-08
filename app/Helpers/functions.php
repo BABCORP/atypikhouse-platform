@@ -145,6 +145,8 @@ function status_label(?string $status): string
         'published' => 'Publié',
         'rejected' => 'Refusé',
         'archived' => 'Archivé',
+        'paused' => 'En pause',
+        'deleted' => 'Supprimé',
         'pending_payment' => 'Paiement en attente',
         'confirmed' => 'Confirmée',
         'cancelled' => 'Annulée',
@@ -158,6 +160,7 @@ function status_label(?string $status): string
         'test_refunded' => 'Test remboursé',
         'approved' => 'Approuvé',
         'read' => 'Lu',
+        'processed' => 'Traité',
         'new' => 'Nouveau',
     ][$status ?? ''] ?? (string) $status;
 }

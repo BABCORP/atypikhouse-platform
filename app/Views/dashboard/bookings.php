@@ -38,6 +38,19 @@
                     <?php endforeach; ?>
                 </select>
             </label>
+            <label>Paiement
+                <select name="payment_status">
+                    <option value="">Tous les paiements</option>
+                    <?php foreach (['not_paid', 'test_paid', 'refunded'] as $status): ?>
+                        <option value="<?= $status ?>" <?= input('payment_status') === $status ? 'selected' : '' ?>><?= status_label($status) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <label>Logement<input name="property" value="<?= e(input('property', '')) ?>" placeholder="Titre"></label>
+            <label>Locataire<input name="tenant" value="<?= e(input('tenant', '')) ?>" placeholder="Email ou nom"></label>
+            <label>Propriétaire<input name="owner" value="<?= e(input('owner', '')) ?>" placeholder="Email ou nom"></label>
+            <label>Arrivée après<input type="date" name="start_date" value="<?= e(input('start_date', '')) ?>"></label>
+            <label>Départ avant<input type="date" name="end_date" value="<?= e(input('end_date', '')) ?>"></label>
             <button class="button compact" type="submit">Filtrer</button>
         </form>
     <?php endif; ?>

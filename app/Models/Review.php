@@ -39,6 +39,32 @@ final class Review extends Model
         return $stmt->fetchAll();
     }
 
+    public function filtered(array $filters = []): array
+    {
+        $sql = 'SELECT r.*, p.title, u.email FROM reviews r JOIN properties p ON p.id = r.property_id JOIN users u ON u.id = r.tenant_id WHERE 1=1';
+        $params = [];
+        if (!empty($filters['status'])) {
+            $sql .= ' AND r.status = ?';
+            $params[] = $filters['status'];
+        }
+        if (!empty($filters['rating'])) {
+            $sql .= ' AND r.rating = ?';
+            $params[] = (int) $filters['rating'];
+        }
+        if (!empty($filters['property'])) {
+            $sql .= ' AND p.title LIKE ?';
+            $params[] = '%' . trim((string) $filters['property']) . '%';
+        }
+        if (!empty($filters['author'])) {
+            $sql .= ' AND u.email LIKE ?';
+            $params[] = '%' . trim((string) $filters['author']) . '%';
+        }
+        $sql .= ' ORDER BY r.created_at DESC';
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
     public function updateStatus(int $id, string $status): void
     {
         $stmt = $this->db->prepare('UPDATE reviews SET status = ?, updated_at = NOW() WHERE id = ?');

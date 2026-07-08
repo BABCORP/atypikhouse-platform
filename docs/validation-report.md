@@ -37,6 +37,8 @@ Environnement : MAMP, PHP 8.3.30, MySQL 8.0.44
 - Harmonisation éditoriale des logements seedés : titres visibles, types, descriptions courtes/longues, équipements et textes alternatifs ont été ajustés pour mieux correspondre aux photographies locales.
 - Ajout de 4 logements fictifs supplémentaires à partir des visuels fournis : cabane flottante sur l’étang, dôme vitré au milieu des vergers, kota familial en pleine campagne et lodge en bois avec bain nordique.
 - Ajout d'avis clients fictifs publiés pour chaque logement seedé, associés à des locataires de démonstration et à des réservations passées terminées.
+- Renforcement du back-office administrateur pour la soutenance : dashboard enrichi, recherche/détail utilisateur, suspension/réactivation, filtres propriétaires/logements/réservations/avis, détail et édition admin des logements, actions rapides de publication/refus/pause/réactivation/suppression logique, annulation/terminaison réservation, publication/dépublication blog, détail message et statut “traité”.
+- Ajout de logs d’audit explicites pour les actions admin sensibles : `user_suspended`, `user_reactivated`, `property_approved`, `property_rejected`, `property_paused`, `property_reactivated`, `property_deleted`, `property_updated_by_admin`, `booking_cancelled_by_admin`, `booking_completed_by_admin`, `review_approved`, `review_rejected`, `review_deleted`, `blog_created`, `blog_updated`, `blog_published`, `blog_unpublished`, `blog_deleted`, `message_read`, `message_processed`, `message_archived`.
 
 ## Remise à zéro
 
@@ -52,3 +54,5 @@ Après les tests mutables, le schéma et le seed ont été réimportés afin de 
 - L’emailing/newsletter est uniquement stocké localement ; aucune intégration Brevo réelle n’est branchée en V1.
 - Le calendrier est interactif pour la visualisation et le préremplissage, mais ne remplace pas le formulaire serveur de plages qui reste la source sûre.
 - Les demandes RGPD sont simulées et stockées localement ; aucune suppression automatique réelle n’est exécutée.
+- Le back-office est complet pour un MVP académique, mais ne déclenche pas de notification email réelle vers les hôtes/locataires après modération ou changement de statut.
+- La suppression de logement est volontairement logique (`status=deleted`) pour ne pas casser les réservations, avis et historiques liés.

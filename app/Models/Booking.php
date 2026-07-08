@@ -190,17 +190,47 @@ final class Booking extends Model
 
     public function paginatedAll(array $filters, int $limit, int $offset): array
     {
-        $sql = ' FROM bookings b JOIN properties p ON p.id = b.property_id JOIN users u ON u.id = b.tenant_id WHERE 1=1';
+        $sql = ' FROM bookings b JOIN properties p ON p.id = b.property_id JOIN users u ON u.id = b.tenant_id JOIN users owner ON owner.id = p.owner_id WHERE 1=1';
         $params = [];
         if (!empty($filters['status'])) {
             $sql .= ' AND b.status = ?';
             $params[] = $filters['status'];
         }
+        if (!empty($filters['payment_status'])) {
+            $sql .= ' AND b.payment_status = ?';
+            $params[] = $filters['payment_status'];
+        }
+        if (!empty($filters['property'])) {
+            $sql .= ' AND p.title LIKE ?';
+            $params[] = '%' . trim((string) $filters['property']) . '%';
+        }
+        if (!empty($filters['tenant'])) {
+            $sql .= ' AND (u.email LIKE ? OR u.first_name LIKE ? OR u.last_name LIKE ?)';
+            $term = '%' . trim((string) $filters['tenant']) . '%';
+            $params[] = $term;
+            $params[] = $term;
+            $params[] = $term;
+        }
+        if (!empty($filters['owner'])) {
+            $sql .= ' AND (owner.email LIKE ? OR owner.first_name LIKE ? OR owner.last_name LIKE ?)';
+            $term = '%' . trim((string) $filters['owner']) . '%';
+            $params[] = $term;
+            $params[] = $term;
+            $params[] = $term;
+        }
+        if (!empty($filters['start_date']) && valid_date($filters['start_date'])) {
+            $sql .= ' AND b.start_date >= ?';
+            $params[] = $filters['start_date'];
+        }
+        if (!empty($filters['end_date']) && valid_date($filters['end_date'])) {
+            $sql .= ' AND b.end_date <= ?';
+            $params[] = $filters['end_date'];
+        }
 
         $count = $this->db->prepare('SELECT COUNT(*)' . $sql);
         $count->execute($params);
 
-        $stmt = $this->db->prepare('SELECT b.*, p.title, p.slug, u.email AS tenant_email' . $sql . ' ORDER BY b.created_at DESC LIMIT ' . max(1, $limit) . ' OFFSET ' . max(0, $offset));
+        $stmt = $this->db->prepare('SELECT b.*, p.title, p.slug, u.email AS tenant_email, owner.email AS owner_email' . $sql . ' ORDER BY b.created_at DESC LIMIT ' . max(1, $limit) . ' OFFSET ' . max(0, $offset));
         $stmt->execute($params);
 
         return ['items' => $stmt->fetchAll(), 'total' => (int) $count->fetchColumn()];
@@ -208,10 +238,11 @@ final class Booking extends Model
 
     public function findForAdmin(int $id): ?array
     {
-        $stmt = $this->db->prepare('SELECT b.*, p.title, p.slug, p.city, p.owner_id, u.first_name AS tenant_first_name, u.last_name AS tenant_last_name, u.email AS tenant_email, pay.test_transaction_id, pay.status AS payment_provider_status, pay.created_at AS payment_created_at
+        $stmt = $this->db->prepare('SELECT b.*, p.title, p.slug, p.city, p.owner_id, p.price_per_night, owner.email AS owner_email, owner.first_name AS owner_first_name, owner.last_name AS owner_last_name, u.first_name AS tenant_first_name, u.last_name AS tenant_last_name, u.email AS tenant_email, pay.test_transaction_id, pay.status AS payment_provider_status, pay.created_at AS payment_created_at
             FROM bookings b
             JOIN properties p ON p.id = b.property_id
             JOIN users u ON u.id = b.tenant_id
+            JOIN users owner ON owner.id = p.owner_id
             LEFT JOIN payments pay ON pay.booking_id = b.id
             WHERE b.id = ?
             ORDER BY pay.created_at DESC

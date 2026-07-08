@@ -74,8 +74,9 @@ php -S 127.0.0.1:8010 -t public public/index.php
 - Dashboard propriétaire : logements, création/modification, upload image contrôlé, soumission, disponibilités, réservations.
 - Dashboard propriétaire : galerie d’images avec texte alternatif, image principale, suppression sécurisée et gestion de plages de disponibilité avec prix spécifique.
 - Calendrier mensuel propriétaire en JavaScript vanilla pour visualiser disponibilités, indisponibilités, prix spécifiques et dates réservées.
-- Dashboard administrateur : statistiques, édition complète des utilisateurs, propriétaires, logements, détail réservation, avis, CRUD blog, messages, logs.
-- Pagination simple et filtres sur plusieurs listes administrateur : utilisateurs, réservations, messages et logs.
+- Dashboard administrateur : statistiques détaillées, derniers logs, dernières réservations, logements à valider, avis et messages.
+- Back-office administrateur démontrable : recherche utilisateurs, détail utilisateur, suspension/réactivation, gestion profils hôtes, validation complète des logements, détail et édition admin des logements, pause/réactivation/suppression logique des logements, filtres réservations, modération avis, publication/dépublication blog, messages lus/traités/archivés et logs d’audit.
+- Pagination simple et filtres sur plusieurs listes administrateur : utilisateurs, logements, réservations, messages et logs.
 - Réinitialisation de mot de passe locale de démonstration, sans envoi email réel.
 - Reçu/facture fictive imprimable sur le détail de réservation locataire.
 - Pages d’erreur 403/404 propres et confirmations JS sur actions destructives.
@@ -144,7 +145,9 @@ Les slugs de certains logements historiques sont conservés pour éviter de cass
 
 Les avis présents dans le seed sont entièrement fictifs et servent uniquement à la démonstration académique. Ils ne correspondent à aucun vrai client ni à aucune réservation réelle.
 
-Limites assumées : pas d’email réel, pas de paiement réel, pas de passerelle Brevo/Stripe, pas de calendrier planning professionnel avec drag-and-drop, pas de système de suppression RGPD automatisé complet. Ces points sont simulés ou documentés pour la soutenance.
+La suppression admin d’un logement est logique : le statut passe à `deleted`, les réservations, avis, images et logs restent conservés pour l’historique de démonstration.
+
+Limites assumées : pas d’email réel, pas de paiement réel, pas de passerelle Brevo/Stripe, pas de calendrier planning professionnel avec drag-and-drop, pas de système de suppression RGPD automatisé complet, pas de workflow de notification automatique propriétaire après refus/pause. Ces points sont simulés ou documentés pour la soutenance.
 
 Les vérifications réalisées sur MAMP sont détaillées dans `docs/validation-report.md`.
 

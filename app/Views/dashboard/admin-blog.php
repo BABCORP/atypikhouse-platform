@@ -25,6 +25,11 @@
                     <p><?= e($post['excerpt']) ?></p>
                     <div class="actions-row">
                         <a class="button ghost compact" href="<?= url('/admin/blog/' . $post['id'] . '/modifier') ?>">Modifier</a>
+                        <?php if ($post['status'] === 'published'): ?>
+                            <form class="inline-form" method="post" action="<?= url('/admin/blog/' . $post['id'] . '/depublier') ?>"><?= csrf_field() ?><button class="button ghost compact" type="submit">Dépublier</button></form>
+                        <?php else: ?>
+                            <form class="inline-form" method="post" action="<?= url('/admin/blog/' . $post['id'] . '/publier') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Publier</button></form>
+                        <?php endif; ?>
                         <form class="inline-form" method="post" action="<?= url('/admin/blog/' . $post['id'] . '/supprimer') ?>" data-confirm="Supprimer définitivement cet article de blog ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
                     </div>
                 </article>

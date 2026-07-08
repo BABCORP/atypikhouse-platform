@@ -50,6 +50,12 @@ final class BlogPost extends Model
         $stmt->execute([trim($data['title']), slugify($data['title']), trim($data['excerpt']), trim($data['content']), trim($data['featured_image'] ?? 'assets/img/properties/default-placeholder.svg'), $data['status'], $id]);
     }
 
+    public function updateStatus(int $id, string $status): void
+    {
+        $stmt = $this->db->prepare('UPDATE blog_posts SET status = ?, updated_at = NOW() WHERE id = ?');
+        $stmt->execute([$status, $id]);
+    }
+
     public function delete(int $id): void
     {
         $stmt = $this->db->prepare('DELETE FROM blog_posts WHERE id = ?');

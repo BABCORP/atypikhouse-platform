@@ -13,6 +13,7 @@
             <h2>Séjour</h2>
             <dl class="detail-list">
                 <dt>Logement</dt><dd><a href="<?= url('/hebergements/' . $booking['slug']) ?>"><?= e($booking['title']) ?></a></dd>
+                <dt>Propriétaire</dt><dd><?= e($booking['owner_first_name'] . ' ' . $booking['owner_last_name'] . ' · ' . $booking['owner_email']) ?></dd>
                 <dt>Ville</dt><dd><?= e($booking['city']) ?></dd>
                 <dt>Dates</dt><dd><?= e($booking['start_date']) ?> → <?= e($booking['end_date']) ?></dd>
                 <dt>Nuits</dt><dd><?= (int) $booking['nights'] ?></dd>
@@ -26,8 +27,11 @@
                 <dt>Email</dt><dd><?= e($booking['tenant_email']) ?></dd>
                 <dt>Sous-total</dt><dd><?= money($booking['subtotal']) ?></dd>
                 <dt>Ménage</dt><dd><?= money($booking['cleaning_fee']) ?></dd>
+                <dt>Prix indicatif / nuit</dt><dd><?= money($booking['price_per_night']) ?></dd>
                 <dt>Total simulé</dt><dd><strong><?= money($booking['total_price']) ?></strong></dd>
                 <dt>Transaction test</dt><dd><?= e($booking['test_transaction_id'] ?: 'Aucune') ?></dd>
+                <dt>Créée le</dt><dd><?= e($booking['created_at']) ?></dd>
+                <dt>Mise à jour le</dt><dd><?= e($booking['updated_at']) ?></dd>
             </dl>
         </article>
     </div>
@@ -58,4 +62,8 @@
         <button class="button" type="submit">Mettre à jour</button>
         <p><span class="badge <?= e($booking['status']) ?>"><?= status_label($booking['status']) ?></span> <span class="badge"><?= status_label($booking['payment_status']) ?></span></p>
     </form>
+    <div class="actions-row">
+        <form method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/terminer') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Marquer terminée</button></form>
+        <form method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/annuler') ?>" data-confirm="Annuler cette réservation fictive ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Annuler</button></form>
+    </div>
 </section>

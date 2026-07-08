@@ -96,6 +96,19 @@ final class Property extends Model
         return $stmt->fetch() ?: null;
     }
 
+    public function findForAdmin(int $id): ?array
+    {
+        $stmt = $this->db->prepare('SELECT p.*, u.first_name AS owner_first_name, u.last_name AS owner_last_name, u.email AS owner_email, op.company_name,
+            (SELECT image_path FROM property_images WHERE property_id = p.id ORDER BY is_main DESC, id ASC LIMIT 1) AS main_image
+            FROM properties p
+            JOIN users u ON u.id = p.owner_id
+            LEFT JOIN owner_profiles op ON op.user_id = u.id
+            WHERE p.id = ?
+            LIMIT 1');
+        $stmt->execute([$id]);
+        return $stmt->fetch() ?: null;
+    }
+
     public function images(int $propertyId): array
     {
         $stmt = $this->db->prepare('SELECT * FROM property_images WHERE property_id = ? ORDER BY is_main DESC, id ASC');
@@ -247,10 +260,81 @@ final class Property extends Model
         return $stmt->fetchAll();
     }
 
+    public function paginatedForAdmin(array $filters, int $limit, int $offset): array
+    {
+        $from = ' FROM properties p JOIN users u ON u.id = p.owner_id WHERE 1=1';
+        $params = [];
+        if (!empty($filters['status'])) {
+            $from .= ' AND p.status = ?';
+            $params[] = $filters['status'];
+        }
+        if (!empty($filters['type'])) {
+            $from .= ' AND p.type = ?';
+            $params[] = $filters['type'];
+        }
+        if (!empty($filters['owner'])) {
+            $from .= ' AND (u.email LIKE ? OR u.first_name LIKE ? OR u.last_name LIKE ?)';
+            $term = '%' . trim((string) $filters['owner']) . '%';
+            $params[] = $term;
+            $params[] = $term;
+            $params[] = $term;
+        }
+        if (!empty($filters['location'])) {
+            $from .= ' AND (p.city LIKE ? OR p.region LIKE ?)';
+            $term = '%' . trim((string) $filters['location']) . '%';
+            $params[] = $term;
+            $params[] = $term;
+        }
+        if (!empty($filters['search'])) {
+            $from .= ' AND p.title LIKE ?';
+            $params[] = '%' . trim((string) $filters['search']) . '%';
+        }
+
+        $count = $this->db->prepare('SELECT COUNT(*)' . $from);
+        $count->execute($params);
+
+        $stmt = $this->db->prepare('SELECT p.*, u.email AS owner_email,
+            (SELECT image_path FROM property_images WHERE property_id = p.id ORDER BY is_main DESC, id ASC LIMIT 1) AS main_image' . $from . ' ORDER BY p.created_at DESC LIMIT ' . max(1, $limit) . ' OFFSET ' . max(0, $offset));
+        $stmt->execute($params);
+
+        return ['items' => $stmt->fetchAll(), 'total' => (int) $count->fetchColumn()];
+    }
+
+    public function updateAdmin(int $id, array $data): void
+    {
+        $stmt = $this->db->prepare('UPDATE properties SET title = ?, type = ?, short_description = ?, long_description = ?, city = ?, postal_code = ?, region = ?, country = ?, capacity = ?, bedrooms = ?, beds = ?, bathrooms = ?, price_per_night = ?, cleaning_fee = ?, eco_score = ?, updated_at = NOW() WHERE id = ?');
+        $stmt->execute([
+            trim($data['title']),
+            $data['type'],
+            trim($data['short_description']),
+            trim($data['long_description']),
+            trim($data['city']),
+            trim($data['postal_code'] ?? ''),
+            trim($data['region']),
+            trim($data['country'] ?? 'France'),
+            (int) $data['capacity'],
+            (int) ($data['bedrooms'] ?? 1),
+            (int) ($data['beds'] ?? 1),
+            (int) ($data['bathrooms'] ?? 1),
+            (float) $data['price_per_night'],
+            (float) ($data['cleaning_fee'] ?? 0),
+            (int) ($data['eco_score'] ?? 3),
+            $id,
+        ]);
+        $this->replaceAmenities($id, $data['amenities'] ?? '');
+    }
+
     public function updateStatus(int $id, string $status): void
     {
         $stmt = $this->db->prepare('UPDATE properties SET status = ?, updated_at = NOW() WHERE id = ?');
         $stmt->execute([$status, $id]);
+    }
+
+    public function bookingCount(int $propertyId): int
+    {
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM bookings WHERE property_id = ?');
+        $stmt->execute([$propertyId]);
+        return (int) $stmt->fetchColumn();
     }
 
     public function setAvailability(int $propertyId, string $date, bool $isAvailable, ?float $priceOverride): void

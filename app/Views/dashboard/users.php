@@ -7,6 +7,9 @@
         </div>
     </div>
     <form class="filters panel" method="get">
+        <label>Recherche
+            <input name="search" value="<?= e(input('search', '')) ?>" placeholder="Nom, prénom ou email">
+        </label>
         <label>Rôle
             <select name="role">
                 <option value="">Tous</option>
@@ -27,7 +30,7 @@
     </form>
     <div class="table-wrap"><table>
         <caption>Comptes utilisateurs et statuts</caption>
-        <thead><tr><th>Nom</th><th>Email</th><th>Rôle</th><th>Statut</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Nom</th><th>Email</th><th>Rôle</th><th>Statut</th><th>Création</th><th>Actions</th></tr></thead>
         <tbody>
         <?php foreach ($users as $u): ?>
             <tr>
@@ -35,8 +38,15 @@
                 <td><?= e($u['email']) ?></td>
                 <td><?= role_label($u['role']) ?></td>
                 <td><span class="badge <?= e($u['status']) ?>"><?= status_label($u['status']) ?></span></td>
+                <td><?= e($u['created_at']) ?></td>
                 <td class="table-actions">
+                    <a class="button compact ghost" href="<?= url('/admin/utilisateurs/' . $u['id']) ?>">Voir</a>
                     <a class="button compact ghost" href="<?= url('/admin/utilisateurs/' . $u['id'] . '/modifier') ?>">Modifier</a>
+                    <?php if ($u['status'] === 'suspended'): ?>
+                        <form method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/reactiver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Réactiver</button></form>
+                    <?php else: ?>
+                        <form method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/suspendre') ?>" data-confirm="Suspendre ce compte utilisateur ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Suspendre</button></form>
+                    <?php endif; ?>
                     <form method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/statut') ?>">
                         <?= csrf_field() ?>
                         <select name="status" aria-label="Changer le statut de <?= e($u['email']) ?>">

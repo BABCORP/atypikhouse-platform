@@ -134,6 +134,10 @@ fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 1rem 0; }
 .form-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .65fr); gap: 2rem; align-items: start; }
 .form-layout.narrow { max-width: 720px; grid-template-columns: 1fr; }
 .form-grid, .filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; align-items: end; }
+.table-thumb { width: 76px; height: 54px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); background: var(--ivory); }
+.property-admin-image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 12px; display: block; margin-bottom: .75rem; }
+.badge.paused { background: #f4e4cf; color: #7a4a12; }
+.badge.deleted { background: #f2d8d5; color: #8a241e; }
 .checkbox { display: flex; gap: .65rem; align-items: flex-start; font-weight: 500; }
 .checkbox input { width: 22px; min-height: 22px; flex: none; margin-top: .18rem; }
 .catalogue-search-hero {

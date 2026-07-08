@@ -50,21 +50,31 @@
 ## Admin
 
 - Ouvrir `/admin/dashboard`, vérifier les statistiques globales.
-- Lister les utilisateurs et suspendre un compte.
+- Lister les utilisateurs, rechercher par email/nom, filtrer par rôle/statut et suspendre puis réactiver un compte.
+- Ouvrir `/admin/utilisateurs/{id}` et vérifier les informations de compte, profil hôte ou réservations selon le rôle.
 - Modifier un utilisateur depuis `/admin/utilisateurs/{id}/modifier` : prénom, nom, email, téléphone, rôle et statut.
 - Vérifier qu’il est impossible de suspendre, rétrograder ou désactiver le dernier administrateur actif.
-- Approuver ou rejeter un profil propriétaire.
-- Publier, rejeter ou archiver un logement.
-- Modifier le statut d’une réservation.
+- Approuver ou rejeter un profil propriétaire et vérifier les compteurs de logements.
+- Filtrer `/admin/logements` par statut/type/propriétaire/localisation/recherche.
+- Ouvrir `/admin/logements/{id}`, vérifier images, équipements, propriétaire et actions.
+- Modifier un logement depuis `/admin/logements/{id}/modifier`.
+- Publier, rejeter ou archiver un logement et vérifier que les logements non publiés restent invisibles sur le front.
+- Mettre un logement publié en pause, vérifier qu’il disparaît de `/hebergements` et que sa fiche publique renvoie une 404.
+- Vérifier que le propriétaire voit le badge “En pause” et ne peut pas réactiver lui-même le logement.
+- Réactiver le logement depuis l’admin, vérifier qu’il redevient visible publiquement.
+- Supprimer logiquement un logement depuis l’admin, vérifier qu’il passe en statut “Supprimé”, disparaît du front et conserve ses réservations/avis en historique admin.
+- Filtrer `/admin/reservations` par statut, paiement, logement, propriétaire, locataire et période.
+- Modifier le statut d’une réservation, l’annuler et la marquer terminée.
 - Ouvrir `/admin/reservations/{id}` et vérifier le détail complet : locataire, logement, dates, prix, paiement test et statut.
+- Filtrer `/admin/avis` par statut, note, logement et auteur.
 - Publier ou rejeter un avis.
 - Supprimer un avis depuis la modération.
 - Créer un article de blog.
-- Modifier puis supprimer un article de blog.
-- Lire et archiver un message de contact.
+- Modifier, publier, dépublier puis supprimer un article de blog.
+- Ouvrir `/admin/messages/{id}`, marquer un message comme lu, traité puis archivé.
 - Filtrer les messages par contact/newsletter/RGPD, vérifier le badge “À traiter” sur une demande RGPD nouvelle.
-- Consulter les journaux d’audit, filtrer par action/email/date et vérifier la pagination.
-- Vérifier la pagination des utilisateurs, messages et réservations admin.
+- Consulter les journaux d’audit, filtrer par action/email/date et vérifier la présence des logs `user_suspended`, `property_approved`, `property_paused`, `property_reactivated`, `property_deleted`, `booking_completed_by_admin`, `review_approved`, `blog_published`, `message_processed`.
+- Vérifier la pagination des utilisateurs, logements, messages et réservations admin.
 
 ## Avis
 

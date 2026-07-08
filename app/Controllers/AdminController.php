@@ -18,6 +18,7 @@ final class AdminController extends Controller
     public function dashboard(): void
     {
         Auth::requireRole('admin');
+        $logs = Database::connection()->query('SELECT al.*, u.email FROM audit_logs al LEFT JOIN users u ON u.id = al.user_id ORDER BY al.created_at DESC LIMIT 6')->fetchAll();
         $this->view('dashboard/admin-dashboard', [
             'title' => 'Administration',
             'stats' => (new AdminStats())->dashboard(),
@@ -25,6 +26,7 @@ final class AdminController extends Controller
             'bookings' => array_slice((new Booking())->all(), 0, 5),
             'reviews' => array_slice(array_filter((new Review())->all(), fn (array $review): bool => $review['status'] === 'pending'), 0, 5),
             'messages' => array_slice((new ContactMessage())->all(), 0, 5),
+            'logs' => $logs,
         ]);
     }
 
@@ -32,8 +34,28 @@ final class AdminController extends Controller
     {
         Auth::requireRole('admin');
         $page = max(1, (int) input('page', 1));
-        $result = (new User())->paginated(input('role') ?: null, input('status') ?: null, 20, ($page - 1) * 20);
+        $result = (new User())->paginated(input('role') ?: null, input('status') ?: null, 20, ($page - 1) * 20, input('search') ?: null);
         $this->view('dashboard/users', ['title' => 'Utilisateurs', 'users' => $result['items'], 'pagination' => pagination_meta($result['total'], $page)]);
+    }
+
+    public function userDetail(int $id): void
+    {
+        Auth::requireRole('admin');
+        $userModel = new User();
+        $user = $userModel->find($id);
+        if (!$user) {
+            http_response_code(404);
+            exit('Utilisateur introuvable.');
+        }
+        $properties = $user['role'] === 'owner' ? (new Property())->ownerProperties($id) : [];
+        $bookings = $user['role'] === 'tenant' ? (new Booking())->tenantBookings($id) : [];
+        $this->view('dashboard/user-detail', [
+            'title' => 'Utilisateur #' . $id,
+            'user' => $user,
+            'ownerProfile' => $user['role'] === 'owner' ? $userModel->ownerProfile($id) : null,
+            'properties' => $properties,
+            'bookings' => $bookings,
+        ]);
     }
 
     public function updateUserStatus(int $id): void
@@ -55,6 +77,36 @@ final class AdminController extends Controller
         audit((int) $admin['id'], 'user_status_update', 'user', $id);
         flash('success', 'Statut utilisateur mis à jour.');
         $this->redirect('/admin/utilisateurs');
+    }
+
+    public function suspendUser(int $id): void
+    {
+        $admin = Auth::requireRole('admin');
+        verify_csrf();
+        $model = new User();
+        $user = $model->find($id);
+        if (!$user) {
+            http_response_code(404);
+            exit('Utilisateur introuvable.');
+        }
+        if ($user['role'] === 'admin' && $user['status'] === 'active' && $model->activeAdminCount() <= 1) {
+            flash('error', 'Impossible de suspendre le dernier administrateur actif.');
+            $this->redirect('/admin/utilisateurs');
+        }
+        $model->updateStatus($id, 'suspended');
+        audit((int) $admin['id'], 'user_suspended', 'user', $id);
+        flash('success', 'Utilisateur suspendu.');
+        $this->redirect($_SERVER['HTTP_REFERER'] ?? '/admin/utilisateurs');
+    }
+
+    public function reactivateUser(int $id): void
+    {
+        $admin = Auth::requireRole('admin');
+        verify_csrf();
+        (new User())->updateStatus($id, 'active');
+        audit((int) $admin['id'], 'user_reactivated', 'user', $id);
+        flash('success', 'Utilisateur réactivé.');
+        $this->redirect($_SERVER['HTTP_REFERER'] ?? '/admin/utilisateurs');
     }
 
     public function editUser(int $id): void
@@ -115,7 +167,8 @@ final class AdminController extends Controller
     public function owners(): void
     {
         Auth::requireRole('admin');
-        $this->view('dashboard/owners', ['title' => 'Propriétaires', 'owners' => (new User())->ownerProfiles()]);
+        $status = in_array(input('status'), ['approved', 'pending', 'rejected'], true) ? (string) input('status') : null;
+        $this->view('dashboard/owners', ['title' => 'Propriétaires', 'owners' => (new User())->ownerProfiles($status, input('search') ?: null)]);
     }
 
     public function updateOwnerStatus(int $id): void
@@ -136,7 +189,57 @@ final class AdminController extends Controller
     public function properties(): void
     {
         Auth::requireRole('admin');
-        $this->view('dashboard/admin-properties', ['title' => 'Logements', 'properties' => (new Property())->allForAdmin()]);
+        $page = max(1, (int) input('page', 1));
+        $filters = [
+            'status' => in_array(input('status'), ['draft', 'pending', 'published', 'rejected', 'archived', 'paused', 'deleted'], true) ? input('status') : null,
+            'type' => in_array(input('type'), ['treehouse', 'yurt', 'floating_cabin', 'tiny_house', 'dome', 'other'], true) ? input('type') : null,
+            'owner' => input('owner') ?: null,
+            'location' => input('location') ?: null,
+            'search' => input('search') ?: null,
+        ];
+        $result = (new Property())->paginatedForAdmin($filters, 20, ($page - 1) * 20);
+        $this->view('dashboard/admin-properties', ['title' => 'Logements', 'properties' => $result['items'], 'pagination' => pagination_meta($result['total'], $page)]);
+    }
+
+    public function propertyDetail(int $id): void
+    {
+        Auth::requireRole('admin');
+        $model = new Property();
+        $property = $model->findForAdmin($id);
+        if (!$property) {
+            http_response_code(404);
+            exit('Logement introuvable.');
+        }
+        $this->view('dashboard/admin-property-detail', [
+            'title' => 'Logement #' . $id,
+            'property' => $property,
+            'images' => $model->images($id),
+            'amenities' => $model->amenities($id),
+            'bookingCount' => $model->bookingCount($id),
+        ]);
+    }
+
+    public function editProperty(int $id): void
+    {
+        Auth::requireRole('admin');
+        $model = new Property();
+        $property = $model->findForAdmin($id);
+        if (!$property) {
+            http_response_code(404);
+            exit('Logement introuvable.');
+        }
+        $this->view('dashboard/admin-property-edit', ['title' => 'Modifier un logement', 'property' => $property, 'amenities' => implode(', ', $model->amenities($id))]);
+    }
+
+    public function updateProperty(int $id): void
+    {
+        $admin = Auth::requireRole('admin');
+        verify_csrf();
+        $this->validateProperty();
+        (new Property())->updateAdmin($id, $_POST);
+        audit((int) $admin['id'], 'property_updated_by_admin', 'property', $id);
+        flash('success', 'Logement mis à jour par l’administration.');
+        $this->redirect('/admin/logements/' . $id);
     }
 
     public function updatePropertyStatus(int $id): void
@@ -144,21 +247,70 @@ final class AdminController extends Controller
         $admin = Auth::requireRole('admin');
         verify_csrf();
         $status = (string) input('status');
-        if (!in_array($status, ['published', 'rejected', 'archived', 'pending'], true)) {
+        if (!in_array($status, ['published', 'rejected', 'archived', 'pending', 'paused', 'deleted'], true)) {
             http_response_code(422);
             exit('Statut invalide.');
         }
         (new Property())->updateStatus($id, $status);
-        audit((int) $admin['id'], 'property_' . $status, 'property', $id);
+        $action = ['published' => 'property_approved', 'rejected' => 'property_rejected', 'archived' => 'property_disabled', 'paused' => 'property_paused', 'deleted' => 'property_deleted', 'pending' => 'property_submitted'][$status] ?? ('property_' . $status);
+        audit((int) $admin['id'], $action, 'property', $id);
         flash('success', 'Statut du logement mis à jour.');
         $this->redirect('/admin/logements');
+    }
+
+    public function approveProperty(int $id): void
+    {
+        $this->quickPropertyStatus($id, 'published', 'property_approved', 'Logement publié.');
+    }
+
+    public function rejectProperty(int $id): void
+    {
+        $this->quickPropertyStatus($id, 'rejected', 'property_rejected', 'Logement refusé.');
+    }
+
+    public function disableProperty(int $id): void
+    {
+        $this->quickPropertyStatus($id, 'paused', 'property_paused', 'Le logement a été mis en pause. Il n’est plus visible dans le catalogue public.');
+    }
+
+    public function pauseProperty(int $id): void
+    {
+        $this->quickPropertyStatus($id, 'paused', 'property_paused', 'Le logement a été mis en pause. Il n’est plus visible dans le catalogue public.');
+    }
+
+    public function reactivateProperty(int $id): void
+    {
+        Auth::requireRole('admin');
+        $property = (new Property())->find($id);
+        if (!$property) {
+            http_response_code(404);
+            exit('Logement introuvable.');
+        }
+        if ($property['status'] !== 'paused') {
+            flash('error', 'Seuls les logements en pause peuvent être réactivés directement.');
+            $this->redirect($_SERVER['HTTP_REFERER'] ?? '/admin/logements');
+        }
+        $this->quickPropertyStatus($id, 'published', 'property_reactivated', 'Le logement a été réactivé et est de nouveau visible dans le catalogue.');
+    }
+
+    public function deleteProperty(int $id): void
+    {
+        $this->quickPropertyStatus($id, 'deleted', 'property_deleted', 'Le logement a été supprimé du catalogue. Les données liées sont conservées pour l’historique du projet.');
     }
 
     public function bookings(): void
     {
         Auth::requireRole('admin');
         $page = max(1, (int) input('page', 1));
-        $result = (new Booking())->paginatedAll(['status' => input('status') ?: null], 20, ($page - 1) * 20);
+        $result = (new Booking())->paginatedAll([
+            'status' => input('status') ?: null,
+            'payment_status' => input('payment_status') ?: null,
+            'property' => input('property') ?: null,
+            'owner' => input('owner') ?: null,
+            'tenant' => input('tenant') ?: null,
+            'start_date' => input('start_date') ?: null,
+            'end_date' => input('end_date') ?: null,
+        ], 20, ($page - 1) * 20);
         $this->view('dashboard/bookings', ['title' => 'Toutes les réservations', 'bookings' => $result['items'], 'pagination' => pagination_meta($result['total'], $page), 'scope' => 'admin']);
     }
 
@@ -196,15 +348,31 @@ final class AdminController extends Controller
             exit('Statut invalide.');
         }
         (new Booking())->updateStatus($id, $status);
-        audit((int) $admin['id'], 'booking_status_update', 'booking', $id);
+        $action = ['cancelled' => 'booking_cancelled_by_admin', 'completed' => 'booking_completed_by_admin'][$status] ?? 'booking_status_update';
+        audit((int) $admin['id'], $action, 'booking', $id);
         flash('success', 'Réservation mise à jour.');
         $this->redirect($_SERVER['HTTP_REFERER'] ?? '/admin/reservations');
+    }
+
+    public function cancelBooking(int $id): void
+    {
+        $this->quickBookingStatus($id, 'cancelled', 'booking_cancelled_by_admin', 'Réservation annulée.');
+    }
+
+    public function completeBooking(int $id): void
+    {
+        $this->quickBookingStatus($id, 'completed', 'booking_completed_by_admin', 'Réservation marquée comme terminée.');
     }
 
     public function reviews(): void
     {
         Auth::requireRole('admin');
-        $this->view('dashboard/admin-reviews', ['title' => 'Avis', 'reviews' => (new Review())->all()]);
+        $this->view('dashboard/admin-reviews', ['title' => 'Avis', 'reviews' => (new Review())->filtered([
+            'status' => input('status') ?: null,
+            'rating' => input('rating') ?: null,
+            'property' => input('property') ?: null,
+            'author' => input('author') ?: null,
+        ])]);
     }
 
     public function updateReviewStatus(int $id): void
@@ -217,7 +385,7 @@ final class AdminController extends Controller
             exit('Statut invalide.');
         }
         (new Review())->updateStatus($id, $status);
-        audit((int) $admin['id'], 'review_moderation', 'review', $id);
+        audit((int) $admin['id'], $status === 'published' ? 'review_approved' : 'review_rejected', 'review', $id);
         flash('success', 'Avis modéré.');
         $this->redirect('/admin/avis');
     }
@@ -227,7 +395,7 @@ final class AdminController extends Controller
         $admin = Auth::requireRole('admin');
         verify_csrf();
         (new Review())->delete($id);
-        audit((int) $admin['id'], 'review_delete', 'review', $id);
+        audit((int) $admin['id'], 'review_deleted', 'review', $id);
         flash('success', 'Avis supprimé.');
         $this->redirect('/admin/avis');
     }
@@ -244,6 +412,7 @@ final class AdminController extends Controller
         verify_csrf();
         $this->validateBlog();
         (new BlogPost())->create($_POST, (int) $admin['id']);
+        audit((int) $admin['id'], 'blog_created', 'blog_post', null);
         flash('success', 'Article créé.');
         $this->redirect('/admin/blog');
     }
@@ -261,21 +430,33 @@ final class AdminController extends Controller
 
     public function updateBlog(int $id): void
     {
-        Auth::requireRole('admin');
+        $admin = Auth::requireRole('admin');
         verify_csrf();
         $this->validateBlog();
         (new BlogPost())->update($id, $_POST);
+        audit((int) $admin['id'], 'blog_updated', 'blog_post', $id);
         flash('success', 'Article mis à jour.');
         $this->redirect('/admin/blog');
     }
 
     public function deleteBlog(int $id): void
     {
-        Auth::requireRole('admin');
+        $admin = Auth::requireRole('admin');
         verify_csrf();
         (new BlogPost())->delete($id);
+        audit((int) $admin['id'], 'blog_deleted', 'blog_post', $id);
         flash('success', 'Article supprimé.');
         $this->redirect('/admin/blog');
+    }
+
+    public function publishBlog(int $id): void
+    {
+        $this->quickBlogStatus($id, 'published', 'blog_published', 'Article publié.');
+    }
+
+    public function unpublishBlog(int $id): void
+    {
+        $this->quickBlogStatus($id, 'draft', 'blog_unpublished', 'Article repassé en brouillon.');
     }
 
     public function messages(): void
@@ -287,18 +468,46 @@ final class AdminController extends Controller
         $this->view('dashboard/messages', ['title' => 'Messages', 'messages' => $result['items'], 'type' => $type, 'pagination' => pagination_meta($result['total'], $page)]);
     }
 
-    public function updateMessageStatus(int $id): void
+    public function messageDetail(int $id): void
     {
         Auth::requireRole('admin');
+        $message = (new ContactMessage())->find($id);
+        if (!$message) {
+            http_response_code(404);
+            exit('Message introuvable.');
+        }
+        $this->view('dashboard/message-detail', ['title' => 'Message #' . $id, 'message' => $message]);
+    }
+
+    public function updateMessageStatus(int $id): void
+    {
+        $admin = Auth::requireRole('admin');
         verify_csrf();
         $status = (string) input('status');
-        if (!in_array($status, ['read', 'archived'], true)) {
+        if (!in_array($status, ['read', 'processed', 'archived'], true)) {
             http_response_code(422);
             exit('Statut invalide.');
         }
         (new ContactMessage())->updateStatus($id, $status);
+        $action = ['read' => 'message_read', 'processed' => 'message_processed', 'archived' => 'message_archived'][$status];
+        audit((int) $admin['id'], $action, 'contact_message', $id);
         flash('success', 'Message mis à jour.');
         $this->redirect('/admin/messages');
+    }
+
+    public function readMessage(int $id): void
+    {
+        $this->quickMessageStatus($id, 'read', 'message_read', 'Message marqué comme lu.');
+    }
+
+    public function processMessage(int $id): void
+    {
+        $this->quickMessageStatus($id, 'processed', 'message_processed', 'Message marqué comme traité.');
+    }
+
+    public function archiveMessage(int $id): void
+    {
+        $this->quickMessageStatus($id, 'archived', 'message_archived', 'Message archivé.');
     }
 
     public function logs(): void
@@ -344,5 +553,59 @@ final class AdminController extends Controller
             http_response_code(422);
             exit('Statut invalide.');
         }
+    }
+
+    private function validateProperty(): void
+    {
+        foreach (['title', 'type', 'short_description', 'long_description', 'city', 'region', 'capacity', 'price_per_night'] as $field) {
+            if (trim((string) input($field, '')) === '') {
+                flash('error', 'Les champs principaux du logement sont obligatoires.');
+                $this->redirect($_SERVER['HTTP_REFERER'] ?? '/admin/logements');
+            }
+        }
+        if (!in_array(input('type'), ['treehouse', 'yurt', 'floating_cabin', 'tiny_house', 'dome', 'other'], true)) {
+            http_response_code(422);
+            exit('Type de logement invalide.');
+        }
+    }
+
+    private function quickPropertyStatus(int $id, string $status, string $action, string $message): void
+    {
+        $admin = Auth::requireRole('admin');
+        verify_csrf();
+        (new Property())->updateStatus($id, $status);
+        audit((int) $admin['id'], $action, 'property', $id);
+        flash('success', $message);
+        $this->redirect($_SERVER['HTTP_REFERER'] ?? '/admin/logements');
+    }
+
+    private function quickBookingStatus(int $id, string $status, string $action, string $message): void
+    {
+        $admin = Auth::requireRole('admin');
+        verify_csrf();
+        (new Booking())->updateStatus($id, $status);
+        audit((int) $admin['id'], $action, 'booking', $id);
+        flash('success', $message);
+        $this->redirect($_SERVER['HTTP_REFERER'] ?? '/admin/reservations');
+    }
+
+    private function quickBlogStatus(int $id, string $status, string $action, string $message): void
+    {
+        $admin = Auth::requireRole('admin');
+        verify_csrf();
+        (new BlogPost())->updateStatus($id, $status);
+        audit((int) $admin['id'], $action, 'blog_post', $id);
+        flash('success', $message);
+        $this->redirect($_SERVER['HTTP_REFERER'] ?? '/admin/blog');
+    }
+
+    private function quickMessageStatus(int $id, string $status, string $action, string $message): void
+    {
+        $admin = Auth::requireRole('admin');
+        verify_csrf();
+        (new ContactMessage())->updateStatus($id, $status);
+        audit((int) $admin['id'], $action, 'contact_message', $id);
+        flash('success', $message);
+        $this->redirect($_SERVER['HTTP_REFERER'] ?? '/admin/messages');
     }
 }

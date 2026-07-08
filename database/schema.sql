@@ -66,7 +66,7 @@ CREATE TABLE properties (
   price_per_night DECIMAL(10,2) NOT NULL,
   cleaning_fee DECIMAL(10,2) NOT NULL DEFAULT 0,
   eco_score TINYINT UNSIGNED NOT NULL DEFAULT 3,
-  status ENUM('draft', 'pending', 'published', 'rejected', 'archived') NOT NULL DEFAULT 'draft',
+  status ENUM('draft', 'pending', 'published', 'rejected', 'archived', 'paused', 'deleted') NOT NULL DEFAULT 'draft',
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   CONSTRAINT fk_properties_owner FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -177,7 +177,7 @@ CREATE TABLE contact_messages (
   email VARCHAR(190) NOT NULL,
   subject VARCHAR(190) NOT NULL,
   message TEXT NOT NULL,
-  status ENUM('new', 'read', 'archived') NOT NULL DEFAULT 'new',
+  status ENUM('new', 'read', 'processed', 'archived') NOT NULL DEFAULT 'new',
   created_at DATETIME NOT NULL
 ) ENGINE=InnoDB;
 
