@@ -7,7 +7,10 @@
         </div>
         <form class="catalogue-search search-card" method="get" data-track="search_submit">
             <div class="search-form__grid">
-                <label>Destination<input name="destination" value="<?= e($filters['location']) ?>" placeholder="Ville, région..."></label>
+                <label>Destination<input list="destinations-list" name="destination" value="<?= e($filters['location']) ?>" placeholder="Ex. Pierrefonds, Gérardmer, Amiens…"></label>
+                <datalist id="destinations-list">
+                    <?php foreach (($destinations ?? []) as $destination): ?><option value="<?= e($destination) ?>"></option><?php endforeach; ?>
+                </datalist>
                 <label>Type<select name="type">
                     <option value="">Tous</option>
                     <?php foreach (['treehouse'=>'Cabane','yurt'=>'Yourte','floating_cabin'=>'Cabane flottante','tiny_house'=>'Tiny house','dome'=>'Dôme','other'=>'Autre'] as $value=>$label): ?>

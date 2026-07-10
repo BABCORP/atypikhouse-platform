@@ -7,6 +7,7 @@ use App\Helpers\NewsletterService;
 use App\Models\BlogPost;
 use App\Models\Booking;
 use App\Models\ContactMessage;
+use App\Models\Favorite;
 use App\Models\Property;
 use App\Models\Review;
 
@@ -14,11 +15,14 @@ final class PublicController extends Controller
 {
     public function home(): void
     {
+        $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
         $this->view('public/home', [
             'title' => 'AtypikHouse - Hébergements insolites et responsables',
             'metaDescription' => 'Réservez un séjour insolite fictif en cabane dans les arbres, yourte nature, tiny house écologique ou dôme avec AtypikHouse.',
             'canonical' => url('/'),
             'properties' => (new Property())->featured(),
+            'favoriteIds' => $userId ? (new Favorite())->idsForUser($userId) : [],
+            'destinations' => (new Property())->availableDestinations(),
         ]);
     }
 
@@ -42,6 +46,8 @@ final class PublicController extends Controller
 
     public function catalogue(): void
     {
+        $propertyModel = new Property();
+        $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
         $filters = [
             'location' => trim((string) input('destination', '')),
             'type' => trim((string) input('type', '')),
@@ -56,8 +62,10 @@ final class PublicController extends Controller
             'title' => 'Hébergements insolites en France',
             'metaDescription' => 'Catalogue fictif d’hébergements insolites en France : cabanes, yourtes, tiny houses, dômes et séjours nature responsables.',
             'canonical' => url('/hebergements'),
-            'properties' => (new Property())->published($filters),
+            'properties' => $propertyModel->published($filters),
             'filters' => $filters,
+            'destinations' => $propertyModel->availableDestinations(),
+            'favoriteIds' => $userId ? (new Favorite())->idsForUser($userId) : [],
         ]);
     }
 
@@ -69,6 +77,8 @@ final class PublicController extends Controller
             $this->notFound();
             return;
         }
+        $reviewModel = new Review();
+        $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
         audit($_SESSION['user_id'] ?? null, 'property_view', 'property', (int) $property['id']);
         $this->view('public/property', [
             'title' => $property['title'] . ' - AtypikHouse',
@@ -102,7 +112,10 @@ final class PublicController extends Controller
                 ], $model->availabilities((int) $property['id'])),
                 'booked_dates' => (new Booking())->bookedDatesForProperty((int) $property['id']),
             ],
-            'reviews' => (new Review())->forProperty((int) $property['id']),
+            'reviews' => $reviewModel->forProperty((int) $property['id']),
+            'ratingSummary' => $reviewModel->summaryForProperty((int) $property['id']),
+            'favoriteIds' => $userId ? (new Favorite())->idsForUser($userId) : [],
+            'currentUser' => $userId ? \App\Core\Auth::user() : null,
             'related' => $model->published(['type' => $property['type']], 3),
         ]);
     }
@@ -192,11 +205,11 @@ final class PublicController extends Controller
         $email = strtolower(trim((string) input('email', '')));
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || input('newsletter_consent') !== '1') {
             flash('error', 'Merci d’indiquer une adresse email valide et d’accepter le consentement newsletter de démonstration.');
-            $this->redirect($_SERVER['HTTP_REFERER'] ?? '/');
+            $this->redirect('/');
         }
         $mode = (new NewsletterService())->subscribe($email, isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null);
         flash('success', $mode === 'demo' ? 'Inscription newsletter de démonstration enregistrée.' : 'Inscription enregistrée dans la file Brevo de démonstration sécurisée.');
-        $this->redirect($_SERVER['HTTP_REFERER'] ?? '/');
+        $this->redirect('/');
     }
 
     public function privacyRequest(): void

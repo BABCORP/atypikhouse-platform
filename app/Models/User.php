@@ -29,7 +29,7 @@ final class User extends Model
 
     public function create(array $data): int
     {
-        $stmt = $this->db->prepare('INSERT INTO users (first_name, last_name, email, password_hash, phone, role, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, "active", NOW(), NOW())');
+        $stmt = $this->db->prepare('INSERT INTO users (first_name, last_name, email, password_hash, phone, role, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, "pending", NOW(), NOW())');
         $stmt->execute([
             trim($data['first_name']),
             trim($data['last_name']),

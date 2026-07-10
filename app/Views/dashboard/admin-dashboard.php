@@ -1,17 +1,65 @@
 <?php require __DIR__ . '/_nav.php'; ?>
 <section class="section">
     <h1>Administration AtypikHouse</h1>
-    <?php $statLabels = ['users' => 'utilisateurs', 'owners' => 'propriétaires', 'tenants' => 'locataires', 'admins' => 'administrateurs', 'published_properties' => 'logements publiés', 'pending_properties' => 'logements à valider', 'rejected_properties' => 'logements refusés', 'bookings' => 'réservations', 'pending_bookings' => 'paiements en attente', 'confirmed_bookings' => 'réservations confirmées', 'cancelled_bookings' => 'réservations annulées', 'pending_reviews' => 'avis à modérer', 'unread_messages' => 'messages non traités', 'simulated_revenue' => 'revenus simulés']; ?>
+    <?php $statLabels = [
+        'users' => 'utilisateurs',
+        'owners' => 'propriétaires',
+        'tenants' => 'locataires',
+        'admins' => 'administrateurs',
+        'pending_users' => 'comptes à valider',
+        'suspended_users' => 'comptes suspendus',
+        'published_properties' => 'logements publiés',
+        'pending_properties' => 'logements à valider',
+        'pending_property_changes' => 'modifications à valider',
+        'rejected_properties' => 'logements refusés',
+        'paused_properties' => 'logements en pause',
+        'deleted_properties' => 'logements supprimés',
+        'bookings' => 'réservations',
+        'pending_bookings' => 'réservations à valider',
+        'confirmed_bookings' => 'réservations confirmées',
+        'cancelled_bookings' => 'réservations annulées',
+        'completed_bookings' => 'réservations terminées',
+        'pending_payments' => 'paiements en attente',
+        'paid_payments' => 'paiements test validés',
+        'failed_payments' => 'paiements test échoués',
+        'pending_reviews' => 'avis à modérer',
+        'published_reviews' => 'avis publiés',
+        'rejected_reviews' => 'avis refusés',
+        'unread_messages' => 'messages non traités',
+        'read_messages' => 'messages lus',
+        'processed_messages' => 'messages traités',
+        'simulated_revenue' => 'revenus simulés',
+    ]; ?>
     <div class="stats">
         <?php foreach ($stats as $label => $value): ?><article><strong><?= is_numeric($value) && str_contains($label, 'revenue') ? money($value) : e((string)$value) ?></strong><span><?= e($statLabels[$label] ?? $label) ?></span></article><?php endforeach; ?>
     </div>
     <h2>Logements en attente de validation</h2>
     <?php $properties = $properties ?? []; $scope = 'admin'; require __DIR__ . '/_property-table.php'; ?>
     <?php if (!$properties): ?><p>Aucun logement en attente.</p><?php endif; ?>
+    <h2>Modifications de logements à valider</h2>
+    <?php if (!empty($propertyChanges)): ?>
+        <div class="table-wrap"><table>
+            <caption>Demandes de modification propriétaires</caption>
+            <thead><tr><th>Logement</th><th>Propriétaire</th><th>Date</th><th>Action</th></tr></thead>
+            <tbody>
+            <?php foreach ($propertyChanges as $request): ?>
+                <tr>
+                    <td><?= e($request['title']) ?></td>
+                    <td><?= e($request['owner_email']) ?></td>
+                    <td><?= e($request['updated_at']) ?></td>
+                    <td><a class="button compact ghost" href="<?= url('/admin/logements/modifications/' . $request['id']) ?>">Comparer</a></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table></div>
+    <?php else: ?><p>Aucune modification en attente.</p><?php endif; ?>
     <div class="actions-row">
         <a class="button compact" href="<?= url('/admin/utilisateurs') ?>">Gérer les utilisateurs</a>
+        <a class="button compact" href="<?= url('/admin/utilisateurs?status=pending') ?>">Comptes à valider</a>
         <a class="button compact" href="<?= url('/admin/logements?status=pending') ?>">Valider les logements</a>
-        <a class="button compact ghost" href="<?= url('/admin/reservations') ?>">Voir les réservations</a>
+        <a class="button compact" href="<?= url('/admin/logements/modifications') ?>">Voir les modifications à valider</a>
+        <a class="button compact ghost" href="<?= url('/admin/reservations?status=pending_admin') ?>">Réservations à valider</a>
+        <a class="button compact ghost" href="<?= url('/admin/reservations?payment_status=not_paid') ?>">Paiements en attente</a>
         <a class="button compact ghost" href="<?= url('/admin/avis?status=pending') ?>">Modérer les avis</a>
         <a class="button compact ghost" href="<?= url('/admin/messages') ?>">Voir les messages</a>
         <a class="button compact ghost" href="<?= url('/admin/logs') ?>">Voir les logs</a>

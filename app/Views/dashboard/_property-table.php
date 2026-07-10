@@ -8,7 +8,15 @@
             <td><?= e($property['city']) ?></td>
             <td><?= property_type_label($property['type']) ?></td>
             <td><?= money($property['price_per_night']) ?></td>
-            <td><span class="badge <?= e($property['status']) ?>"><?= status_label($property['status']) ?></span></td>
+            <td>
+                <span class="badge <?= e($property['status']) ?>"><?= status_label($property['status']) ?></span>
+                <?php if (($property['pending_change_count'] ?? 0) > 0): ?>
+                    <span class="badge pending">Modification en attente</span>
+                <?php elseif (($property['latest_change_status'] ?? '') === 'rejected'): ?>
+                    <span class="badge rejected">Modification refusée</span>
+                    <?php if (!empty($property['latest_change_reason'])): ?><small>Motif : <?= e($property['latest_change_reason']) ?></small><?php endif; ?>
+                <?php endif; ?>
+            </td>
             <td class="table-actions">
                 <?php if (($scope ?? '') === 'admin'): ?>
                     <a class="button compact ghost" href="<?= url('/admin/logements/' . $property['id']) ?>">Voir</a>
@@ -18,7 +26,7 @@
                         <?php if ($property['status'] === 'published'): ?><form method="post" class="inline-form" action="<?= url('/admin/logements/' . $property['id'] . '/mettre-en-pause') ?>" data-confirm="Mettre ce logement en pause ?"><?= csrf_field() ?><button class="button ghost compact" type="submit">Pause</button></form><?php endif; ?>
                         <?php if ($property['status'] === 'paused'): ?><form method="post" class="inline-form" action="<?= url('/admin/logements/' . $property['id'] . '/reactiver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Réactiver</button></form><?php endif; ?>
                     <?php endif; ?>
-                <?php elseif (($property['owner_id'] ?? null) && \App\Core\Auth::user()['role'] === 'owner' && in_array($property['status'], ['draft', 'rejected', 'pending'], true)): ?>
+                <?php elseif (($scope ?? '') !== 'admin' && $property['status'] !== 'deleted'): ?>
                     <a class="button compact ghost" href="<?= url('/proprietaire/logements/' . $property['id'] . '/modifier') ?>">Modifier</a>
                     <?php if (in_array($property['status'], ['draft', 'rejected'], true)): ?><form method="post" class="inline-form" action="<?= url('/proprietaire/logements/' . $property['id'] . '/soumettre') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Soumettre</button></form><?php endif; ?>
                     <?php if (in_array($property['status'], ['draft', 'rejected'], true)): ?><form method="post" class="inline-form" action="<?= url('/proprietaire/logements/' . $property['id'] . '/supprimer') ?>" data-confirm="Supprimer ce brouillon de logement ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form><?php endif; ?>

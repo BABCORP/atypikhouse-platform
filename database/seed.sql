@@ -57,6 +57,13 @@ INSERT INTO property_amenities (property_id, amenity_name) VALUES
 (11,'Terrasse'),(11,'Mobilier extérieur'),(11,'Chauffage'),(11,'Espace repas'),(11,'Brasero fictif'),(11,'Parking'),(11,'Environnement calme'),
 (12,'Bain nordique'),(12,'Terrasse'),(12,'Mobilier extérieur'),(12,'Chauffage'),(12,'Cuisine équipée'),(12,'Lit double'),(12,'Parking'),(12,'Vue nature');
 
+INSERT INTO property_favorites (user_id, property_id, created_at) VALUES
+(3, 1, NOW()),
+(3, 5, NOW()),
+(3, 9, NOW()),
+(4, 8, NOW()),
+(5, 12, NOW());
+
 INSERT INTO property_availabilities (property_id, date, is_available, price_override, created_at, updated_at)
 SELECT p.id, DATE_ADD(CURDATE(), INTERVAL seq.n DAY), 1, NULL, NOW(), NOW()
 FROM properties p

@@ -6,6 +6,7 @@ use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Booking;
 use App\Models\Property;
+use App\Models\PropertyChangeRequest;
 use App\Models\User;
 use App\Helpers\Upload;
 use RuntimeException;
@@ -28,24 +29,28 @@ final class OwnerController extends Controller
 
     public function createProperty(): void
     {
-        Auth::requireRole('owner');
+        $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         $this->view('dashboard/property-form', ['title' => 'Ajouter un logement', 'property' => null]);
     }
 
     public function storeProperty(): void
     {
         $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         verify_csrf();
-        $this->validateProperty();
+        $this->validateProperty('/proprietaire/logements/ajouter');
+        $_POST['amenities'] = $this->normalizedAmenities();
         try {
-            $image = Upload::propertyImage($_FILES['property_image'] ?? []);
+            $image = Upload::propertyImage($_FILES['property_main_image'] ?? ($_FILES['property_image'] ?? []));
+            $secondaryImages = Upload::propertyImages($_FILES['property_images'] ?? []);
         } catch (RuntimeException $exception) {
             flash('error', $exception->getMessage());
             $this->redirect('/proprietaire/logements/ajouter');
         }
-        $id = (new Property())->create((int) $user['id'], $_POST, $image);
-        audit((int) $user['id'], 'property_creation', 'property', $id);
-        flash('success', 'Logement créé en brouillon.');
+        $id = (new Property())->create((int) $user['id'], $_POST, $image, $secondaryImages);
+        audit((int) $user['id'], 'property_submitted', 'property', $id);
+        flash('success', 'Votre logement a été soumis à validation. Il sera publié après vérification par l’administrateur.');
         $this->redirect('/proprietaire/logements');
     }
 
@@ -57,12 +62,18 @@ final class OwnerController extends Controller
             http_response_code(404);
             exit('Logement introuvable.');
         }
+        if ($property['status'] === 'deleted') {
+            flash('error', 'Un logement supprimé ne peut plus être modifié.');
+            $this->redirect('/proprietaire/logements');
+        }
         $model = new Property();
+        $pendingChange = (new PropertyChangeRequest())->pendingForProperty($id);
         $this->view('dashboard/property-form', [
             'title' => 'Modifier un logement',
             'property' => $property,
             'images' => $model->images($id),
             'amenities' => $model->amenities($id),
+            'pendingChange' => $pendingChange,
         ]);
     }
 
@@ -70,16 +81,29 @@ final class OwnerController extends Controller
     {
         $user = Auth::requireRole('owner');
         verify_csrf();
-        $this->validateProperty();
+        $property = (new Property())->findOwned($id, (int) $user['id']);
+        if (!$property || $property['status'] === 'deleted') {
+            http_response_code(404);
+            exit('Logement introuvable.');
+        }
+        $this->validateProperty('/proprietaire/logements/' . $id . '/modifier');
+        $_POST['amenities'] = $this->normalizedAmenities();
         try {
-            $image = Upload::propertyImage($_FILES['property_image'] ?? []);
+            $image = Upload::propertyImage($_FILES['property_main_image'] ?? ($_FILES['property_image'] ?? []));
+            $secondaryImages = Upload::propertyImages($_FILES['property_images'] ?? []);
         } catch (RuntimeException $exception) {
             flash('error', $exception->getMessage());
             $this->redirect('/proprietaire/logements/' . $id . '/modifier');
         }
-        (new Property())->update($id, (int) $user['id'], $_POST, $image);
+        if (in_array($property['status'], ['published', 'paused'], true)) {
+            $requestId = (new PropertyChangeRequest())->createOrReplace($id, (int) $user['id'], $this->proposedPropertyData($_POST, $image, $secondaryImages));
+            audit((int) $user['id'], 'property_change_requested', 'property_change_request', $requestId);
+            flash('success', 'Vos modifications ont été soumises à validation. Elles seront visibles après approbation par l’administrateur.');
+            $this->redirect('/proprietaire/logements');
+        }
+        (new Property())->update($id, (int) $user['id'], $_POST, $image, $secondaryImages);
         audit((int) $user['id'], 'property_update', 'property', $id);
-        if ($image) {
+        if ($image || $secondaryImages) {
             audit((int) $user['id'], 'property_image_add', 'property', $id);
         }
         flash('success', 'Logement mis à jour.');
@@ -90,6 +114,11 @@ final class OwnerController extends Controller
     {
         $user = Auth::requireRole('owner');
         verify_csrf();
+        $property = (new Property())->findOwned($propertyId, (int) $user['id']);
+        if ($property && in_array($property['status'], ['published', 'paused'], true)) {
+            flash('error', 'Pour un logement publié, les changements d’images doivent être soumis via le formulaire de modification.');
+            $this->redirect('/proprietaire/logements/' . $propertyId . '/modifier');
+        }
         if (!(new Property())->updateImageAlt($propertyId, $imageId, (int) $user['id'], (string) input('alt_text', ''))) {
             http_response_code(403);
             exit('Accès refusé.');
@@ -103,6 +132,11 @@ final class OwnerController extends Controller
     {
         $user = Auth::requireRole('owner');
         verify_csrf();
+        $property = (new Property())->findOwned($propertyId, (int) $user['id']);
+        if ($property && in_array($property['status'], ['published', 'paused'], true)) {
+            flash('error', 'Pour un logement publié, les changements d’images doivent être soumis via le formulaire de modification.');
+            $this->redirect('/proprietaire/logements/' . $propertyId . '/modifier');
+        }
         if (!(new Property())->setMainImage($propertyId, $imageId, (int) $user['id'])) {
             http_response_code(403);
             exit('Accès refusé.');
@@ -116,6 +150,11 @@ final class OwnerController extends Controller
     {
         $user = Auth::requireRole('owner');
         verify_csrf();
+        $property = (new Property())->findOwned($propertyId, (int) $user['id']);
+        if ($property && in_array($property['status'], ['published', 'paused'], true)) {
+            flash('error', 'Pour un logement publié, les changements d’images doivent être soumis via le formulaire de modification.');
+            $this->redirect('/proprietaire/logements/' . $propertyId . '/modifier');
+        }
         if (!(new Property())->deleteImage($propertyId, $imageId, (int) $user['id'])) {
             http_response_code(403);
             exit('Accès refusé.');
@@ -232,14 +271,86 @@ final class OwnerController extends Controller
         $this->redirect('/proprietaire/profil');
     }
 
-    private function validateProperty(): void
+    private function validateProperty(string $fallback): void
     {
         foreach (['title', 'type', 'city', 'region', 'capacity', 'price_per_night', 'short_description', 'long_description'] as $field) {
             if (trim((string) input($field, '')) === '') {
                 flash('error', 'Merci de remplir tous les champs obligatoires du logement.');
                 remember_old($_POST);
-                redirect($_SERVER['HTTP_REFERER'] ?? '/proprietaire/logements');
+                redirect($fallback);
             }
+        }
+        if (!in_array(input('type'), ['treehouse', 'yurt', 'floating_cabin', 'tiny_house', 'dome', 'other'], true)) {
+            flash('error', 'Type de logement invalide.');
+            remember_old($_POST);
+            redirect($fallback);
+        }
+        if ((int) input('capacity', 0) < 1 || (float) input('price_per_night', 0) <= 0) {
+            flash('error', 'La capacité et le prix par nuit doivent être supérieurs à zéro.');
+            remember_old($_POST);
+            redirect($fallback);
+        }
+        if (mb_strlen(trim((string) input('other_amenities', ''))) > 500) {
+            flash('error', 'Les équipements complémentaires ne doivent pas dépasser 500 caractères.');
+            remember_old($_POST);
+            redirect($fallback);
+        }
+    }
+
+    private function normalizedAmenities(): array
+    {
+        $amenities = array_filter(array_map('trim', (array) input('amenities', [])));
+        $other = trim((string) input('other_amenities', ''));
+        if ($other !== '') {
+            $customItems = preg_split('/[,\n;]+/', $other) ?: [];
+            foreach ($customItems as $item) {
+                $name = trim(strip_tags((string) $item));
+                if ($name !== '') {
+                    $amenities[] = mb_substr($name, 0, 120);
+                }
+            }
+        }
+
+        return array_values(array_unique($amenities));
+    }
+
+    private function proposedPropertyData(array $data, ?string $mainImage, array $secondaryImages): array
+    {
+        return [
+            'title' => trim((string) $data['title']),
+            'type' => (string) $data['type'],
+            'short_description' => trim((string) $data['short_description']),
+            'long_description' => trim((string) $data['long_description']),
+            'address' => trim((string) ($data['address'] ?? '')),
+            'city' => trim((string) $data['city']),
+            'postal_code' => trim((string) ($data['postal_code'] ?? '')),
+            'region' => trim((string) $data['region']),
+            'country' => trim((string) ($data['country'] ?? 'France')),
+            'capacity' => (int) $data['capacity'],
+            'bedrooms' => (int) ($data['bedrooms'] ?? 1),
+            'beds' => (int) ($data['beds'] ?? 1),
+            'bathrooms' => (int) ($data['bathrooms'] ?? 1),
+            'price_per_night' => (float) $data['price_per_night'],
+            'cleaning_fee' => (float) ($data['cleaning_fee'] ?? 0),
+            'eco_score' => (int) ($data['eco_score'] ?? 3),
+            'amenities' => array_values((array) ($data['amenities'] ?? [])),
+            'main_image' => $mainImage ? [
+                'path' => $mainImage,
+                'alt_text' => trim((string) ($data['image_alt'] ?? '')),
+            ] : null,
+            'secondary_images' => array_map(static fn (string $path): array => [
+                'path' => $path,
+                'alt_text' => 'Photo complémentaire de ' . trim((string) $data['title']),
+            ], $secondaryImages),
+        ];
+    }
+
+    private function ensureApprovedOwner(array $user): void
+    {
+        $profile = (new User())->ownerProfile((int) $user['id']);
+        if ($user['status'] !== 'active' || !$profile || $profile['verification_status'] !== 'approved') {
+            flash('error', 'Votre compte propriétaire doit être validé par l’administrateur avant de proposer un logement.');
+            $this->redirect('/proprietaire/logements');
         }
     }
 }

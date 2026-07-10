@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Booking;
+use App\Models\Favorite;
 use App\Models\Review;
 use App\Models\User;
 
@@ -14,7 +15,13 @@ final class TenantController extends Controller
     {
         $user = Auth::requireRole('tenant');
         $bookings = (new Booking())->tenantBookings((int) $user['id']);
-        $this->view('dashboard/tenant-dashboard', ['title' => 'Espace locataire', 'user' => $user, 'bookings' => array_slice($bookings, 0, 4)]);
+        $this->view('dashboard/tenant-dashboard', [
+            'title' => 'Espace locataire',
+            'user' => $user,
+            'bookings' => array_slice($bookings, 0, 4),
+            'favorites' => array_slice((new Favorite())->propertiesForUser((int) $user['id']), 0, 3),
+            'favoriteIds' => (new Favorite())->idsForUser((int) $user['id']),
+        ]);
     }
 
     public function reservations(): void
@@ -38,6 +45,17 @@ final class TenantController extends Controller
     {
         $user = Auth::requireRole('tenant');
         $this->view('dashboard/reviews', ['title' => 'Mes avis', 'reviews' => (new Review())->forTenant((int) $user['id'])]);
+    }
+
+    public function favorites(): void
+    {
+        $user = Auth::requireRole('tenant');
+        $favorites = (new Favorite())->propertiesForUser((int) $user['id']);
+        $this->view('dashboard/favorites', [
+            'title' => 'Mes favoris',
+            'properties' => $favorites,
+            'favoriteIds' => array_map(static fn (array $property): int => (int) $property['id'], $favorites),
+        ]);
     }
 
     public function profile(): void

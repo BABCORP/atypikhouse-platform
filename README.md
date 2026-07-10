@@ -2,7 +2,7 @@
 
 AtypikHouse est un MVP académique fictif de marketplace de réservation d’hébergements insolites : cabanes perchées, yourtes, cabanes flottantes, tiny houses, dômes et logements nature.
 
-**Projet étudiant fictif — aucun achat, paiement ou réservation réelle ne peut être effectué.**
+**Projet étudiant fictif. Aucun achat, paiement ou réservation réelle ne peut être effectué. Les informations présentées sur cette page sont utilisées dans le cadre d’une démonstration académique.**
 
 ## Stack
 
@@ -65,17 +65,19 @@ php -S 127.0.0.1:8010 -t public public/index.php
 - Pages publiques : accueil, concept, catalogue, détail logement, blog, FAQ, contact, devenir hôte, pages légales.
 - Authentification avec mots de passe hashés via `password_hash`.
 - Contrôle d’accès par rôle : locataire, propriétaire, administrateur.
-- Catalogue avec filtres destination, type, capacité, prix, équipement et dates.
-- Réservation fictive avec vérification dates, capacité, chevauchement et dates passées.
+- Validation administrateur des nouveaux comptes : les comptes créés passent en attente avant usage complet.
+- Catalogue avec filtres destination assistée par liste de destinations publiées, type, capacité, prix, équipement et dates.
+- Réservation fictive avec vérification dates, capacité, chevauchement et dates passées, puis validation administrateur avant paiement de démonstration.
 - Calendrier public léger sur les fiches logements pour visualiser dates réservées, indisponibles et prix spécifiques.
 - Paiement simulé sans collecte de carte bancaire réelle.
-- Avis modérés par administrateur.
-- Dashboard locataire : réservations, détail, avis, profil.
-- Dashboard propriétaire : logements, création/modification, upload image contrôlé, soumission, disponibilités, réservations.
+- Avis modérés par administrateur avec affichage en étoiles.
+- Favoris : cœur sur les logements, ajout/retrait protégé par CSRF et page locataire dédiée.
+- Dashboard locataire : réservations, détail, favoris, avis, profil.
+- Dashboard propriétaire : logements, création/modification détaillée, upload image contrôlé, soumission en attente de validation, modifications de logements publiés soumises à validation admin, disponibilités, réservations.
 - Dashboard propriétaire : galerie d’images avec texte alternatif, image principale, suppression sécurisée et gestion de plages de disponibilité avec prix spécifique.
 - Calendrier mensuel propriétaire en JavaScript vanilla pour visualiser disponibilités, indisponibilités, prix spécifiques et dates réservées.
-- Dashboard administrateur : statistiques détaillées, derniers logs, dernières réservations, logements à valider, avis et messages.
-- Back-office administrateur démontrable : recherche utilisateurs, détail utilisateur, suspension/réactivation, gestion profils hôtes, validation complète des logements, détail et édition admin des logements, pause/réactivation/suppression logique des logements, filtres réservations, modération avis, publication/dépublication blog, messages lus/traités/archivés et logs d’audit.
+- Dashboard administrateur : statistiques détaillées, comptes à valider, logements à valider, réservations à confirmer, paiements fictifs en attente, derniers logs, avis et messages.
+- Back-office administrateur démontrable : recherche utilisateurs, détail utilisateur, suspension/réactivation, gestion profils hôtes, validation complète des logements, comparaison et validation des modifications proposées par les propriétaires, détail et édition admin des logements, pause/réactivation/suppression logique des logements, filtres réservations, modération avis, publication/dépublication blog, messages lus/traités/archivés et logs d’audit.
 - Pagination simple et filtres sur plusieurs listes administrateur : utilisateurs, logements, réservations, messages et logs.
 - Réinitialisation de mot de passe locale de démonstration, sans envoi email réel.
 - Reçu/facture fictive imprimable sur le détail de réservation locataire.
@@ -85,7 +87,7 @@ php -S 127.0.0.1:8010 -t public public/index.php
 - Structure tracking-ready avec attributs `data-track`, `dataLayer`, placeholders `GA4_ID`/`GTM_ID` et consentement cookies.
 - Formulaire `/mes-donnees` pour simuler les demandes RGPD : accès, rectification, suppression et opposition.
 - Identité visuelle alignée sur la charte AtypikHouse 2026 et photographies de démonstration issues des maquettes fournies.
-- Données de démonstration enrichies : 12 logements publiés, locataires fictifs, réservations terminées et avis publiés pour rendre chaque fiche logement crédible.
+- Données de démonstration enrichies : 12 logements publiés, locataires fictifs, réservations terminées, favoris et avis publiés pour rendre chaque fiche logement crédible.
 - Contenus logements harmonisés avec les visuels : titres affichés, descriptions, équipements et textes alternatifs ont été réécrits pour rester cohérents avec les photos locales.
 
 ## Structure
@@ -146,6 +148,8 @@ Les slugs de certains logements historiques sont conservés pour éviter de cass
 Les avis présents dans le seed sont entièrement fictifs et servent uniquement à la démonstration académique. Ils ne correspondent à aucun vrai client ni à aucune réservation réelle.
 
 La suppression admin d’un logement est logique : le statut passe à `deleted`, les réservations, avis, images et logs restent conservés pour l’historique de démonstration.
+
+Lorsqu’un propriétaire modifie un logement déjà publié ou mis en pause, la version publique n’est pas écrasée directement. Une demande est stockée dans `property_change_requests` avec les nouvelles valeurs proposées, puis l’administrateur compare, approuve ou refuse la modification depuis le back-office. Les images ajoutées dans une demande refusée peuvent rester stockées localement comme artefacts de démonstration.
 
 Limites assumées : pas d’email réel, pas de paiement réel, pas de passerelle Brevo/Stripe, pas de calendrier planning professionnel avec drag-and-drop, pas de système de suppression RGPD automatisé complet, pas de workflow de notification automatique propriétaire après refus/pause. Ces points sont simulés ou documentés pour la soutenance.
 

@@ -16,7 +16,8 @@ final class Property extends Model
         $params = [];
 
         if (!empty($filters['location'])) {
-            $sql .= ' AND (p.city LIKE ? OR p.region LIKE ?)';
+            $sql .= ' AND (p.city LIKE ? OR p.region LIKE ? OR CONCAT(p.city, ", ", p.region) LIKE ?)';
+            $params[] = '%' . $filters['location'] . '%';
             $params[] = '%' . $filters['location'] . '%';
             $params[] = '%' . $filters['location'] . '%';
         }
@@ -40,7 +41,7 @@ final class Property extends Model
             $sql .= ' AND NOT EXISTS (
                 SELECT 1 FROM bookings b
                 WHERE b.property_id = p.id
-                  AND b.status IN ("confirmed", "completed")
+                  AND b.status IN ("pending_admin", "confirmed", "completed")
                   AND b.start_date < ? AND b.end_date > ?
             ) AND NOT EXISTS (
                 SELECT 1 FROM property_availabilities pa
@@ -69,6 +70,12 @@ final class Property extends Model
     public function featured(): array
     {
         return $this->published([], 6);
+    }
+
+    public function availableDestinations(): array
+    {
+        $stmt = $this->db->query('SELECT DISTINCT city, region FROM properties WHERE status = "published" ORDER BY city ASC, region ASC');
+        return array_map(static fn (array $row): string => $row['city'] . ', ' . $row['region'], $stmt->fetchAll());
     }
 
     public function findBySlug(string $slug): ?array
@@ -125,7 +132,11 @@ final class Property extends Model
 
     public function ownerProperties(int $ownerId): array
     {
-        $stmt = $this->db->prepare('SELECT p.*, (SELECT image_path FROM property_images WHERE property_id = p.id ORDER BY is_main DESC LIMIT 1) AS main_image FROM properties p WHERE owner_id = ? ORDER BY created_at DESC');
+        $stmt = $this->db->prepare('SELECT p.*, (SELECT image_path FROM property_images WHERE property_id = p.id ORDER BY is_main DESC LIMIT 1) AS main_image,
+            (SELECT status FROM property_change_requests WHERE property_id = p.id ORDER BY updated_at DESC LIMIT 1) AS latest_change_status,
+            (SELECT rejection_reason FROM property_change_requests WHERE property_id = p.id ORDER BY updated_at DESC LIMIT 1) AS latest_change_reason,
+            (SELECT COUNT(*) FROM property_change_requests WHERE property_id = p.id AND status = "pending") AS pending_change_count
+            FROM properties p WHERE owner_id = ? ORDER BY created_at DESC');
         $stmt->execute([$ownerId]);
         return $stmt->fetchAll();
     }
@@ -137,10 +148,10 @@ final class Property extends Model
         return $stmt->fetch() ?: null;
     }
 
-    public function create(int $ownerId, array $data, ?string $uploadedImage = null): int
+    public function create(int $ownerId, array $data, ?string $uploadedImage = null, array $secondaryImages = []): int
     {
         $slug = slugify($data['title']);
-        $stmt = $this->db->prepare('INSERT INTO properties (owner_id, title, slug, type, short_description, long_description, address, city, postal_code, region, country, latitude, longitude, capacity, bedrooms, beds, bathrooms, price_per_night, cleaning_fee, eco_score, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, "draft", NOW(), NOW())');
+        $stmt = $this->db->prepare('INSERT INTO properties (owner_id, title, slug, type, short_description, long_description, address, city, postal_code, region, country, latitude, longitude, capacity, bedrooms, beds, bathrooms, price_per_night, cleaning_fee, eco_score, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, "pending", NOW(), NOW())');
         $stmt->execute([
             $ownerId,
             trim($data['title']),
@@ -163,11 +174,14 @@ final class Property extends Model
         ]);
         $id = (int) $this->db->lastInsertId();
         $this->replaceAmenities($id, $data['amenities'] ?? '');
-        $this->addImage($id, $uploadedImage ?: 'assets/img/properties/default-placeholder.svg', trim((string) ($data['image_alt'] ?? '')) ?: ('Photo illustrative de ' . $data['title']));
+        $this->addImage($id, $uploadedImage ?: 'assets/img/properties/default-placeholder.svg', trim((string) ($data['image_alt'] ?? '')) ?: ('Photo illustrative de ' . $data['title']), true);
+        foreach ($secondaryImages as $path) {
+            $this->addImage($id, $path, 'Photo complémentaire de ' . trim($data['title']), false);
+        }
         return $id;
     }
 
-    public function update(int $id, int $ownerId, array $data, ?string $uploadedImage = null): void
+    public function update(int $id, int $ownerId, array $data, ?string $uploadedImage = null, array $secondaryImages = []): void
     {
         $stmt = $this->db->prepare('UPDATE properties SET title = ?, slug = ?, type = ?, short_description = ?, long_description = ?, address = ?, city = ?, postal_code = ?, region = ?, country = ?, capacity = ?, bedrooms = ?, beds = ?, bathrooms = ?, price_per_night = ?, cleaning_fee = ?, eco_score = ?, updated_at = NOW() WHERE id = ? AND owner_id = ? AND status IN ("draft", "rejected", "pending")');
         $stmt->execute([
@@ -194,7 +208,10 @@ final class Property extends Model
         $this->replaceAmenities($id, $data['amenities'] ?? '');
         if ($uploadedImage) {
             $this->db->prepare('UPDATE property_images SET is_main = 0 WHERE property_id = ?')->execute([$id]);
-            $this->addImage($id, $uploadedImage, trim((string) ($data['image_alt'] ?? '')) ?: ('Photo de ' . $data['title']));
+            $this->addImage($id, $uploadedImage, trim((string) ($data['image_alt'] ?? '')) ?: ('Photo de ' . $data['title']), true);
+        }
+        foreach ($secondaryImages as $path) {
+            $this->addImage($id, $path, 'Photo complémentaire de ' . trim($data['title']), false);
         }
     }
 
@@ -203,8 +220,7 @@ final class Property extends Model
         if (!$this->findOwned($propertyId, $ownerId)) {
             return false;
         }
-        $this->db->prepare('UPDATE property_images SET is_main = 0 WHERE property_id = ?')->execute([$propertyId]);
-        $this->addImage($propertyId, $path, $altText);
+        $this->addImage($propertyId, $path, $altText, false);
         return true;
     }
 
@@ -256,7 +272,9 @@ final class Property extends Model
 
     public function allForAdmin(): array
     {
-        $stmt = $this->db->query('SELECT p.*, u.email AS owner_email FROM properties p JOIN users u ON u.id = p.owner_id ORDER BY p.created_at DESC');
+        $stmt = $this->db->query('SELECT p.*, u.email AS owner_email,
+            (SELECT COUNT(*) FROM property_change_requests WHERE property_id = p.id AND status = "pending") AS pending_change_count
+            FROM properties p JOIN users u ON u.id = p.owner_id ORDER BY p.created_at DESC');
         return $stmt->fetchAll();
     }
 
@@ -294,7 +312,8 @@ final class Property extends Model
         $count->execute($params);
 
         $stmt = $this->db->prepare('SELECT p.*, u.email AS owner_email,
-            (SELECT image_path FROM property_images WHERE property_id = p.id ORDER BY is_main DESC, id ASC LIMIT 1) AS main_image' . $from . ' ORDER BY p.created_at DESC LIMIT ' . max(1, $limit) . ' OFFSET ' . max(0, $offset));
+            (SELECT image_path FROM property_images WHERE property_id = p.id ORDER BY is_main DESC, id ASC LIMIT 1) AS main_image,
+            (SELECT COUNT(*) FROM property_change_requests WHERE property_id = p.id AND status = "pending") AS pending_change_count' . $from . ' ORDER BY p.created_at DESC LIMIT ' . max(1, $limit) . ' OFFSET ' . max(0, $offset));
         $stmt->execute($params);
 
         return ['items' => $stmt->fetchAll(), 'total' => (int) $count->fetchColumn()];
@@ -328,6 +347,45 @@ final class Property extends Model
     {
         $stmt = $this->db->prepare('UPDATE properties SET status = ?, updated_at = NOW() WHERE id = ?');
         $stmt->execute([$status, $id]);
+    }
+
+    public function applyApprovedChange(int $id, array $data): void
+    {
+        $slug = $this->uniqueSlug((string) ($data['title'] ?? 'logement'), $id);
+        $stmt = $this->db->prepare('UPDATE properties SET title = ?, slug = ?, type = ?, short_description = ?, long_description = ?, address = ?, city = ?, postal_code = ?, region = ?, country = ?, capacity = ?, bedrooms = ?, beds = ?, bathrooms = ?, price_per_night = ?, cleaning_fee = ?, eco_score = ?, updated_at = NOW() WHERE id = ?');
+        $stmt->execute([
+            trim((string) $data['title']),
+            $slug,
+            (string) $data['type'],
+            trim((string) $data['short_description']),
+            trim((string) $data['long_description']),
+            trim((string) ($data['address'] ?? '')),
+            trim((string) $data['city']),
+            trim((string) ($data['postal_code'] ?? '')),
+            trim((string) $data['region']),
+            trim((string) ($data['country'] ?? 'France')),
+            (int) $data['capacity'],
+            (int) ($data['bedrooms'] ?? 1),
+            (int) ($data['beds'] ?? 1),
+            (int) ($data['bathrooms'] ?? 1),
+            (float) $data['price_per_night'],
+            (float) ($data['cleaning_fee'] ?? 0),
+            (int) ($data['eco_score'] ?? 3),
+            $id,
+        ]);
+        $this->replaceAmenities($id, $data['amenities'] ?? []);
+
+        $mainImage = $data['main_image'] ?? null;
+        if (is_array($mainImage) && !empty($mainImage['path'])) {
+            $this->db->prepare('UPDATE property_images SET is_main = 0 WHERE property_id = ?')->execute([$id]);
+            $this->addImage($id, (string) $mainImage['path'], trim((string) ($mainImage['alt_text'] ?? '')) ?: ('Photo de ' . $data['title']), true);
+        }
+
+        foreach (($data['secondary_images'] ?? []) as $image) {
+            if (is_array($image) && !empty($image['path'])) {
+                $this->addImage($id, (string) $image['path'], trim((string) ($image['alt_text'] ?? '')) ?: ('Photo complémentaire de ' . $data['title']), false);
+            }
+        }
     }
 
     public function bookingCount(int $propertyId): int
@@ -368,7 +426,23 @@ final class Property extends Model
         $stmt = $this->db->prepare('SELECT COUNT(*) FROM property_images WHERE property_id = ?');
         $stmt->execute([$propertyId]);
         if ((int) $stmt->fetchColumn() === 0) {
-            $this->addImage($propertyId, 'assets/img/properties/default-placeholder.svg', 'Image temporaire du logement');
+            $this->addImage($propertyId, 'assets/img/properties/default-placeholder.svg', 'Image temporaire du logement', true);
+        }
+    }
+
+    private function uniqueSlug(string $title, int $ignoreId): string
+    {
+        $base = slugify($title);
+        $slug = $base;
+        $suffix = 2;
+        while (true) {
+            $stmt = $this->db->prepare('SELECT COUNT(*) FROM properties WHERE slug = ? AND id <> ?');
+            $stmt->execute([$slug, $ignoreId]);
+            if ((int) $stmt->fetchColumn() === 0) {
+                return $slug;
+            }
+            $slug = $base . '-' . $suffix;
+            $suffix++;
         }
     }
 
@@ -385,9 +459,9 @@ final class Property extends Model
         }
     }
 
-    private function addImage(int $propertyId, string $path, string $altText): void
+    private function addImage(int $propertyId, string $path, string $altText, bool $isMain): void
     {
-        $stmt = $this->db->prepare('INSERT INTO property_images (property_id, image_path, alt_text, is_main, created_at) VALUES (?, ?, ?, 1, NOW())');
-        $stmt->execute([$propertyId, $path, trim($altText)]);
+        $stmt = $this->db->prepare('INSERT INTO property_images (property_id, image_path, alt_text, is_main, created_at) VALUES (?, ?, ?, ?, NOW())');
+        $stmt->execute([$propertyId, $path, trim($altText), $isMain ? 1 : 0]);
     }
 }

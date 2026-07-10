@@ -120,6 +120,17 @@ function money(float|int|string $amount): string
     return number_format((float) $amount, 2, ',', ' ') . ' EUR';
 }
 
+function rating_stars(float|int|string $rating, string $label = 'Note'): string
+{
+    $value = max(0, min(5, (float) $rating));
+    $rounded = (int) round($value);
+    $stars = '';
+    for ($i = 1; $i <= 5; $i++) {
+        $stars .= '<span class="rating-stars__star' . ($i <= $rounded ? ' rating-stars__star--filled' : '') . '" aria-hidden="true">' . ($i <= $rounded ? '★' : '☆') . '</span>';
+    }
+    return '<span class="rating-stars" role="img" aria-label="' . e($label . ' : ' . number_format($value, 1, ',', ' ') . ' sur 5') . '">' . $stars . '</span>';
+}
+
 function nights_between(string $start, string $end): int
 {
     try {
@@ -140,6 +151,7 @@ function status_label(?string $status): string
     return [
         'active' => 'Actif',
         'pending' => 'En attente',
+        'rejected' => 'Refusé',
         'suspended' => 'Suspendu',
         'draft' => 'Brouillon',
         'published' => 'Publié',
@@ -147,6 +159,7 @@ function status_label(?string $status): string
         'archived' => 'Archivé',
         'paused' => 'En pause',
         'deleted' => 'Supprimé',
+        'pending_admin' => 'En attente de validation',
         'pending_payment' => 'Paiement en attente',
         'confirmed' => 'Confirmée',
         'cancelled' => 'Annulée',

@@ -3,6 +3,8 @@
 Date de validation : 4 juillet 2026
 Environnement : MAMP, PHP 8.3.30, MySQL 8.0.44
 
+Mise à jour complémentaire : 10 juillet 2026
+
 ## Vérifications exécutées
 
 - Lint PHP sur l’ensemble des fichiers `app/`, `config/`, `public/` et `routes/` : aucun défaut de syntaxe.
@@ -39,6 +41,16 @@ Environnement : MAMP, PHP 8.3.30, MySQL 8.0.44
 - Ajout d'avis clients fictifs publiés pour chaque logement seedé, associés à des locataires de démonstration et à des réservations passées terminées.
 - Renforcement du back-office administrateur pour la soutenance : dashboard enrichi, recherche/détail utilisateur, suspension/réactivation, filtres propriétaires/logements/réservations/avis, détail et édition admin des logements, actions rapides de publication/refus/pause/réactivation/suppression logique, annulation/terminaison réservation, publication/dépublication blog, détail message et statut “traité”.
 - Ajout de logs d’audit explicites pour les actions admin sensibles : `user_suspended`, `user_reactivated`, `property_approved`, `property_rejected`, `property_paused`, `property_reactivated`, `property_deleted`, `property_updated_by_admin`, `booking_cancelled_by_admin`, `booking_completed_by_admin`, `review_approved`, `review_rejected`, `review_deleted`, `blog_created`, `blog_updated`, `blog_published`, `blog_unpublished`, `blog_deleted`, `message_read`, `message_processed`, `message_archived`.
+- Ajout UX locataire : favoris par logement avec bouton cœur, page `/locataire/favoris`, affichage des notes et avis en étoiles accessibles, et champ Destination avec liste de localisations issues uniquement des logements publiés.
+- Harmonisation du disclaimer académique avec la formulation sans tiret long : “Projet étudiant fictif. Aucun achat, paiement ou réservation réelle ne peut être effectué. Les informations présentées sur cette page sont utilisées dans le cadre d’une démonstration académique.”
+- Ajout du workflow admin de validation des comptes : les nouveaux comptes sont créés en `pending`, peuvent être approuvés/refusés/suspendus/réactivés depuis `/admin/utilisateurs`, et les comptes non validés sont bloqués sur les parcours sensibles.
+- Renforcement du workflow propriétaire : seul un propriétaire validé peut accéder à l’ajout de logement, et toute création propriétaire passe en `pending` avant publication admin.
+- Ajout du workflow de modification différée : lorsqu’un propriétaire modifie un logement déjà publié ou en pause, les nouvelles données sont stockées dans `property_change_requests` et la version publique reste inchangée tant que l’admin n’a pas approuvé la demande.
+- Ajout de l’écran admin `/admin/logements/modifications` et du détail de comparaison ancien/nouveau avec actions d’approbation et de refus.
+- Test local du workflow modification : propriétaire démo change le prix d’un logement publié de `185.00` à `210.00`, la table `properties` reste à `185.00`, la demande pending contient `210`, puis l’approbation admin publie temporairement `210` avant restauration du logement de démonstration à `185.00`.
+- Renforcement du workflow réservation : une réservation locataire validée est créée en `pending_admin` avec paiement `not_paid`, apparaît dans `/admin/reservations`, puis peut être confirmée par l’administrateur avant paiement fictif.
+- Enrichissement du dashboard admin : compteurs de comptes à valider, logements à valider/en pause/supprimés, réservations à valider/confirmées/annulées/terminées, paiements fictifs, messages et avis.
+- Formulaire propriétaire “Ajouter un logement” restructuré en sections : informations principales, localisation, capacité, tarification, équipements, images et rappel de validation admin.
 
 ## Remise à zéro
 
@@ -55,4 +67,7 @@ Après les tests mutables, le schéma et le seed ont été réimportés afin de 
 - Le calendrier est interactif pour la visualisation et le préremplissage, mais ne remplace pas le formulaire serveur de plages qui reste la source sûre.
 - Les demandes RGPD sont simulées et stockées localement ; aucune suppression automatique réelle n’est exécutée.
 - Le back-office est complet pour un MVP académique, mais ne déclenche pas de notification email réelle vers les hôtes/locataires après modération ou changement de statut.
+- Les validations admin utilisent des messages flash et les statuts en base ; aucune notification email réelle n’est envoyée.
 - La suppression de logement est volontairement logique (`status=deleted`) pour ne pas casser les réservations, avis et historiques liés.
+- Les images téléversées dans une demande de modification refusée ou remplacée peuvent rester présentes dans `storage/uploads` comme artefacts locaux ; aucun nettoyage automatique avancé n’est déclenché dans ce MVP.
+- Les favoris sont stockés localement pour la démonstration et ne déclenchent aucune notification ni recommandation automatisée.

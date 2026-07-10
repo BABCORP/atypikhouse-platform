@@ -1,4 +1,12 @@
-<?php $currentUser = \App\Core\Auth::user(); ?>
+<?php
+$currentUser = \App\Core\Auth::user();
+$currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+$isActivePath = static function (string $path) use ($currentPath): bool {
+    return $path === '/' ? $currentPath === '/' : ($currentPath === $path || str_starts_with($currentPath, $path . '/'));
+};
+$navLinkClass = static fn (string $path): string => 'nav-link' . ($isActivePath($path) ? ' is-active' : '');
+$ariaCurrent = static fn (string $path): string => $isActivePath($path) ? ' aria-current="page"' : '';
+?>
 <!doctype html>
 <html lang="fr">
 <head>
@@ -33,13 +41,13 @@
     <a class="brand" href="<?= url('/') ?>" aria-label="AtypikHouse, accueil">AtypikHouse</a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="navigation-principale">Menu</button>
     <nav class="main-nav" id="navigation-principale" aria-label="Navigation principale">
-        <a href="<?= url('/') ?>">Accueil</a>
-        <a href="<?= url('/concept') ?>">Le concept</a>
-        <a href="<?= url('/hebergements') ?>">Hébergements</a>
-        <a href="<?= url('/blog') ?>">Blog</a>
-        <a href="<?= url('/faq') ?>">FAQ</a>
-        <a href="<?= url('/devenir-hote') ?>">Devenir hôte</a>
-        <a href="<?= url('/contact') ?>">Contact</a>
+        <a class="<?= e($navLinkClass('/')) ?>" href="<?= url('/') ?>"<?= $ariaCurrent('/') ?>>Accueil</a>
+        <a class="<?= e($navLinkClass('/concept')) ?>" href="<?= url('/concept') ?>"<?= $ariaCurrent('/concept') ?>>Le concept</a>
+        <a class="<?= e($navLinkClass('/hebergements')) ?>" href="<?= url('/hebergements') ?>"<?= $ariaCurrent('/hebergements') ?>>Hébergements</a>
+        <a class="<?= e($navLinkClass('/blog')) ?>" href="<?= url('/blog') ?>"<?= $ariaCurrent('/blog') ?>>Blog</a>
+        <a class="<?= e($navLinkClass('/faq')) ?>" href="<?= url('/faq') ?>"<?= $ariaCurrent('/faq') ?>>FAQ</a>
+        <a class="<?= e($navLinkClass('/devenir-hote')) ?>" href="<?= url('/devenir-hote') ?>"<?= $ariaCurrent('/devenir-hote') ?>>Devenir hôte</a>
+        <a class="<?= e($navLinkClass('/contact')) ?>" href="<?= url('/contact') ?>"<?= $ariaCurrent('/contact') ?>>Contact</a>
         <?php if ($currentUser): ?>
             <a class="button ghost" href="<?= url('/' . ($currentUser['role'] === 'admin' ? 'admin' : ($currentUser['role'] === 'owner' ? 'proprietaire' : 'locataire')) . '/dashboard') ?>">Mon espace</a>
             <form method="post" action="<?= url('/deconnexion') ?>"><?= csrf_field() ?><button class="link-button" type="submit">Déconnexion</button></form>

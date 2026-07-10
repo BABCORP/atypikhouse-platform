@@ -9,7 +9,10 @@
         </div>
     </div>
     <form class="search-panel hero-search" method="get" action="<?= url('/hebergements') ?>" data-track="search_submit">
-        <label>Destination<input name="destination" placeholder="Où voulez-vous partir ?"></label>
+        <label>Destination<input list="home-destinations-list" name="destination" placeholder="Ex. Pierrefonds, Gérardmer, Amiens…"></label>
+        <datalist id="home-destinations-list">
+            <?php foreach (($destinations ?? []) as $destination): ?><option value="<?= e($destination) ?>"></option><?php endforeach; ?>
+        </datalist>
         <label>Arrivée<input name="start_date" type="date"></label>
         <label>Départ<input name="end_date" type="date"></label>
         <label>Voyageurs<input name="capacity" type="number" min="1" value="2"></label>

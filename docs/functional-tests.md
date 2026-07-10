@@ -4,6 +4,9 @@
 
 - Créer un compte locataire depuis `/inscription`, vérifier la redirection vers `/connexion`.
 - Créer un compte propriétaire depuis `/inscription?role=owner`, vérifier la création du profil propriétaire.
+- Vérifier qu’un nouveau compte est créé en statut `pending`, puis l’approuver depuis `/admin/utilisateurs`.
+- Vérifier qu’un compte locataire `pending` ne peut pas réserver.
+- Vérifier qu’un compte propriétaire `pending` ne peut pas ajouter de logement.
 - Se connecter avec `tenant@atypikhouse.test` / `Tenant123!`, vérifier l’accès à `/locataire/dashboard`.
 - Essayer une connexion avec un mauvais mot de passe, vérifier le message d’erreur.
 - Passer un utilisateur en `suspended` depuis l’admin, vérifier qu’il ne peut plus se connecter.
@@ -15,28 +18,48 @@
 - Filtrer par prix maximum, vérifier que les logements plus chers sont exclus.
 - Filtrer par capacité, vérifier que les logements trop petits sont exclus.
 - Filtrer par équipement et dates disponibles.
+- Cliquer dans le champ Destination, vérifier que la datalist propose uniquement des destinations de logements publiés, puis lancer une recherche.
+- Vérifier que les cartes logements affichent un bouton cœur accessible et une note moyenne en étoiles.
 - Ouvrir une fiche logement, vérifier galerie, description, équipements, avis et formulaire de réservation.
+- Ouvrir une fiche logement, vérifier le bouton cœur, la note moyenne en étoiles, le nombre d’avis et les étoiles de chaque avis.
 - Vérifier que chaque titre de logement, description courte, description longue, équipements et texte alternatif correspondent au visuel principal affiché.
 - Vérifier que chaque fiche logement seedée affiche au moins deux avis publiés et n’affiche pas “Aucun avis publié pour le moment”.
 - Vérifier le calendrier public : dates passées désactivées, dates indisponibles/réservées bloquées, prix override visible, clic sur une date valide préremplit arrivée/départ.
 
+## Favoris
+
+- Non connecté, cliquer sur un cœur depuis `/hebergements`, vérifier la redirection vers `/connexion` avec un message clair.
+- Connecté locataire, ajouter un logement aux favoris depuis une carte catalogue.
+- Vérifier que le cœur passe en état rempli.
+- Retirer le même logement des favoris et vérifier que le cœur redevient vide.
+- Ajouter un logement aux favoris depuis une fiche logement.
+- Ouvrir `/locataire/favoris`, vérifier que seuls les logements favoris publiés du locataire apparaissent.
+- Vérifier qu’un même logement ne peut pas être ajouté deux fois.
+- Vérifier que l’action POST sans jeton CSRF est refusée.
+
 ## Réservation
 
 - Connecté locataire, réserver des dates futures disponibles.
+- Vérifier que la réservation est créée en `pending_admin` avec paiement `not_paid`, puis visible dans `/admin/reservations?status=pending_admin`.
+- Depuis l’admin, confirmer la réservation et vérifier qu’elle passe en `confirmed` sans 403/404.
+- Vérifier que le paiement fictif n’est accessible qu’après validation admin.
 - Tenter une réservation avec une date passée, vérifier le blocage.
 - Tenter une réservation avec une date de départ avant ou égale à l’arrivée, vérifier le blocage.
 - Tenter une réservation qui chevauche une réservation confirmée, vérifier le blocage.
 - Vérifier le calcul : prix par nuit x nuits + frais de ménage.
-- Simuler un paiement réussi, vérifier `status=confirmed` et `payment_status=test_paid`.
+- Simuler un paiement réussi après confirmation admin, vérifier `status=confirmed` et `payment_status=test_paid`.
 - Simuler un paiement échoué, vérifier que la réservation reste non confirmée.
 - Ouvrir le détail réservation locataire, vérifier le reçu fictif imprimable et la mention “Document fictif — aucune transaction réelle”.
 - Depuis `/proprietaire/disponibilites`, définir un prix spécifique sur une nuit future, réserver cette nuit côté locataire et vérifier que le total utilise le prix override + frais de ménage.
 
 ## Propriétaire
 
-- Connecté propriétaire, créer un logement en brouillon.
+- Connecté propriétaire validé, créer un logement et vérifier qu’il est créé en `pending`.
 - Téléverser une image JPG/PNG/WEBP valide et vérifier son affichage ; refuser un format interdit ou supérieur à 5 Mo.
 - Modifier son propre logement.
+- Modifier un logement déjà publié : changer le prix, soumettre, vérifier le message “Vos modifications ont été soumises à validation” et contrôler que la fiche publique conserve l’ancien prix.
+- Vérifier que `/proprietaire/logements` affiche le badge “Modification en attente”.
+- Tenter de modifier directement une image d’un logement publié depuis les actions galerie, vérifier que le changement est refusé et renvoie vers le formulaire de modification.
 - Tenter d’éditer l’URL d’un logement d’un autre propriétaire, vérifier le refus.
 - Soumettre un logement à validation.
 - Définir une plage indisponible dans `/proprietaire/disponibilites` et vérifier que les dates sont bloquées.
@@ -50,7 +73,9 @@
 ## Admin
 
 - Ouvrir `/admin/dashboard`, vérifier les statistiques globales.
+- Vérifier les compteurs “comptes à valider”, “logements à valider”, “réservations à valider”, “paiements en attente”, “messages non traités” et “avis à modérer”.
 - Lister les utilisateurs, rechercher par email/nom, filtrer par rôle/statut et suspendre puis réactiver un compte.
+- Approuver ou refuser un compte utilisateur depuis la liste et depuis la fiche détail.
 - Ouvrir `/admin/utilisateurs/{id}` et vérifier les informations de compte, profil hôte ou réservations selon le rôle.
 - Modifier un utilisateur depuis `/admin/utilisateurs/{id}/modifier` : prénom, nom, email, téléphone, rôle et statut.
 - Vérifier qu’il est impossible de suspendre, rétrograder ou désactiver le dernier administrateur actif.
@@ -58,12 +83,16 @@
 - Filtrer `/admin/logements` par statut/type/propriétaire/localisation/recherche.
 - Ouvrir `/admin/logements/{id}`, vérifier images, équipements, propriétaire et actions.
 - Modifier un logement depuis `/admin/logements/{id}/modifier`.
+- Ouvrir `/admin/logements/modifications`, vérifier les demandes de modification propriétaires en attente.
+- Ouvrir une demande de modification, comparer ancienne et nouvelle valeur, approuver puis vérifier que la fiche publique reflète la nouvelle valeur.
+- Créer une seconde demande de modification, la refuser avec motif et vérifier que la fiche publique conserve les anciennes données.
 - Publier, rejeter ou archiver un logement et vérifier que les logements non publiés restent invisibles sur le front.
 - Mettre un logement publié en pause, vérifier qu’il disparaît de `/hebergements` et que sa fiche publique renvoie une 404.
 - Vérifier que le propriétaire voit le badge “En pause” et ne peut pas réactiver lui-même le logement.
 - Réactiver le logement depuis l’admin, vérifier qu’il redevient visible publiquement.
 - Supprimer logiquement un logement depuis l’admin, vérifier qu’il passe en statut “Supprimé”, disparaît du front et conserve ses réservations/avis en historique admin.
 - Filtrer `/admin/reservations` par statut, paiement, logement, propriétaire, locataire et période.
+- Confirmer une réservation en attente de validation.
 - Modifier le statut d’une réservation, l’annuler et la marquer terminée.
 - Ouvrir `/admin/reservations/{id}` et vérifier le détail complet : locataire, logement, dates, prix, paiement test et statut.
 - Filtrer `/admin/avis` par statut, note, logement et auteur.
@@ -73,7 +102,7 @@
 - Modifier, publier, dépublier puis supprimer un article de blog.
 - Ouvrir `/admin/messages/{id}`, marquer un message comme lu, traité puis archivé.
 - Filtrer les messages par contact/newsletter/RGPD, vérifier le badge “À traiter” sur une demande RGPD nouvelle.
-- Consulter les journaux d’audit, filtrer par action/email/date et vérifier la présence des logs `user_suspended`, `property_approved`, `property_paused`, `property_reactivated`, `property_deleted`, `booking_completed_by_admin`, `review_approved`, `blog_published`, `message_processed`.
+- Consulter les journaux d’audit, filtrer par action/email/date et vérifier la présence des logs `user_registered_pending`, `user_approved`, `user_rejected`, `user_suspended`, `property_submitted`, `property_approved`, `property_paused`, `property_reactivated`, `property_deleted`, `property_change_requested`, `property_change_approved`, `property_change_rejected`, `booking_created_pending`, `booking_confirmed_by_admin`, `booking_completed_by_admin`, `review_approved`, `blog_published`, `message_processed`.
 - Vérifier la pagination des utilisateurs, logements, messages et réservations admin.
 
 ## Avis
@@ -83,6 +112,7 @@
 - Vérifier que l’avis est `pending`.
 - Publier l’avis depuis l’admin.
 - Vérifier que l’avis publié apparaît sur la fiche logement.
+- Vérifier que la note moyenne et chaque avis utilisent un affichage en étoiles avec texte accessible.
 - Vérifier qu’un avis ne peut pas être créé sans réservation complétée.
 - Vérifier que les avis de démonstration restent visibles dans `/admin/avis` avec le logement et le locataire fictif associés.
 

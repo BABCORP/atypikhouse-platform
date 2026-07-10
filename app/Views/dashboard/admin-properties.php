@@ -35,7 +35,12 @@
                 <td><?= e($property['city']) ?></td>
                 <td><?= property_type_label($property['type']) ?></td>
                 <td><?= money($property['price_per_night']) ?></td>
-                <td><span class="badge <?= e($property['status']) ?>"><?= status_label($property['status']) ?></span></td>
+                <td>
+                    <span class="badge <?= e($property['status']) ?>"><?= status_label($property['status']) ?></span>
+                    <?php if (($property['pending_change_count'] ?? 0) > 0): ?>
+                        <a class="badge pending" href="<?= url('/admin/logements/modifications') ?>">Modification en attente</a>
+                    <?php endif; ?>
+                </td>
                 <td class="table-actions">
                     <a class="button compact ghost" href="<?= url('/admin/logements/' . $property['id']) ?>">Voir</a>
                     <?php if ($property['status'] !== 'deleted'): ?>

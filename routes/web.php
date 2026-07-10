@@ -3,6 +3,7 @@
 use App\Controllers\AdminController;
 use App\Controllers\AuthController;
 use App\Controllers\BookingController;
+use App\Controllers\FavoriteController;
 use App\Controllers\OwnerController;
 use App\Controllers\PublicController;
 use App\Controllers\TenantController;
@@ -42,10 +43,12 @@ $router->post('/reservation/{propertyId}', [BookingController::class, 'start']);
 $router->get('/paiement/{bookingId}', [BookingController::class, 'payment']);
 $router->post('/paiement/{bookingId}', [BookingController::class, 'simulatePayment']);
 $router->post('/avis/{bookingId}', [BookingController::class, 'review']);
+$router->post('/favoris/{propertyId}/toggle', [FavoriteController::class, 'toggle']);
 
 $router->get('/locataire/dashboard', [TenantController::class, 'dashboard']);
 $router->get('/locataire/reservations', [TenantController::class, 'reservations']);
 $router->get('/locataire/reservations/{id}', [TenantController::class, 'reservation']);
+$router->get('/locataire/favoris', [TenantController::class, 'favorites']);
 $router->get('/locataire/avis', [TenantController::class, 'reviews']);
 $router->get('/locataire/profil', [TenantController::class, 'profile']);
 $router->post('/locataire/profil', [TenantController::class, 'updateProfile']);
@@ -74,11 +77,17 @@ $router->get('/admin/utilisateurs/{id}', [AdminController::class, 'userDetail'])
 $router->get('/admin/utilisateurs/{id}/modifier', [AdminController::class, 'editUser']);
 $router->post('/admin/utilisateurs/{id}/modifier', [AdminController::class, 'updateUser']);
 $router->post('/admin/utilisateurs/{id}/statut', [AdminController::class, 'updateUserStatus']);
+$router->post('/admin/utilisateurs/{id}/approuver', [AdminController::class, 'approveUser']);
+$router->post('/admin/utilisateurs/{id}/refuser', [AdminController::class, 'rejectUser']);
 $router->post('/admin/utilisateurs/{id}/suspendre', [AdminController::class, 'suspendUser']);
 $router->post('/admin/utilisateurs/{id}/reactiver', [AdminController::class, 'reactivateUser']);
 $router->get('/admin/proprietaires', [AdminController::class, 'owners']);
 $router->post('/admin/proprietaires/{id}/statut', [AdminController::class, 'updateOwnerStatus']);
 $router->get('/admin/logements', [AdminController::class, 'properties']);
+$router->get('/admin/logements/modifications', [AdminController::class, 'propertyChanges']);
+$router->get('/admin/logements/modifications/{id}', [AdminController::class, 'propertyChangeDetail']);
+$router->post('/admin/logements/modifications/{id}/approuver', [AdminController::class, 'approvePropertyChange']);
+$router->post('/admin/logements/modifications/{id}/refuser', [AdminController::class, 'rejectPropertyChange']);
 $router->get('/admin/logements/{id}', [AdminController::class, 'propertyDetail']);
 $router->get('/admin/logements/{id}/modifier', [AdminController::class, 'editProperty']);
 $router->post('/admin/logements/{id}/modifier', [AdminController::class, 'updateProperty']);
@@ -92,6 +101,7 @@ $router->post('/admin/logements/{id}/supprimer', [AdminController::class, 'delet
 $router->get('/admin/reservations', [AdminController::class, 'bookings']);
 $router->get('/admin/reservations/{id}', [AdminController::class, 'bookingDetail']);
 $router->post('/admin/reservations/{id}/statut', [AdminController::class, 'updateBookingStatus']);
+$router->post('/admin/reservations/{id}/confirmer', [AdminController::class, 'confirmBooking']);
 $router->post('/admin/reservations/{id}/annuler', [AdminController::class, 'cancelBooking']);
 $router->post('/admin/reservations/{id}/terminer', [AdminController::class, 'completeBooking']);
 $router->get('/admin/avis', [AdminController::class, 'reviews']);

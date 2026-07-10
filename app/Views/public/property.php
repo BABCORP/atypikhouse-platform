@@ -1,8 +1,33 @@
+<?php
+$favoriteIds = $favoriteIds ?? [];
+$isFavorite = in_array((int) $property['id'], array_map('intval', $favoriteIds), true);
+$avgRating = (float) ($ratingSummary['avg_rating'] ?? 0);
+$reviewsCount = (int) ($ratingSummary['reviews_count'] ?? 0);
+$currentUser = $currentUser ?? null;
+$currentRole = $currentUser['role'] ?? null;
+$favoriteRedirect = $_SERVER['REQUEST_URI'] ?? '/hebergements/' . $property['slug'];
+if (!is_string($favoriteRedirect) || !str_starts_with($favoriteRedirect, '/') || str_starts_with($favoriteRedirect, '//')) {
+    $favoriteRedirect = '/hebergements/' . $property['slug'];
+}
+?>
 <section class="property-detail-page">
     <div class="property-detail-container">
         <header class="property-heading">
             <p class="eyebrow"><?= e($property['city']) ?> · <?= e($property['region']) ?></p>
-            <h1><?= e($property['title']) ?></h1>
+            <div class="property-title-row">
+                <h1><?= e($property['title']) ?></h1>
+                <form class="favorite-form favorite-form--detail" method="post" action="<?= url('/favoris/' . $property['id'] . '/toggle') ?>">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="redirect" value="<?= e($favoriteRedirect) ?>">
+                    <button class="favorite-button<?= $isFavorite ? ' is-favorite' : '' ?>" type="submit" aria-label="<?= $isFavorite ? 'Retirer ce logement des favoris' : 'Ajouter ce logement aux favoris' ?>">
+                        <span aria-hidden="true"><?= $isFavorite ? '♥' : '♡' ?></span>
+                    </button>
+                </form>
+            </div>
+            <p class="rating-summary">
+                <?= rating_stars($avgRating, 'Note moyenne') ?>
+                <span><?= number_format($avgRating, 1, ',', ' ') ?>/5 · <?= $reviewsCount ?> avis publié(s)</span>
+            </p>
             <p class="lead"><?= e($property['short_description']) ?></p>
         </header>
         <div class="property-detail-layout">
@@ -26,7 +51,19 @@
                 </section>
                 <section class="property-section">
                     <h2>Avis publiés</h2>
-                    <?php foreach ($reviews as $review): ?><blockquote class="review-card"><strong><?= (int) $review['rating'] ?>/5</strong> — <?= e($review['comment']) ?><br><small><?= e($review['first_name']) ?></small></blockquote><?php endforeach; ?>
+                    <?php foreach ($reviews as $review): ?>
+                        <blockquote class="review-card">
+                            <div class="review-card__header">
+                                <strong><?= e($review['first_name']) ?></strong>
+                                <span class="rating-summary rating-summary--compact">
+                                    <?= rating_stars((int) $review['rating'], 'Note de l’avis') ?>
+                                    <span><?= (int) $review['rating'] ?>/5</span>
+                                </span>
+                            </div>
+                            <p><?= e($review['comment']) ?></p>
+                            <small>Publié le <?= e(date('d/m/Y', strtotime($review['created_at']))) ?></small>
+                        </blockquote>
+                    <?php endforeach; ?>
                     <?php if (!$reviews): ?><p class="empty-state">Aucun avis publié pour le moment.</p><?php endif; ?>
                 </section>
                 <section class="property-section">
@@ -47,13 +84,25 @@
                     <h2><?= money($property['price_per_night']) ?> <span>/ nuit</span></h2>
                     <p><?= (int) $property['capacity'] ?> voyageurs · <?= (int) $property['bedrooms'] ?> chambre(s)</p>
                 </div>
-                <form method="post" action="<?= url('/reservation/' . $property['id']) ?>" data-track="booking_start">
-                    <?= csrf_field() ?>
-                    <label>Arrivée<input required name="start_date" type="date"></label>
-                    <label>Départ<input required name="end_date" type="date"></label>
-                    <label>Voyageurs<input required name="guests_count" type="number" min="1" max="<?= (int) $property['capacity'] ?>" value="2"></label>
-                    <button class="button full" type="submit">Réserver ce séjour</button>
-                </form>
+                <?php if (!$currentUser): ?>
+                    <div class="booking-role-notice">
+                        <p>Connectez-vous avec un compte locataire pour réserver ce logement.</p>
+                        <a class="button full" href="<?= url('/connexion') ?>">Se connecter pour réserver</a>
+                    </div>
+                <?php elseif ($currentRole !== 'tenant'): ?>
+                    <div class="booking-role-notice">
+                        <p>Connectez-vous avec un compte locataire pour réserver. Les comptes propriétaires et administrateurs ne peuvent pas effectuer de réservation.</p>
+                        <a class="button ghost full" href="<?= url('/hebergements') ?>">Voir les hébergements</a>
+                    </div>
+                <?php else: ?>
+                    <form method="post" action="<?= url('/reservation/' . $property['id']) ?>" data-track="booking_start">
+                        <?= csrf_field() ?>
+                        <label>Arrivée<input required name="start_date" type="date"></label>
+                        <label>Départ<input required name="end_date" type="date"></label>
+                        <label>Voyageurs<input required name="guests_count" type="number" min="1" max="<?= (int) $property['capacity'] ?>" value="2"></label>
+                        <button class="button full" type="submit">Réserver ce séjour</button>
+                    </form>
+                <?php endif; ?>
                 <div class="public-calendar-block">
                     <div class="calendar-toolbar">
                         <button class="button ghost compact" type="button" data-calendar-prev>Précédent</button>

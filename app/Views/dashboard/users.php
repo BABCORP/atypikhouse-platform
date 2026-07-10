@@ -21,7 +21,7 @@
         <label>Statut
             <select name="status">
                 <option value="">Tous</option>
-                <?php foreach (['active', 'pending', 'suspended'] as $status): ?>
+                <?php foreach (['active', 'pending', 'rejected', 'suspended'] as $status): ?>
                     <option value="<?= $status ?>" <?= input('status') === $status ? 'selected' : '' ?>><?= status_label($status) ?></option>
                 <?php endforeach; ?>
             </select>
@@ -42,6 +42,12 @@
                 <td class="table-actions">
                     <a class="button compact ghost" href="<?= url('/admin/utilisateurs/' . $u['id']) ?>">Voir</a>
                     <a class="button compact ghost" href="<?= url('/admin/utilisateurs/' . $u['id'] . '/modifier') ?>">Modifier</a>
+                    <?php if ($u['status'] !== 'active'): ?>
+                        <form method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/approuver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Approuver</button></form>
+                    <?php endif; ?>
+                    <?php if ($u['status'] !== 'rejected'): ?>
+                        <form method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/refuser') ?>" data-confirm="Refuser ce compte utilisateur ?"><?= csrf_field() ?><button class="button ghost compact" type="submit">Refuser</button></form>
+                    <?php endif; ?>
                     <?php if ($u['status'] === 'suspended'): ?>
                         <form method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/reactiver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Réactiver</button></form>
                     <?php else: ?>
@@ -50,7 +56,7 @@
                     <form method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/statut') ?>">
                         <?= csrf_field() ?>
                         <select name="status" aria-label="Changer le statut de <?= e($u['email']) ?>">
-                            <?php foreach (['active', 'pending', 'suspended'] as $status): ?>
+                            <?php foreach (['active', 'pending', 'rejected', 'suspended'] as $status): ?>
                                 <option value="<?= $status ?>" <?= $u['status'] === $status ? 'selected' : '' ?>><?= status_label($status) ?></option>
                             <?php endforeach; ?>
                         </select>

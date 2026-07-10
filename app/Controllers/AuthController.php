@@ -31,9 +31,9 @@ final class AuthController extends Controller
             remember_old(['email' => input('email')]);
             $this->redirect('/connexion');
         }
-        if ($user['status'] === 'suspended') {
-            audit((int) $user['id'], 'blocked_suspended_login', 'user', (int) $user['id']);
-            flash('error', 'Votre compte est suspendu.');
+        if (in_array($user['status'], ['suspended', 'rejected'], true)) {
+            audit((int) $user['id'], 'blocked_inactive_login', 'user', (int) $user['id']);
+            flash('error', $user['status'] === 'rejected' ? 'Votre compte a été refusé par l’administration.' : 'Votre compte est suspendu.');
             $this->redirect('/connexion');
         }
         unset($_SESSION['login_attempts']);
@@ -137,8 +137,8 @@ final class AuthController extends Controller
         if ($role === 'owner') {
             $model->createOwnerProfile($id, $_POST);
         }
-        audit($id, 'register_success', 'user', $id);
-        flash('success', 'Votre compte a été créé. Vous pouvez vous connecter.');
+        audit($id, 'user_registered_pending', 'user', $id);
+        flash('success', 'Votre compte a été créé et attend la validation de l’administrateur.');
         clear_old();
         $this->redirect('/connexion');
     }

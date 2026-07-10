@@ -8,6 +8,8 @@ DROP TABLE IF EXISTS blog_posts;
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS payments;
 DROP TABLE IF EXISTS bookings;
+DROP TABLE IF EXISTS property_change_requests;
+DROP TABLE IF EXISTS property_favorites;
 DROP TABLE IF EXISTS property_availabilities;
 DROP TABLE IF EXISTS property_amenities;
 DROP TABLE IF EXISTS property_images;
@@ -23,7 +25,7 @@ CREATE TABLE users (
   password_hash VARCHAR(255) NOT NULL,
   phone VARCHAR(40) NULL,
   role ENUM('tenant', 'owner', 'admin') NOT NULL DEFAULT 'tenant',
-  status ENUM('active', 'pending', 'suspended') NOT NULL DEFAULT 'active',
+  status ENUM('active', 'pending', 'rejected', 'suspended') NOT NULL DEFAULT 'active',
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   INDEX idx_users_email (email)
@@ -106,6 +108,36 @@ CREATE TABLE property_availabilities (
   CONSTRAINT fk_property_availabilities_property FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+CREATE TABLE property_favorites (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NOT NULL,
+  property_id INT UNSIGNED NOT NULL,
+  created_at DATETIME NOT NULL,
+  UNIQUE KEY uniq_favorite_user_property (user_id, property_id),
+  INDEX idx_property_favorites_user_id (user_id),
+  INDEX idx_property_favorites_property_id (property_id),
+  CONSTRAINT fk_property_favorites_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_property_favorites_property FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE property_change_requests (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  property_id INT UNSIGNED NOT NULL,
+  owner_id INT UNSIGNED NOT NULL,
+  status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+  proposed_data JSON NOT NULL,
+  rejection_reason VARCHAR(500) NULL,
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL,
+  reviewed_at DATETIME NULL,
+  reviewed_by INT UNSIGNED NULL,
+  CONSTRAINT fk_property_change_requests_property FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE,
+  CONSTRAINT fk_property_change_requests_owner FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_property_change_requests_reviewer FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL,
+  INDEX idx_property_change_requests_property_status (property_id, status),
+  INDEX idx_property_change_requests_status (status)
+) ENGINE=InnoDB;
+
 CREATE TABLE bookings (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   property_id INT UNSIGNED NOT NULL,
@@ -117,7 +149,7 @@ CREATE TABLE bookings (
   subtotal DECIMAL(10,2) NOT NULL,
   cleaning_fee DECIMAL(10,2) NOT NULL,
   total_price DECIMAL(10,2) NOT NULL,
-  status ENUM('pending_payment', 'confirmed', 'cancelled', 'completed') NOT NULL DEFAULT 'pending_payment',
+  status ENUM('pending_admin', 'pending_payment', 'confirmed', 'cancelled', 'completed') NOT NULL DEFAULT 'pending_admin',
   payment_status ENUM('not_paid', 'test_paid', 'refunded') NOT NULL DEFAULT 'not_paid',
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,

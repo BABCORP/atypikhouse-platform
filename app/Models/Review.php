@@ -13,6 +13,17 @@ final class Review extends Model
         return $stmt->fetchAll();
     }
 
+    public function summaryForProperty(int $propertyId): array
+    {
+        $stmt = $this->db->prepare('SELECT COALESCE(AVG(rating), 0) AS avg_rating, COUNT(*) AS reviews_count FROM reviews WHERE property_id = ? AND status = "published"');
+        $stmt->execute([$propertyId]);
+        $summary = $stmt->fetch() ?: ['avg_rating' => 0, 'reviews_count' => 0];
+        return [
+            'avg_rating' => (float) $summary['avg_rating'],
+            'reviews_count' => (int) $summary['reviews_count'],
+        ];
+    }
+
     public function forTenant(int $tenantId): array
     {
         $stmt = $this->db->prepare('SELECT r.*, p.title FROM reviews r JOIN properties p ON p.id = r.property_id WHERE r.tenant_id = ? ORDER BY r.created_at DESC');

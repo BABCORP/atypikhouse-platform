@@ -12,15 +12,39 @@ final class BookingController extends Controller
 {
     public function start(int $propertyId): void
     {
-        $user = Auth::requireRole('tenant');
         verify_csrf();
         $property = (new Property())->find($propertyId);
         if (!$property || $property['status'] !== 'published') {
             flash('error', 'Ce logement n’est pas disponible à la réservation.');
             $this->redirect('/hebergements');
         }
+        $user = Auth::user();
+        if (!$user) {
+            flash('error', 'Connectez-vous avec un compte locataire pour réserver ce logement.');
+            $this->redirect('/connexion');
+        }
+        if ($user['role'] === 'owner') {
+            flash('error', 'Les comptes propriétaires ne peuvent pas effectuer de réservation. Utilisez un compte locataire pour tester ce parcours.');
+            $this->redirect('/hebergements/' . $property['slug']);
+        }
+        if ($user['role'] === 'admin') {
+            flash('error', 'Les comptes administrateurs ne peuvent pas effectuer de réservation. Utilisez un compte locataire pour tester ce parcours.');
+            $this->redirect('/hebergements/' . $property['slug']);
+        }
+        if ($user['role'] !== 'tenant') {
+            flash('error', 'Connectez-vous avec un compte locataire pour réserver ce logement.');
+            $this->redirect('/connexion');
+        }
+        if ($user['status'] !== 'active') {
+            flash('error', 'Votre compte locataire doit être validé par l’administrateur avant de réserver.');
+            $this->redirect('/hebergements/' . $property['slug']);
+        }
         if (!valid_date((string) input('start_date')) || !valid_date((string) input('end_date')) || nights_between((string) input('start_date'), (string) input('end_date')) < 1) {
-            flash('error', 'Les dates de réservation sont invalides.');
+            flash('error', 'Veuillez sélectionner des dates valides.');
+            $this->redirect('/hebergements/' . $property['slug']);
+        }
+        if ((string) input('start_date') < date('Y-m-d')) {
+            flash('error', 'Veuillez sélectionner des dates valides.');
             $this->redirect('/hebergements/' . $property['slug']);
         }
         if ((int) input('guests_count') < 1 || (int) input('guests_count') > (int) $property['capacity']) {
@@ -29,33 +53,42 @@ final class BookingController extends Controller
         }
         $bookingModel = new Booking();
         if (!$bookingModel->isAvailable((int) $property['id'], (string) input('start_date'), (string) input('end_date'))) {
-            flash('error', 'Ces dates ne sont pas disponibles.');
+            flash('error', 'Ce logement n’est pas disponible sur les dates sélectionnées.');
             $this->redirect('/hebergements/' . $property['slug']);
         }
         $bookingId = $bookingModel->create($property, (int) $user['id'], $_POST);
-        audit((int) $user['id'], 'booking_creation', 'booking', $bookingId);
-        $this->redirect('/paiement/' . $bookingId);
+        audit((int) $user['id'], 'booking_created_pending', 'booking', $bookingId);
+        flash('success', 'Votre réservation fictive a été créée et attend la validation de l’administrateur.');
+        $this->redirect('/locataire/reservations/' . $bookingId);
     }
 
     public function payment(int $bookingId): void
     {
-        $user = Auth::requireRole('tenant');
+        $user = $this->requireTenantForBooking();
         $booking = (new Booking())->findForTenant($bookingId, (int) $user['id']);
         if (!$booking) {
             http_response_code(404);
             exit('Réservation introuvable.');
+        }
+        if ($booking['status'] === 'pending_admin') {
+            flash('error', 'Cette réservation attend la validation de l’administrateur avant paiement fictif.');
+            $this->redirect('/locataire/reservations/' . $bookingId);
         }
         $this->view('dashboard/payment', ['title' => 'Paiement fictif', 'booking' => $booking]);
     }
 
     public function simulatePayment(int $bookingId): void
     {
-        $user = Auth::requireRole('tenant');
+        $user = $this->requireTenantForBooking();
         verify_csrf();
         $booking = (new Booking())->findForTenant($bookingId, (int) $user['id']);
         if (!$booking) {
             http_response_code(404);
             exit('Réservation introuvable.');
+        }
+        if ($booking['status'] === 'pending_admin') {
+            flash('error', 'Cette réservation attend la validation de l’administrateur avant paiement fictif.');
+            $this->redirect('/locataire/reservations/' . $bookingId);
         }
         $success = input('scenario') === 'success';
         $success = (new Booking())->simulatePayment($bookingId, $success);
@@ -66,7 +99,7 @@ final class BookingController extends Controller
 
     public function review(int $bookingId): void
     {
-        $user = Auth::requireRole('tenant');
+        $user = $this->requireTenantForBooking();
         verify_csrf();
         $booking = (new Booking())->findForTenant($bookingId, (int) $user['id']);
         if (!$booking || !(new Review())->canReview($bookingId, (int) $user['id'])) {
@@ -83,5 +116,32 @@ final class BookingController extends Controller
         audit((int) $user['id'], 'review_submit', 'review');
         flash('success', 'Votre avis est en attente de modération.');
         $this->redirect('/locataire/avis');
+    }
+
+    private function requireTenantForBooking(): array
+    {
+        $user = Auth::user();
+        if (!$user) {
+            flash('error', 'Connectez-vous avec un compte locataire pour réserver ce logement.');
+            $this->redirect('/connexion');
+        }
+        if ($user['role'] === 'owner') {
+            flash('error', 'Les comptes propriétaires ne peuvent pas effectuer de réservation. Utilisez un compte locataire pour tester ce parcours.');
+            $this->redirect('/hebergements');
+        }
+        if ($user['role'] === 'admin') {
+            flash('error', 'Les comptes administrateurs ne peuvent pas effectuer de réservation. Utilisez un compte locataire pour tester ce parcours.');
+            $this->redirect('/hebergements');
+        }
+        if ($user['role'] !== 'tenant') {
+            flash('error', 'Connectez-vous avec un compte locataire pour réserver ce logement.');
+            $this->redirect('/connexion');
+        }
+        if ($user['status'] !== 'active') {
+            flash('error', 'Votre compte locataire doit être validé par l’administrateur avant d’utiliser ce parcours.');
+            $this->redirect('/hebergements');
+        }
+
+        return $user;
     }
 }

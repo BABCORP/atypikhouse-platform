@@ -17,7 +17,7 @@
         </label>
         <label>Statut
             <select name="status">
-                <?php foreach (['active', 'pending', 'suspended'] as $status): ?>
+                <?php foreach (['active', 'pending', 'rejected', 'suspended'] as $status): ?>
                     <option value="<?= $status ?>" <?= $editUser['status'] === $status ? 'selected' : '' ?>><?= status_label($status) ?></option>
                 <?php endforeach; ?>
             </select>

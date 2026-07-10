@@ -82,6 +82,16 @@ if (roleSelect && ownerFields) {
   syncOwnerFields();
 }
 
+const otherAmenitiesToggle = document.querySelector("[data-other-amenities-toggle]");
+const otherAmenitiesField = document.querySelector("[data-other-amenities-field]");
+if (otherAmenitiesToggle && otherAmenitiesField) {
+  const syncOtherAmenities = () => {
+    otherAmenitiesField.hidden = !otherAmenitiesToggle.checked;
+  };
+  otherAmenitiesToggle.addEventListener("change", syncOtherAmenities);
+  syncOtherAmenities();
+}
+
 const navToggle = document.querySelector(".nav-toggle");
 const mainNav = document.querySelector("#navigation-principale");
 if (navToggle && mainNav) {

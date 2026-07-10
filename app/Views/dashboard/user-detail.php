@@ -22,6 +22,12 @@
                 <dt>Mis à jour le</dt><dd><?= e($user['updated_at']) ?></dd>
             </dl>
             <div class="actions-row">
+                <?php if ($user['status'] !== 'active'): ?>
+                    <form method="post" action="<?= url('/admin/utilisateurs/' . $user['id'] . '/approuver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Approuver</button></form>
+                <?php endif; ?>
+                <?php if ($user['status'] !== 'rejected'): ?>
+                    <form method="post" action="<?= url('/admin/utilisateurs/' . $user['id'] . '/refuser') ?>" data-confirm="Refuser ce compte utilisateur ?"><?= csrf_field() ?><button class="button ghost compact" type="submit">Refuser</button></form>
+                <?php endif; ?>
                 <?php if ($user['status'] === 'suspended'): ?>
                     <form method="post" action="<?= url('/admin/utilisateurs/' . $user['id'] . '/reactiver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Réactiver</button></form>
                 <?php else: ?>

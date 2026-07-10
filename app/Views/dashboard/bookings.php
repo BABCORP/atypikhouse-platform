@@ -19,7 +19,7 @@
             <label>Statut
                 <select name="status">
                     <option value="">Tous</option>
-                    <?php foreach (['pending_payment', 'confirmed', 'cancelled', 'completed'] as $status): ?>
+                    <?php foreach (['pending_admin', 'pending_payment', 'confirmed', 'cancelled', 'completed'] as $status): ?>
                         <option value="<?= $status ?>" <?= (($filters['status'] ?? '') === $status) ? 'selected' : '' ?>><?= status_label($status) ?></option>
                     <?php endforeach; ?>
                 </select>
@@ -33,7 +33,7 @@
             <label>Statut
                 <select name="status">
                     <option value="">Tous les statuts</option>
-                    <?php foreach (['pending_payment', 'confirmed', 'cancelled', 'completed'] as $status): ?>
+                    <?php foreach (['pending_admin', 'pending_payment', 'confirmed', 'cancelled', 'completed'] as $status): ?>
                         <option value="<?= $status ?>" <?= input('status') === $status ? 'selected' : '' ?>><?= status_label($status) ?></option>
                     <?php endforeach; ?>
                 </select>

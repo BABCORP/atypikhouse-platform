@@ -41,4 +41,27 @@ final class Upload
 
         return 'media/properties/' . $filename;
     }
+
+    public static function propertyImages(array $files): array
+    {
+        if (empty($files['name']) || !is_array($files['name'])) {
+            return [];
+        }
+
+        $paths = [];
+        foreach ($files['name'] as $index => $name) {
+            if (($files['error'][$index] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+            $paths[] = self::propertyImage([
+                'name' => $name,
+                'type' => $files['type'][$index] ?? '',
+                'tmp_name' => $files['tmp_name'][$index] ?? '',
+                'error' => $files['error'][$index] ?? UPLOAD_ERR_NO_FILE,
+                'size' => $files['size'][$index] ?? 0,
+            ]);
+        }
+
+        return array_values(array_filter($paths));
+    }
 }
