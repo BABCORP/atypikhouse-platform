@@ -2,14 +2,28 @@
 
 ## Authentification
 
+- Se connecter avec `admin@atypikhouse.test` / `Admin123!`, vérifier l’accès à `/admin/dashboard`.
+- Se connecter avec `owner@atypikhouse.test` / `Owner123!`, vérifier l’accès à `/proprietaire/dashboard`.
+- Se connecter avec `tenant@atypikhouse.test` / `Tenant123!`, vérifier l’accès à `/locataire/dashboard`.
 - Créer un compte locataire depuis `/inscription`, vérifier la redirection vers `/connexion`.
 - Créer un compte propriétaire depuis `/inscription?role=owner`, vérifier la création du profil propriétaire.
 - Vérifier qu’un nouveau compte est créé en statut `pending`, puis l’approuver depuis `/admin/utilisateurs`.
 - Vérifier qu’un compte locataire `pending` ne peut pas réserver.
 - Vérifier qu’un compte propriétaire `pending` ne peut pas ajouter de logement.
-- Se connecter avec `tenant@atypikhouse.test` / `Tenant123!`, vérifier l’accès à `/locataire/dashboard`.
 - Essayer une connexion avec un mauvais mot de passe, vérifier le message d’erreur.
 - Passer un utilisateur en `suspended` depuis l’admin, vérifier qu’il ne peut plus se connecter.
+
+## Identifiants et emails de démonstration
+
+- Ouvrir `docs/identifiants-acces.md` et vérifier la présence des sections admin, comptes de démonstration, GA4, réseaux sociaux, emailing, SMTP Google et URLs utiles.
+- Vérifier que `.env` est ignoré par Git et que `.env.example` ne contient que des placeholders.
+- Vérifier que `MAIL_DEMO_MODE=true` et `MAIL_LOG_ONLY=true` empêchent tout envoi réel.
+- Créer un compte depuis `/inscription`, vérifier que `storage/logs/mail-demo.log` contient une entrée sans secret SMTP.
+- Soumettre un logement propriétaire, vérifier une entrée mail de démonstration.
+- Créer une réservation locataire, vérifier une entrée mail de démonstration.
+- Soumettre le formulaire contact, vérifier une entrée mail de démonstration.
+- Vérifier dans `/admin/logs` la présence d’événements `mail_demo_logged` après les actions précédentes.
+- Passer temporairement `MAIL_DEMO_MODE=false` et `MAIL_LOG_ONLY=false` uniquement dans un environnement local sécurisé avec SMTP configuré, puis revenir immédiatement au mode démo.
 
 ## Catalogue
 
@@ -73,6 +87,7 @@
 ## Admin
 
 - Ouvrir `/admin/dashboard`, vérifier les statistiques globales.
+- Ouvrir `/admin/utilisateurs`, `/admin/logements` et `/admin/reservations`, vérifier que l’accès admin fonctionne avec le compte de démonstration.
 - Vérifier les compteurs “comptes à valider”, “logements à valider”, “réservations à valider”, “paiements en attente”, “messages non traités” et “avis à modérer”.
 - Lister les utilisateurs, rechercher par email/nom, filtrer par rôle/statut et suspendre puis réactiver un compte.
 - Approuver ou refuser un compte utilisateur depuis la liste et depuis la fiche détail.

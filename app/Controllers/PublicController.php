@@ -10,6 +10,7 @@ use App\Models\ContactMessage;
 use App\Models\Favorite;
 use App\Models\Property;
 use App\Models\Review;
+use App\Services\MailService;
 
 final class PublicController extends Controller
 {
@@ -194,6 +195,11 @@ final class PublicController extends Controller
         }
         (new ContactMessage())->create($_POST);
         audit($_SESSION['user_id'] ?? null, 'contact_form_submit', 'contact_message');
+        (new MailService())->sendContactNotification(
+            trim((string) input('name')),
+            strtolower(trim((string) input('email'))),
+            trim((string) input('subject'))
+        );
         clear_old();
         flash('success', 'Votre message a bien été enregistré.');
         $this->redirect('/contact');

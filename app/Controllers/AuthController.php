@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\User;
+use App\Services\MailService;
 
 final class AuthController extends Controller
 {
@@ -69,7 +70,9 @@ final class AuthController extends Controller
                 $token = bin2hex(random_bytes(32));
                 (new User())->createPasswordReset((int) $user['id'], hash('sha256', $token));
                 audit((int) $user['id'], 'password_reset_requested', 'user', (int) $user['id']);
-                flash('demo_link', 'Lien de démonstration local : ' . url('/reinitialiser-mot-de-passe/' . $token));
+                $resetUrl = url('/reinitialiser-mot-de-passe/' . $token);
+                (new MailService())->sendPasswordResetDemo($email, $resetUrl);
+                flash('demo_link', 'Lien de démonstration local : ' . $resetUrl);
             }
         }
         flash('success', 'Si un compte actif existe pour cette adresse, un lien de réinitialisation de démonstration est disponible.');
@@ -138,6 +141,11 @@ final class AuthController extends Controller
             $model->createOwnerProfile($id, $_POST);
         }
         audit($id, 'user_registered_pending', 'user', $id);
+        (new MailService())->sendAccountPendingNotification(
+            strtolower(trim((string) input('email'))),
+            trim((string) input('first_name')),
+            $role
+        );
         flash('success', 'Votre compte a été créé et attend la validation de l’administrateur.');
         clear_old();
         $this->redirect('/connexion');

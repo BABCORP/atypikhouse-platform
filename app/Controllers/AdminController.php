@@ -13,6 +13,7 @@ use App\Models\Property;
 use App\Models\PropertyChangeRequest;
 use App\Models\Review;
 use App\Models\User;
+use App\Services\MailService;
 
 final class AdminController extends Controller
 {
@@ -127,6 +128,7 @@ final class AdminController extends Controller
             $model->updateOwnerProfileStatus((int) $ownerProfile['id'], 'approved');
         }
         audit((int) $admin['id'], 'user_approved', 'user', $id);
+        (new MailService())->sendAccountApprovedNotification((string) $user['email'], (string) $user['first_name']);
         flash('success', 'Compte utilisateur approuvé.');
         $this->redirect('/admin/utilisateurs');
     }
@@ -362,9 +364,13 @@ final class AdminController extends Controller
             http_response_code(422);
             exit('Statut invalide.');
         }
+        $property = (new Property())->findForAdmin($id);
         (new Property())->updateStatus($id, $status);
         $action = ['published' => 'property_approved', 'rejected' => 'property_rejected', 'archived' => 'property_disabled', 'paused' => 'property_paused', 'deleted' => 'property_deleted', 'pending' => 'property_submitted'][$status] ?? ('property_' . $status);
         audit((int) $admin['id'], $action, 'property', $id);
+        if ($status === 'published' && $property) {
+            (new MailService())->sendPropertyApprovedNotification((string) $property['owner_email'], (string) $property['title']);
+        }
         flash('success', 'Statut du logement mis à jour.');
         $this->redirect('/admin/logements');
     }
@@ -458,6 +464,7 @@ final class AdminController extends Controller
             http_response_code(422);
             exit('Statut invalide.');
         }
+        $booking = (new Booking())->findForAdmin($id);
         (new Booking())->updateStatus($id, $status);
         $action = [
             'confirmed' => 'booking_confirmed_by_admin',
@@ -465,6 +472,13 @@ final class AdminController extends Controller
             'completed' => 'booking_completed_by_admin',
         ][$status] ?? 'booking_status_updated';
         audit((int) $admin['id'], $action, 'booking', $id);
+        if ($status === 'confirmed' && $booking) {
+            (new MailService())->sendBookingConfirmedNotification(
+                (string) $booking['tenant_email'],
+                (string) $booking['owner_email'],
+                (string) $booking['title']
+            );
+        }
         flash('success', 'Statut de la réservation mis à jour.');
         $this->redirect('/admin/reservations/' . $id);
     }
@@ -698,12 +712,16 @@ final class AdminController extends Controller
         $admin = Auth::requireRole('admin');
         verify_csrf();
         $propertyModel = new Property();
-        if (!$propertyModel->find($id)) {
+        $property = $propertyModel->findForAdmin($id);
+        if (!$property) {
             http_response_code(404);
             exit('Logement introuvable.');
         }
         $propertyModel->updateStatus($id, $status);
         audit((int) $admin['id'], $action, 'property', $id);
+        if ($status === 'published' && $action === 'property_approved') {
+            (new MailService())->sendPropertyApprovedNotification((string) $property['owner_email'], (string) $property['title']);
+        }
         flash('success', $message);
         $this->redirect($redirectTo ?? '/admin/logements');
     }
@@ -712,8 +730,16 @@ final class AdminController extends Controller
     {
         $admin = Auth::requireRole('admin');
         verify_csrf();
+        $booking = (new Booking())->findForAdmin($id);
         (new Booking())->updateStatus($id, $status);
         audit((int) $admin['id'], $action, 'booking', $id);
+        if ($status === 'confirmed' && $booking) {
+            (new MailService())->sendBookingConfirmedNotification(
+                (string) $booking['tenant_email'],
+                (string) $booking['owner_email'],
+                (string) $booking['title']
+            );
+        }
         flash('success', $message);
         $this->redirect('/admin/reservations');
     }

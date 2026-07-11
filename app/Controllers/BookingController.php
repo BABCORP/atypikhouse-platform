@@ -7,6 +7,7 @@ use App\Core\Controller;
 use App\Models\Booking;
 use App\Models\Property;
 use App\Models\Review;
+use App\Services\MailService;
 
 final class BookingController extends Controller
 {
@@ -58,6 +59,7 @@ final class BookingController extends Controller
         }
         $bookingId = $bookingModel->create($property, (int) $user['id'], $_POST);
         audit((int) $user['id'], 'booking_created_pending', 'booking', $bookingId);
+        (new MailService())->sendBookingPendingNotification((string) $user['email'], (string) $property['title']);
         flash('success', 'Votre réservation fictive a été créée et attend la validation de l’administrateur.');
         $this->redirect('/locataire/reservations/' . $bookingId);
     }

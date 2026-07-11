@@ -2,6 +2,15 @@
 
 use App\Core\Database;
 
+function env_value(string $key, mixed $default = null): mixed
+{
+    if (array_key_exists($key, $_ENV)) {
+        return $_ENV[$key];
+    }
+    $value = getenv($key);
+    return $value === false ? $default : $value;
+}
+
 function config(string $key, mixed $default = null): mixed
 {
     static $config = null;

@@ -9,6 +9,7 @@ use App\Models\Property;
 use App\Models\PropertyChangeRequest;
 use App\Models\User;
 use App\Helpers\Upload;
+use App\Services\MailService;
 use RuntimeException;
 
 final class OwnerController extends Controller
@@ -50,6 +51,7 @@ final class OwnerController extends Controller
         }
         $id = (new Property())->create((int) $user['id'], $_POST, $image, $secondaryImages);
         audit((int) $user['id'], 'property_submitted', 'property', $id);
+        (new MailService())->sendPropertySubmittedNotification((string) $user['email'], trim((string) input('title')));
         flash('success', 'Votre logement a été soumis à validation. Il sera publié après vérification par l’administrateur.');
         $this->redirect('/proprietaire/logements');
     }

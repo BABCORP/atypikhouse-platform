@@ -65,6 +65,42 @@ Le projet est prêt pour Render via Docker :
 
 La procédure complète, les variables d’environnement Render et les commandes d’import MySQL sont dans `docs/render-deploy.md`.
 
+## Identifiants et services externes
+
+Les comptes de démonstration, les placeholders Google Analytics, réseaux sociaux, emailing et SMTP sont centralisés dans `docs/identifiants-acces.md`.
+
+Pour préparer un environnement local :
+
+```bash
+cp .env.example .env
+```
+
+Renseigner ensuite les valeurs de base de données dans `.env`. Les secrets réels ne doivent jamais être commitées.
+
+Configuration SMTP Google prévue :
+
+```text
+MAIL_MAILER=smtp
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_ENCRYPTION=tls
+SMTP_USERNAME=
+SMTP_PASSWORD=
+SMTP_FROM_EMAIL=contact@atypikhouse.fr
+SMTP_FROM_NAME=AtypikHouse
+```
+
+Pour la démonstration académique, conserver :
+
+```text
+MAIL_DEMO_MODE=true
+MAIL_LOG_ONLY=true
+```
+
+En mode démonstration, les emails transactionnels sont journalisés localement dans `storage/logs/mail-demo.log` et ne sont pas envoyés réellement. Pour tester un SMTP réel plus tard, renseigner `SMTP_USERNAME` et `SMTP_PASSWORD`, puis passer `MAIL_DEMO_MODE=false` et `MAIL_LOG_ONLY=false`.
+
+Les placeholders `GA4_ID`, `GTM_ID`, `INSTAGRAM_URL`, `FACEBOOK_URL`, `EMAILING_PROVIDER`, `EMAILING_API_KEY` et `EMAILING_LIST_ID` sont documentés dans `.env.example`. Aucun identifiant réel n’est stocké dans le dépôt.
+
 ## Comptes de démonstration
 
 - Admin : `admin@atypikhouse.test` / `Admin123!`
