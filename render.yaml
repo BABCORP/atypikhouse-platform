@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: atypikhouse
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_URL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: BREVO_ENABLED
+        value: "false"

@@ -21,11 +21,21 @@ final class Database
             : sprintf('mysql:host=%s;port=%s;dbname=%s;charset=%s', $config['host'], $config['port'], $config['database'], $config['charset']);
 
         try {
-            self::$pdo = new PDO($dsn, $config['username'], $config['password'], [
+            $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false,
-            ]);
+            ];
+
+            if (!empty($config['ssl_ca']) && defined('PDO::MYSQL_ATTR_SSL_CA')) {
+                $options[PDO::MYSQL_ATTR_SSL_CA] = $config['ssl_ca'];
+            }
+
+            if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
+                $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = (bool) ($config['ssl_verify'] ?? false);
+            }
+
+            self::$pdo = new PDO($dsn, $config['username'], $config['password'], $options);
         } catch (PDOException $exception) {
             http_response_code(500);
             if ((require dirname(__DIR__, 2) . '/config/app.php')['debug']) {

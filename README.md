@@ -54,6 +54,17 @@ export APP_URL=http://127.0.0.1:8010
 php -S 127.0.0.1:8010 -t public public/index.php
 ```
 
+## Déploiement Render
+
+Le projet est prêt pour Render via Docker :
+
+- `Dockerfile` : PHP 8.3 + Apache + `pdo_mysql`.
+- `public/` est le document root.
+- `render.yaml` propose un Web Service Docker.
+- `database/render-update.sql` contient une mise à jour non destructive pour une base MySQL déjà existante.
+
+La procédure complète, les variables d’environnement Render et les commandes d’import MySQL sont dans `docs/render-deploy.md`.
+
 ## Comptes de démonstration
 
 - Admin : `admin@atypikhouse.test` / `Admin123!`

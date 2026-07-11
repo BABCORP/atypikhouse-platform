@@ -11,7 +11,7 @@ if (PHP_SAPI === 'cli-server') {
 
 ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_samesite', 'Lax');
-if (!empty($_SERVER['HTTPS'])) {
+if (!empty($_SERVER['HTTPS']) || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') {
     ini_set('session.cookie_secure', '1');
 }
 session_start();
