@@ -12,5 +12,7 @@ services:
         sync: false
       - key: DATABASE_URL
         sync: false
+      - key: DB_AUTO_IMPORT
+        value: "false"
       - key: BREVO_ENABLED
         value: "false"

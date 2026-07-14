@@ -19,6 +19,8 @@ if [ ! -f /var/www/html/public/index.php ]; then
     exit 1
 fi
 
+import-database
+
 echo "AtypikHouse starting on port ${APACHE_PORT}"
 
 exec "$@"
