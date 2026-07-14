@@ -9,6 +9,13 @@ if (PHP_SAPI === 'cli-server') {
     }
 }
 
+$requestedPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+if (in_array($requestedPath, ['/health', '/healthz'], true)) {
+    header('Content-Type: text/plain; charset=utf-8');
+    echo 'ok';
+    return;
+}
+
 ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_samesite', 'Lax');
 if (!empty($_SERVER['HTTPS']) || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') {

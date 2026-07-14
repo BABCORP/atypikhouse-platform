@@ -1,7 +1,9 @@
 FROM php:8.3-apache
 
 RUN docker-php-ext-install pdo_mysql \
-    && a2enmod rewrite headers
+    && a2enmod rewrite headers \
+    && echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf \
+    && a2enconf servername
 
 WORKDIR /var/www/html
 
@@ -11,7 +13,7 @@ RUN chmod +x /usr/local/bin/render-entrypoint
 
 COPY . /var/www/html
 
-RUN mkdir -p /var/www/html/storage/uploads \
+RUN mkdir -p /var/www/html/storage/uploads /var/www/html/storage/logs \
     && chown -R www-data:www-data /var/www/html/storage
 
 EXPOSE 10000
