@@ -25,8 +25,8 @@ function e(?string $value): string
 
 function url(string $path = ''): string
 {
-    $base = config('base_url');
-    return $base . '/' . ltrim($path, '/');
+    $path = '/' . ltrim($path, '/');
+    return $path === '//' ? '/' : $path;
 }
 
 function asset(string $path): string
@@ -210,7 +210,25 @@ function property_type_label(?string $type): string
 
 function current_url(): string
 {
-    return url(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/');
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    return request_origin() . url($path);
+}
+
+function request_origin(): string
+{
+    $configured = rtrim((string) config('base_url', ''), '/');
+    $isConfiguredForLocal = str_contains($configured, 'localhost') || str_contains($configured, '127.0.0.1');
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+
+    if ($configured !== '' && (!$isConfiguredForLocal || $host === '' || str_contains($host, 'localhost') || str_contains($host, '127.0.0.1'))) {
+        return $configured;
+    }
+
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
+        ? 'https'
+        : 'http';
+
+    return $host !== '' ? $scheme . '://' . $host : $configured;
 }
 
 function pagination_meta(int $total, int $page, int $perPage = 20): array

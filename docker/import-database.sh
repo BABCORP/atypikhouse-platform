@@ -23,6 +23,7 @@ echo "Vérification de la base MySQL distante..."
 TABLES_COUNT="$(
     MYSQL_PWD="$DB_PASSWORD" mysql \
         --protocol=TCP \
+        --default-character-set=utf8mb4 \
         -h "$DB_HOST" \
         -P "$DB_PORT" \
         -u "$DB_USERNAME" \
@@ -44,6 +45,7 @@ fi
 echo "Import du schéma AtypikHouse dans ${DB_DATABASE}..."
 sed '/^CREATE DATABASE /d;/^USE /d' "$SCHEMA_FILE" | MYSQL_PWD="$DB_PASSWORD" mysql \
     --protocol=TCP \
+    --default-character-set=utf8mb4 \
     -h "$DB_HOST" \
     -P "$DB_PORT" \
     -u "$DB_USERNAME" \
@@ -52,6 +54,7 @@ sed '/^CREATE DATABASE /d;/^USE /d' "$SCHEMA_FILE" | MYSQL_PWD="$DB_PASSWORD" my
 echo "Import des données de démonstration..."
 sed '/^USE /d' "$SEED_FILE" | MYSQL_PWD="$DB_PASSWORD" mysql \
     --protocol=TCP \
+    --default-character-set=utf8mb4 \
     -h "$DB_HOST" \
     -P "$DB_PORT" \
     -u "$DB_USERNAME" \
