@@ -10,6 +10,13 @@ if [ -z "${DB_HOST:-}" ] || [ -z "${DB_PORT:-}" ] || [ -z "${DB_DATABASE:-}" ] |
     exit 1
 fi
 
+case "$DB_DATABASE" in
+    *[!a-zA-Z0-9_]*|'')
+        echo "DB_DATABASE contient des caractères non autorisés pour l'import automatique." >&2
+        exit 1
+        ;;
+esac
+
 SCHEMA_FILE="/var/www/html/database/schema.sql"
 SEED_FILE="/var/www/html/database/seed.sql"
 
@@ -42,19 +49,32 @@ if [ "$TABLES_COUNT" != "0" ] && [ "${DB_AUTO_IMPORT_FORCE:-false}" != "true" ];
     exit 0
 fi
 
-echo "Import du schéma AtypikHouse dans ${DB_DATABASE}..."
-sed '/^CREATE DATABASE /d;/^USE /d' "$SCHEMA_FILE" | MYSQL_PWD="$DB_PASSWORD" mysql \
+echo "Configuration UTF-8 de la base ${DB_DATABASE}..."
+MYSQL_PWD="$DB_PASSWORD" mysql \
     --protocol=TCP \
     --default-character-set=utf8mb4 \
+    --init-command="SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci" \
+    -h "$DB_HOST" \
+    -P "$DB_PORT" \
+    -u "$DB_USERNAME" \
+    "$DB_DATABASE" \
+    -e "ALTER DATABASE \`$DB_DATABASE\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+echo "Import du schéma AtypikHouse dans ${DB_DATABASE}..."
+(printf 'SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;\n'; sed '/^CREATE DATABASE /d;/^USE /d' "$SCHEMA_FILE") | MYSQL_PWD="$DB_PASSWORD" mysql \
+    --protocol=TCP \
+    --default-character-set=utf8mb4 \
+    --init-command="SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci" \
     -h "$DB_HOST" \
     -P "$DB_PORT" \
     -u "$DB_USERNAME" \
     "$DB_DATABASE"
 
 echo "Import des données de démonstration..."
-sed '/^USE /d' "$SEED_FILE" | MYSQL_PWD="$DB_PASSWORD" mysql \
+(printf 'SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;\n'; sed '/^USE /d' "$SEED_FILE") | MYSQL_PWD="$DB_PASSWORD" mysql \
     --protocol=TCP \
     --default-character-set=utf8mb4 \
+    --init-command="SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci" \
     -h "$DB_HOST" \
     -P "$DB_PORT" \
     -u "$DB_USERNAME" \
