@@ -14,7 +14,7 @@ Ces identifiants correspondent au seed de démonstration et fonctionnent après 
 
 | Rôle | URL | Email | Mot de passe | Statut | Utilisation |
 | --- | --- | --- | --- | --- | --- |
-| Admin | `/connexion` | `admin@atypikhouse.test` | `Admin123!` | Actif | Accès au back-office administrateur |
+| Admin | `/connexion` | `admin@atypikhouse.fr` | `Admin123!` | Actif | Accès au back-office administrateur |
 
 Accès direct après connexion : `/admin/dashboard`.
 
@@ -22,9 +22,9 @@ Accès direct après connexion : `/admin/dashboard`.
 
 | Rôle | URL | Email | Mot de passe | Statut | Parcours de test |
 | --- | --- | --- | --- | --- | --- |
-| Locataire | `/connexion` | `tenant@atypikhouse.test` | `Tenant123!` | Actif | Réserver, paiement fictif, favoris, avis |
-| Propriétaire | `/connexion` | `owner@atypikhouse.test` | `Owner123!` | Actif | Ajouter logement, gérer images, disponibilités |
-| Admin | `/connexion` | `admin@atypikhouse.test` | `Admin123!` | Actif | Valider comptes, logements, réservations |
+| Locataire | `/connexion` | `locataire@atypikhouse.fr` | `Tenant123!` | Actif | Réserver, paiement fictif, favoris, avis |
+| Propriétaire | `/connexion` | `proprietaire@atypikhouse.fr` | `Owner123!` | Actif | Ajouter logement, gérer images, disponibilités |
+| Admin | `/connexion` | `admin@atypikhouse.fr` | `Admin123!` | Actif | Valider comptes, logements, réservations |
 
 Correspondance des rôles internes :
 

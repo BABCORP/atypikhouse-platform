@@ -2,7 +2,7 @@
 
 AtypikHouse est un MVP académique fictif de marketplace de réservation d’hébergements insolites : cabanes perchées, yourtes, cabanes flottantes, tiny houses, dômes et logements nature.
 
-**Projet étudiant fictif. Aucun achat, paiement ou réservation réelle ne peut être effectué. Les informations présentées sur cette page sont utilisées dans le cadre d’une démonstration académique.**
+**Projet étudiant fictif. Aucun achat, paiement ou réservation réelle ne peut être effectué. Les informations présentées sont utilisées dans le cadre d’une démonstration académique.**
 
 ## Stack
 
@@ -103,9 +103,9 @@ Les placeholders `GA4_ID`, `GTM_ID`, `INSTAGRAM_URL`, `FACEBOOK_URL`, `EMAILING_
 
 ## Comptes de démonstration
 
-- Admin : `admin@atypikhouse.test` / `Admin123!`
-- Propriétaire : `owner@atypikhouse.test` / `Owner123!`
-- Locataire : `tenant@atypikhouse.test` / `Tenant123!`
+- Admin : `admin@atypikhouse.fr` / `Admin123!`
+- Propriétaire : `proprietaire@atypikhouse.fr` / `Owner123!`
+- Locataire : `locataire@atypikhouse.fr` / `Tenant123!`
 
 ## Fonctionnalités principales
 

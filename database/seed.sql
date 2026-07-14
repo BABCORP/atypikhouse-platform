@@ -1,17 +1,17 @@
 USE atypikhouse;
 
 INSERT INTO users (id, first_name, last_name, email, password_hash, phone, role, status, created_at, updated_at) VALUES
-(1, 'Alice', 'Admin', 'admin@atypikhouse.test', '$2y$10$Oat6mjhrzZM6xSGMb.0xd.l3yDcO5HJyL03kJChOPFdW3ijr3P/42', '0102030405', 'admin', 'active', NOW(), NOW()),
-(2, 'Olivier', 'Hôte', 'owner@atypikhouse.test', '$2y$10$A/uo/afqjiF6bPBqTSFMPOOIclPt4OPCucaY5oVQjbnXjc48tdp1C', '0601020304', 'owner', 'active', NOW(), NOW()),
-(3, 'Tania', 'Voyage', 'tenant@atypikhouse.test', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0609080706', 'tenant', 'active', NOW(), NOW()),
-(4, 'Camille', 'Martin', 'camille.martin@atypikhouse.test', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0600000004', 'tenant', 'active', NOW(), NOW()),
-(5, 'Hugo', 'Bernard', 'hugo.bernard@atypikhouse.test', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0600000005', 'tenant', 'active', NOW(), NOW()),
-(6, 'Léa', 'Moreau', 'lea.moreau@atypikhouse.test', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0600000006', 'tenant', 'active', NOW(), NOW()),
-(7, 'Emma', 'Laurent', 'emma.laurent@atypikhouse.test', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0600000007', 'tenant', 'active', NOW(), NOW()),
-(8, 'Nicolas', 'Petit', 'nicolas.petit@atypikhouse.test', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0600000008', 'tenant', 'active', NOW(), NOW()),
-(9, 'Manon', 'Dubois', 'manon.dubois@atypikhouse.test', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0600000009', 'tenant', 'active', NOW(), NOW()),
-(10, 'Clara', 'Rousseau', 'clara.rousseau@atypikhouse.test', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0600000010', 'tenant', 'active', NOW(), NOW()),
-(11, 'Antoine', 'Girard', 'antoine.girard@atypikhouse.test', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0600000011', 'tenant', 'active', NOW(), NOW());
+(1, 'Alice', 'Admin', 'admin@atypikhouse.fr', '$2y$10$Oat6mjhrzZM6xSGMb.0xd.l3yDcO5HJyL03kJChOPFdW3ijr3P/42', '0102030405', 'admin', 'active', NOW(), NOW()),
+(2, 'Olivier', 'Hôte', 'proprietaire@atypikhouse.fr', '$2y$10$A/uo/afqjiF6bPBqTSFMPOOIclPt4OPCucaY5oVQjbnXjc48tdp1C', '0601020304', 'owner', 'active', NOW(), NOW()),
+(3, 'Tania', 'Voyage', 'locataire@atypikhouse.fr', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0609080706', 'tenant', 'active', NOW(), NOW()),
+(4, 'Camille', 'Martin', 'camille.martin@atypikhouse.fr', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0600000004', 'tenant', 'active', NOW(), NOW()),
+(5, 'Hugo', 'Bernard', 'hugo.bernard@atypikhouse.fr', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0600000005', 'tenant', 'active', NOW(), NOW()),
+(6, 'Léa', 'Moreau', 'lea.moreau@atypikhouse.fr', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0600000006', 'tenant', 'active', NOW(), NOW()),
+(7, 'Emma', 'Laurent', 'emma.laurent@atypikhouse.fr', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0600000007', 'tenant', 'active', NOW(), NOW()),
+(8, 'Nicolas', 'Petit', 'nicolas.petit@atypikhouse.fr', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0600000008', 'tenant', 'active', NOW(), NOW()),
+(9, 'Manon', 'Dubois', 'manon.dubois@atypikhouse.fr', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0600000009', 'tenant', 'active', NOW(), NOW()),
+(10, 'Clara', 'Rousseau', 'clara.rousseau@atypikhouse.fr', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0600000010', 'tenant', 'active', NOW(), NOW()),
+(11, 'Antoine', 'Girard', 'antoine.girard@atypikhouse.fr', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0600000011', 'tenant', 'active', NOW(), NOW());
 
 INSERT INTO owner_profiles (user_id, company_name, address, city, postal_code, country, description, verification_status, created_at, updated_at) VALUES
 (2, 'Forêts & Refuges', '12 rue du Château', 'Pierrefonds', '60350', 'France', 'Exploitant fictif de logements insolites éco-responsables.', 'approved', NOW(), NOW());
@@ -162,7 +162,7 @@ INSERT INTO blog_posts (title, slug, excerpt, content, featured_image, status, a
 ('Comment choisir un hébergement éco-responsable', 'comment-choisir-un-hebergement-eco-responsable', 'Quelques repères simples pour comparer les logements insolites.', 'Regardez les matériaux, la gestion de l’eau, les mobilités douces, la capacité adaptée et la transparence de l’hôte. Sur AtypikHouse, ces informations sont structurées pour aider la décision.', 'assets/img/properties/refuge-foret.jpg', 'published', 1, NOW(), NOW());
 
 INSERT INTO contact_messages (name, email, subject, message, status, created_at) VALUES
-('Demo Contact', 'contact@example.test', 'Question sur le projet', 'Message fictif visible dans le tableau de bord administrateur.', 'new', NOW());
+('Claire Dupont', 'claire.dupont@atypikhouse.fr', 'Question sur le projet', 'Message de contact enregistré pour le tableau de bord administrateur.', 'new', NOW());
 
 INSERT INTO audit_logs (user_id, action, entity_type, entity_id, ip_address, created_at) VALUES
 (1, 'seed_import', 'database', NULL, '127.0.0.1', NOW());

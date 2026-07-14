@@ -56,7 +56,7 @@ final class AuthController extends Controller
     {
         $this->view('auth/forgot-password', [
             'title' => 'Mot de passe oublié',
-            'metaDescription' => 'Réinitialisation locale de démonstration pour le projet étudiant AtypikHouse.',
+            'metaDescription' => 'Réinitialisation de mot de passe pour le projet étudiant AtypikHouse.',
         ]);
     }
 
@@ -72,10 +72,10 @@ final class AuthController extends Controller
                 audit((int) $user['id'], 'password_reset_requested', 'user', (int) $user['id']);
                 $resetUrl = url('/reinitialiser-mot-de-passe/' . $token);
                 (new MailService())->sendPasswordResetDemo($email, $resetUrl);
-                flash('demo_link', 'Lien de démonstration local : ' . $resetUrl);
+                flash('demo_link', 'Lien de réinitialisation généré pour la démonstration académique : ' . $resetUrl);
             }
         }
-        flash('success', 'Si un compte actif existe pour cette adresse, un lien de réinitialisation de démonstration est disponible.');
+        flash('success', 'Si un compte actif existe pour cette adresse, un lien de réinitialisation est disponible dans le cadre de la démonstration académique.');
         $this->redirect('/mot-de-passe-oublie');
     }
 

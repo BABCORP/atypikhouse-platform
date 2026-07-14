@@ -1,7 +1,7 @@
 <section class="page-hero compact">
     <p class="eyebrow">Données personnelles</p>
-    <h1>Demande RGPD de démonstration</h1>
-    <p>Ce formulaire simule une demande d’accès, rectification, suppression ou opposition dans le cadre du projet étudiant AtypikHouse.</p>
+    <h1>Demande relative aux données personnelles</h1>
+    <p>Ce formulaire permet de déposer une demande d’accès, de rectification, de suppression ou d’opposition dans le cadre du projet étudiant AtypikHouse.</p>
 </section>
 <section class="section contact-layout">
     <aside class="contact-details">
@@ -18,12 +18,12 @@
             <select required name="request_type">
                 <option value="access">Accès à mes données</option>
                 <option value="rectification">Rectification</option>
-                <option value="deletion">Suppression simulée</option>
+                <option value="deletion">Suppression</option>
                 <option value="opposition">Opposition</option>
             </select>
         </label>
         <label>Message<textarea required name="message"><?= old('message') ?></textarea></label>
-        <label class="consent"><input required type="checkbox" name="privacy_consent" value="1"> J’accepte que cette demande soit stockée localement pour la démonstration académique.</label>
+        <label class="consent"><input required type="checkbox" name="privacy_consent" value="1"> J’accepte que cette demande soit stockée dans le cadre de la démonstration académique.</label>
         <button class="button full" type="submit">Envoyer la demande</button>
     </form>
 </section>

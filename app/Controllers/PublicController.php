@@ -40,7 +40,7 @@ final class PublicController extends Controller
     {
         $this->view('public/host', [
             'title' => 'Devenir hôte AtypikHouse',
-            'metaDescription' => 'Rejoindre AtypikHouse comme propriétaire fictif : publier un logement insolite, gérer les disponibilités et suivre les réservations de démonstration.',
+            'metaDescription' => 'Rejoindre AtypikHouse comme propriétaire : publier un logement insolite, gérer les disponibilités et suivre les réservations de démonstration académique.',
             'canonical' => url('/devenir-hote'),
         ]);
     }
@@ -98,7 +98,7 @@ final class PublicController extends Controller
                     'addressRegion' => $property['region'],
                     'addressCountry' => 'FR',
                 ],
-                'priceRange' => money($property['price_per_night']) . ' / nuit - démonstration fictive',
+                'priceRange' => money($property['price_per_night']) . ' / nuit - démonstration académique',
                 'additionalProperty' => ['name' => 'Projet étudiant fictif', 'value' => config('academic_disclaimer')],
             ],
             'property' => $property,
@@ -159,7 +159,7 @@ final class PublicController extends Controller
     {
         $this->view('public/contact', [
             'title' => 'Contact AtypikHouse',
-            'metaDescription' => 'Contacter l’équipe fictive AtypikHouse pour une question sur les hébergements insolites, le compte propriétaire ou la démonstration.',
+            'metaDescription' => 'Contacter l’équipe AtypikHouse pour une question sur les hébergements insolites, le compte propriétaire ou la démonstration académique.',
             'canonical' => url('/contact'),
         ]);
     }
@@ -201,7 +201,7 @@ final class PublicController extends Controller
             trim((string) input('subject'))
         );
         clear_old();
-        flash('success', 'Votre message a bien été enregistré.');
+        flash('success', 'Votre message a bien été transmis. L’équipe AtypikHouse reviendra vers vous prochainement.');
         $this->redirect('/contact');
     }
 
@@ -210,19 +210,19 @@ final class PublicController extends Controller
         verify_csrf();
         $email = strtolower(trim((string) input('email', '')));
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || input('newsletter_consent') !== '1') {
-            flash('error', 'Merci d’indiquer une adresse email valide et d’accepter le consentement newsletter de démonstration.');
+            flash('error', 'Merci d’indiquer une adresse email valide et d’accepter le consentement newsletter dans le cadre de la démonstration académique.');
             $this->redirect('/');
         }
         $mode = (new NewsletterService())->subscribe($email, isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null);
-        flash('success', $mode === 'demo' ? 'Inscription newsletter de démonstration enregistrée.' : 'Inscription enregistrée dans la file Brevo de démonstration sécurisée.');
+        flash('success', $mode === 'demo' ? 'Votre inscription newsletter a été enregistrée pour la démonstration académique.' : 'Inscription enregistrée dans la file emailing sécurisée.');
         $this->redirect('/');
     }
 
     public function privacyRequest(): void
     {
         $this->view('public/privacy-request', [
-            'title' => 'Demande RGPD de démonstration',
-            'metaDescription' => 'Formulaire de demande RGPD simulée pour le projet étudiant AtypikHouse.',
+            'title' => 'Demande relative aux données personnelles',
+            'metaDescription' => 'Formulaire de demande relative aux données personnelles pour le projet étudiant AtypikHouse.',
             'canonical' => url('/mes-donnees'),
         ]);
     }
@@ -262,7 +262,7 @@ final class PublicController extends Controller
         ]);
         audit($_SESSION['user_id'] ?? null, 'privacy_request_submit', 'contact_message');
         clear_old();
-        flash('success', 'Votre demande RGPD de démonstration a été enregistrée localement.');
+        flash('success', 'Votre demande relative aux données personnelles a bien été enregistrée.');
         $this->redirect('/mes-donnees');
     }
 
@@ -272,7 +272,7 @@ final class PublicController extends Controller
         $labels = [
             'mentions-legales' => 'Mentions légales',
             'cgu' => 'Conditions générales d’utilisation',
-            'cgv' => 'Conditions générales de vente fictives',
+            'cgv' => 'Conditions générales de vente',
             'politique-confidentialite' => 'Politique de confidentialité',
             'cookies' => 'Gestion des cookies',
         ];
@@ -292,7 +292,7 @@ final class PublicController extends Controller
             'title' => 'Page introuvable',
             'code' => 404,
             'heading' => 'Cette page reste introuvable',
-            'body' => 'Le lien demandé n’existe pas ou a été déplacé dans cette démonstration AtypikHouse.',
+            'body' => 'Le lien demandé n’existe pas ou a été déplacé sur AtypikHouse.',
         ]);
     }
 
@@ -311,10 +311,10 @@ final class PublicController extends Controller
     {
         http_response_code(500);
         $this->view('public/error', [
-            'title' => 'Erreur de démonstration',
+            'title' => 'Erreur technique',
             'code' => 500,
             'heading' => 'Une erreur est survenue',
-            'body' => 'La démonstration a rencontré un problème technique. Aucun paiement ni réservation réelle n’est concerné.',
+            'body' => 'Un problème technique est survenu. Aucun paiement ni réservation réelle n’est concerné.',
         ]);
     }
 }

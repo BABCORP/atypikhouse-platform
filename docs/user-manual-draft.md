@@ -72,4 +72,4 @@ Les commandes de contrôle rapide sont documentées dans `docs/smoke-test.md`.
 
 ## Rappel académique
 
-Projet étudiant fictif. Aucun achat, paiement ou réservation réelle ne peut être effectué. Les informations présentées sur cette page sont utilisées dans le cadre d’une démonstration académique.
+Projet étudiant fictif. Aucun achat, paiement ou réservation réelle ne peut être effectué. Les informations présentées sont utilisées dans le cadre d’une démonstration académique.

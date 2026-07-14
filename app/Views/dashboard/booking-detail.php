@@ -19,7 +19,7 @@
     <article class="panel invoice-print" id="facture-fictive">
         <div class="section-heading">
             <div>
-                <p class="eyebrow">Reçu de démonstration</p>
+                <p class="eyebrow">Reçu fictif</p>
                 <h2>Facture fictive #<?= (int) $booking['id'] ?></h2>
             </div>
             <button class="button compact no-print" type="button" data-print-target="facture-fictive">Imprimer</button>
@@ -35,7 +35,7 @@
             <dt>Frais de ménage</dt><dd><?= money($booking['cleaning_fee']) ?></dd>
             <dt>Total</dt><dd><strong><?= money($booking['total_price']) ?></strong></dd>
             <dt>Paiement</dt><dd><?= status_label($booking['payment_status']) ?></dd>
-            <dt>Transaction test</dt><dd><?= e($booking['test_transaction_id'] ?? 'Aucune') ?></dd>
+            <dt>Transaction fictive</dt><dd><?= e($booking['test_transaction_id'] ?? 'Aucune') ?></dd>
         </dl>
     </article>
     <?php if ($canReview): ?>

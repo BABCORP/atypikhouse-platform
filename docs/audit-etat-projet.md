@@ -170,7 +170,7 @@ Aucun doublon de slug ni logement sans image n'a ete detecte dans la base locale
 | 4. Admin valide | ✅ FAIT | `approveProperty` | Status published | P4 | Aucun blocage |
 | 5. Apparition publique | ✅ FAIT | `Property::published` | Published only | P4 | Aucun blocage |
 | 6. Locataire reserve | ✅ FAIT | `BookingController::start` | Dates/capacite/dispo validees | P4 | Aucun blocage |
-| 7. Paiement fictif | ✅ FAIT | `simulatePayment` | Transaction test | P4 | Aucun blocage |
+| 7. Paiement fictif | ✅ FAIT | `simulatePayment` | Transaction fictive | P4 | Aucun blocage |
 | 8. Reservation visible espaces | ✅ FAIT | tenant/owner/admin booking queries | Ownership respecte | P4 | Aucun blocage |
 | 9. Avis apres sejour | ✅ FAIT | `Review::canReview` | Booking completed requis | P4 | Aucun blocage |
 | 10. Admin modere avis | ✅ FAIT | `updateReviewStatus` | Published/rejected | P4 | Aucun blocage |
@@ -280,6 +280,6 @@ Aucun doublon de slug ni logement sans image n'a ete detecte dans la base locale
 
 ## Verdict
 
-Le projet est presentable, oui. Il couvre largement le cahier des charges MVP : marketplace fictive, roles, reservation, paiement test, back-office, proprietaires, avis, legal/RGPD, SEO et documentation.
+Le projet est presentable, oui. Il couvre largement le cahier des charges MVP : marketplace fictive, roles, reservation, paiement fictif de démonstration, back-office, proprietaires, avis, legal/RGPD, SEO et documentation.
 
 Ce qui bloque vraiment une soutenance fluide n'est pas une fonctionnalite majeure absente, mais la robustesse des cas limites et la preparation de demo. Il faut prioriser les slugs, les editions proprietaire non autorisees, la base propre et les tests manuels du parcours complet.

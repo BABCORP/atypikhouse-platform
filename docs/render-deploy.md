@@ -79,9 +79,9 @@ Les images téléversées par les propriétaires sont stockées dans `storage/up
 
 Après import du seed :
 
-- Admin : `admin@atypikhouse.test` / `Admin123!`
-- Propriétaire : `owner@atypikhouse.test` / `Owner123!`
-- Locataire : `tenant@atypikhouse.test` / `Tenant123!`
+- Admin : `admin@atypikhouse.fr` / `Admin123!`
+- Propriétaire : `proprietaire@atypikhouse.fr` / `Owner123!`
+- Locataire : `locataire@atypikhouse.fr` / `Tenant123!`
 
 ## 6. Vérifications après déploiement
 

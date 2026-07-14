@@ -3,7 +3,7 @@
         <div class="concept-hero__content">
             <p class="eyebrow">Marketplace responsable</p>
             <h1>Le concept AtypikHouse</h1>
-            <p>AtypikHouse imagine une plateforme de réservation fictive dédiée aux séjours insolites, nature et responsables, pensée pour connecter voyageurs curieux et propriétaires engagés.</p>
+            <p>AtypikHouse imagine une plateforme de réservation dédiée aux séjours insolites, nature et responsables, pensée pour connecter voyageurs curieux et propriétaires engagés.</p>
             <div class="actions">
                 <a class="button secondary" href="<?= url('/hebergements') ?>" data-track="cta_click">Découvrir les hébergements</a>
                 <a class="button ghost" href="<?= url('/devenir-hote') ?>" data-track="cta_click">Devenir hôte</a>
@@ -21,7 +21,7 @@
             <h2>Réserver moins vite, voyager mieux</h2>
         </div>
         <div class="concept-copy">
-            <p>AtypikHouse n’est pas une simple vitrine. Le projet montre comment une marketplace peut guider des voyageurs vers des hébergements atypiques, tout en donnant aux propriétaires un espace clair pour présenter leurs logements, gérer leurs disponibilités et suivre leurs réservations fictives.</p>
+            <p>AtypikHouse n’est pas une simple vitrine. Le projet montre comment une marketplace peut guider des voyageurs vers des hébergements atypiques, tout en donnant aux propriétaires un espace clair pour présenter leurs logements, gérer leurs disponibilités et suivre leurs réservations.</p>
             <p>L’univers repose sur la nature, l’évasion, l’authenticité et la simplicité. Chaque parcours a été pensé pour rester compréhensible en démonstration : chercher un séjour, consulter une fiche, simuler une réservation, puis publier un avis modéré.</p>
             <p class="concept-note">L’idée n’est pas de vendre plus vite, mais de rendre le parcours plus lisible, plus rassurant et plus proche de l’imaginaire du séjour nature.</p>
         </div>
@@ -73,7 +73,7 @@
             <article class="concept-card concept-card--simple">
                 <span class="concept-card__mark" aria-hidden="true">S</span>
                 <h3>Simplicité</h3>
-                <p>Une recherche fluide, une réservation fictive et un espace utilisateur facile à comprendre.</p>
+            <p>Une recherche fluide, une réservation de démonstration et un espace utilisateur facile à comprendre.</p>
             </article>
             <article class="concept-card concept-card--responsible">
                 <span class="concept-card__mark" aria-hidden="true">R</span>
@@ -91,7 +91,7 @@
         <div class="concept-steps">
             <article><span>1</span><h3>Rechercher</h3><p>Filtrer les logements par destination, type, capacité, prix ou dates.</p></article>
             <article><span>2</span><h3>Comparer</h3><p>Consulter les photos, équipements, avis publiés et disponibilités.</p></article>
-            <article><span>3</span><h3>Réserver</h3><p>Créer une réservation fictive avec paiement test, sans carte bancaire réelle.</p></article>
+            <article><span>3</span><h3>Réserver</h3><p>Créer une réservation fictive avec paiement fictif de démonstration, sans carte bancaire réelle.</p></article>
             <article><span>4</span><h3>Partager</h3><p>Laisser un avis après un séjour terminé, avec modération administrateur.</p></article>
         </div>
     </section>
@@ -99,7 +99,7 @@
     <section class="concept-cta">
         <p class="eyebrow">Séjour nature</p>
         <h2>Prête à imaginer votre prochain séjour insolite ?</h2>
-        <p>Explorez les cabanes, tiny houses, dômes et logements nature disponibles dans cette démonstration fictive.</p>
+        <p>Explorez les cabanes, tiny houses, dômes et logements nature disponibles dans cette démonstration académique.</p>
         <a class="button secondary" href="<?= url('/hebergements') ?>" data-track="cta_click">Voir les séjours nature</a>
     </section>
 </main>

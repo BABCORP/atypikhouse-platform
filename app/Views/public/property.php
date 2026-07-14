@@ -79,7 +79,7 @@ if (!is_string($favoriteRedirect) || !str_starts_with($favoriteRedirect, '/') ||
                     <?php if (!$hasRelated): ?><p class="empty-state">Aucun séjour similaire disponible pour le moment.</p><?php endif; ?>
                 </section>
             </article>
-            <aside class="booking-box booking-card property-booking-aside" aria-label="Réservation fictive">
+            <aside class="booking-box booking-card property-booking-aside" aria-label="Réservation">
                 <div class="booking-card-header">
                     <h2><?= money($property['price_per_night']) ?> <span>/ nuit</span></h2>
                     <p><?= (int) $property['capacity'] ?> voyageurs · <?= (int) $property['bedrooms'] ?> chambre(s)</p>

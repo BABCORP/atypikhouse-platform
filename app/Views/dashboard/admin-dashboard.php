@@ -20,15 +20,15 @@
         'cancelled_bookings' => 'réservations annulées',
         'completed_bookings' => 'réservations terminées',
         'pending_payments' => 'paiements en attente',
-        'paid_payments' => 'paiements test validés',
-        'failed_payments' => 'paiements test échoués',
+        'paid_payments' => 'paiements fictifs validés',
+        'failed_payments' => 'paiements fictifs échoués',
         'pending_reviews' => 'avis à modérer',
         'published_reviews' => 'avis publiés',
         'rejected_reviews' => 'avis refusés',
         'unread_messages' => 'messages non traités',
         'read_messages' => 'messages lus',
         'processed_messages' => 'messages traités',
-        'simulated_revenue' => 'revenus simulés',
+        'simulated_revenue' => 'revenus de démonstration',
     ]; ?>
     <div class="stats">
         <?php foreach ($stats as $label => $value): ?><article><strong><?= is_numeric($value) && str_contains($label, 'revenue') ? money($value) : e((string)$value) ?></strong><span><?= e($statLabels[$label] ?? $label) ?></span></article><?php endforeach; ?>

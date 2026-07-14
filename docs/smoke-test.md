@@ -43,6 +43,6 @@ curl -I http://127.0.0.1:8010/mentions-legales
 
 ## Comptes de démonstration
 
-- Admin : `admin@atypikhouse.test` / `Admin123!`
-- Propriétaire : `owner@atypikhouse.test` / `Owner123!`
-- Locataire : `tenant@atypikhouse.test` / `Tenant123!`
+- Admin : `admin@atypikhouse.fr` / `Admin123!`
+- Propriétaire : `proprietaire@atypikhouse.fr` / `Owner123!`
+- Locataire : `locataire@atypikhouse.fr` / `Tenant123!`

@@ -25,11 +25,11 @@ final class BookingController extends Controller
             $this->redirect('/connexion');
         }
         if ($user['role'] === 'owner') {
-            flash('error', 'Les comptes propriétaires ne peuvent pas effectuer de réservation. Utilisez un compte locataire pour tester ce parcours.');
+            flash('error', 'Les comptes propriétaires ne peuvent pas effectuer de réservation. Utilisez un compte locataire pour ce parcours.');
             $this->redirect('/hebergements/' . $property['slug']);
         }
         if ($user['role'] === 'admin') {
-            flash('error', 'Les comptes administrateurs ne peuvent pas effectuer de réservation. Utilisez un compte locataire pour tester ce parcours.');
+            flash('error', 'Les comptes administrateurs ne peuvent pas effectuer de réservation. Utilisez un compte locataire pour ce parcours.');
             $this->redirect('/hebergements/' . $property['slug']);
         }
         if ($user['role'] !== 'tenant') {
@@ -128,11 +128,11 @@ final class BookingController extends Controller
             $this->redirect('/connexion');
         }
         if ($user['role'] === 'owner') {
-            flash('error', 'Les comptes propriétaires ne peuvent pas effectuer de réservation. Utilisez un compte locataire pour tester ce parcours.');
+            flash('error', 'Les comptes propriétaires ne peuvent pas effectuer de réservation. Utilisez un compte locataire pour ce parcours.');
             $this->redirect('/hebergements');
         }
         if ($user['role'] === 'admin') {
-            flash('error', 'Les comptes administrateurs ne peuvent pas effectuer de réservation. Utilisez un compte locataire pour tester ce parcours.');
+            flash('error', 'Les comptes administrateurs ne peuvent pas effectuer de réservation. Utilisez un compte locataire pour ce parcours.');
             $this->redirect('/hebergements');
         }
         if ($user['role'] !== 'tenant') {

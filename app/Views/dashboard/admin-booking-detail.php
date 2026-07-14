@@ -29,7 +29,7 @@
                 <dt>Ménage</dt><dd><?= money($booking['cleaning_fee']) ?></dd>
                 <dt>Prix indicatif / nuit</dt><dd><?= money($booking['price_per_night']) ?></dd>
                 <dt>Total simulé</dt><dd><strong><?= money($booking['total_price']) ?></strong></dd>
-                <dt>Transaction test</dt><dd><?= e($booking['test_transaction_id'] ?: 'Aucune') ?></dd>
+                <dt>Transaction fictive</dt><dd><?= e($booking['test_transaction_id'] ?: 'Aucune') ?></dd>
                 <dt>Créée le</dt><dd><?= e($booking['created_at']) ?></dd>
                 <dt>Mise à jour le</dt><dd><?= e($booking['updated_at']) ?></dd>
             </dl>
@@ -67,6 +67,6 @@
             <form method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/confirmer') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Confirmer</button></form>
         <?php endif; ?>
         <form method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/terminer') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Marquer terminée</button></form>
-        <form method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/annuler') ?>" data-confirm="Annuler cette réservation fictive ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Annuler</button></form>
+        <form method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/annuler') ?>" data-confirm="Annuler cette réservation ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Annuler</button></form>
     </div>
 </section>

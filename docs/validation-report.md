@@ -12,7 +12,7 @@ Mise à jour complémentaire : 10 juillet 2026
 - Contrôle du seed : 11 utilisateurs fictifs, 12 logements publiés, 15 images de démonstration, 27 réservations de démonstration et 26 avis publiés.
 - Chargement HTTP des pages accueil, catalogue filtré, fiche logement, FAQ et connexion : réponses `200`.
 - Connexion locataire avec le compte de démonstration et accès à son dashboard.
-- Réservation fictive et paiement test réussi : passage de `pending_payment` à `confirmed` avec `payment_status=test_paid`.
+- Réservation fictive et paiement fictif de démonstration réussi : passage de `pending_payment` à `confirmed` avec `payment_status=test_paid`.
 - Blocage d’une réservation chevauchant une réservation confirmée.
 - Connexion propriétaire, affichage du dashboard et formulaire de logement.
 - Upload PNG propriétaire : stockage hors dossier public et restitution via endpoint média contrôlé.
@@ -42,7 +42,7 @@ Mise à jour complémentaire : 10 juillet 2026
 - Renforcement du back-office administrateur pour la soutenance : dashboard enrichi, recherche/détail utilisateur, suspension/réactivation, filtres propriétaires/logements/réservations/avis, détail et édition admin des logements, actions rapides de publication/refus/pause/réactivation/suppression logique, annulation/terminaison réservation, publication/dépublication blog, détail message et statut “traité”.
 - Ajout de logs d’audit explicites pour les actions admin sensibles : `user_suspended`, `user_reactivated`, `property_approved`, `property_rejected`, `property_paused`, `property_reactivated`, `property_deleted`, `property_updated_by_admin`, `booking_cancelled_by_admin`, `booking_completed_by_admin`, `review_approved`, `review_rejected`, `review_deleted`, `blog_created`, `blog_updated`, `blog_published`, `blog_unpublished`, `blog_deleted`, `message_read`, `message_processed`, `message_archived`.
 - Ajout UX locataire : favoris par logement avec bouton cœur, page `/locataire/favoris`, affichage des notes et avis en étoiles accessibles, et champ Destination avec liste de localisations issues uniquement des logements publiés.
-- Harmonisation du disclaimer académique avec la formulation sans tiret long : “Projet étudiant fictif. Aucun achat, paiement ou réservation réelle ne peut être effectué. Les informations présentées sur cette page sont utilisées dans le cadre d’une démonstration académique.”
+- Harmonisation du disclaimer académique avec la formulation sans tiret long : “Projet étudiant fictif. Aucun achat, paiement ou réservation réelle ne peut être effectué. Les informations présentées sont utilisées dans le cadre d’une démonstration académique.”
 - Ajout du workflow admin de validation des comptes : les nouveaux comptes sont créés en `pending`, peuvent être approuvés/refusés/suspendus/réactivés depuis `/admin/utilisateurs`, et les comptes non validés sont bloqués sur les parcours sensibles.
 - Renforcement du workflow propriétaire : seul un propriétaire validé peut accéder à l’ajout de logement, et toute création propriétaire passe en `pending` avant publication admin.
 - Ajout du workflow de modification différée : lorsqu’un propriétaire modifie un logement déjà publié ou en pause, les nouvelles données sont stockées dans `property_change_requests` et la version publique reste inchangée tant que l’admin n’a pas approuvé la demande.

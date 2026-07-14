@@ -35,7 +35,7 @@
     <h2>Réserver une parenthèse en trois étapes</h2>
     <div class="features">
         <article><h3>1. Recherchez</h3><p>Filtrez par destination, type de logement, capacité et budget.</p></article>
-        <article><h3>2. Réservez fictivement</h3><p>Choisissez vos dates, vérifiez le prix et lancez un paiement test.</p></article>
+        <article><h3>2. Réservez votre séjour</h3><p>Choisissez vos dates, vérifiez le prix et validez un paiement fictif de démonstration.</p></article>
         <article><h3>3. Voyagez autrement</h3><p>Projetez-vous dans des séjours nature, simples et mémorables.</p></article>
     </div>
 </section>
@@ -52,8 +52,8 @@
             <?= csrf_field() ?>
             <p class="eyebrow">Inspiration</p>
             <h2>Recevoir l’inspiration séjour nature</h2>
-            <label>Email<input required type="email" name="email" placeholder="vous@example.test"></label>
-            <label class="checkbox"><input required type="checkbox" name="newsletter_consent" value="1"> J’accepte l’inscription newsletter fictive sans envoi réel.</label>
+            <label>Email<input required type="email" name="email" placeholder="vous@exemple.fr"></label>
+            <label class="checkbox"><input required type="checkbox" name="newsletter_consent" value="1"> J’accepte l’inscription newsletter dans le cadre de cette démonstration académique.</label>
             <button class="button full" type="submit">S’inscrire</button>
         </form>
     </div>
@@ -61,7 +61,7 @@
         <article class="home-proof">
             <p class="eyebrow">Confiance</p>
             <h2>Des expériences pensées pour se reconnecter</h2>
-            <blockquote>“Très belle expérience fictive, l’ambiance nature est réussie.” <small>- Tania, voyageuse démo</small></blockquote>
+            <blockquote>“Très belle expérience, l’ambiance nature est réussie.” <small>- Tania, voyageuse</small></blockquote>
         </article>
         <article class="home-categories">
             <p class="eyebrow">Explorer</p>

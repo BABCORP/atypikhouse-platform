@@ -18,7 +18,7 @@
                 <p><?= e($message['name']) ?> · <?= e($message['email']) ?> · <span class="badge <?= e($message['status']) ?>"><?= status_label($message['status']) ?></span>
                     <?php if (str_starts_with($message['subject'], 'Demande RGPD') && $message['status'] === 'new'): ?><span class="badge pending">À traiter</span><?php endif; ?>
                     <?php if (str_starts_with($message['subject'], 'Demande RGPD')): ?><span class="badge pending">Demande RGPD</span><?php endif; ?>
-                    <?php if ($message['subject'] === 'Newsletter'): ?><span class="badge muted">Newsletter démo</span><?php endif; ?>
+                    <?php if ($message['subject'] === 'Newsletter'): ?><span class="badge muted">Newsletter</span><?php endif; ?>
                 </p>
                 <p><?= e($message['message']) ?></p>
                 <div class="actions-row">

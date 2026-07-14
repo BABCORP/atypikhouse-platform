@@ -4,7 +4,7 @@
         <div>
             <p class="eyebrow">Planning propriétaire</p>
             <h1>Gérer les disponibilités</h1>
-            <p>Définissez des plages disponibles ou indisponibles, avec prix spécifique optionnel pour la réservation simulée.</p>
+            <p>Définissez des plages disponibles ou indisponibles, avec prix spécifique optionnel pour la réservation de démonstration.</p>
         </div>
     </div>
     <form class="panel availability-property-switch" method="get">

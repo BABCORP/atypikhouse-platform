@@ -12,7 +12,7 @@ final class NewsletterService
             'name' => 'Newsletter',
             'email' => $email,
             'subject' => 'Newsletter',
-            'message' => 'Inscription newsletter de démonstration locale. Aucun email réel ne sera envoyé.',
+            'message' => 'Inscription newsletter enregistrée dans le cadre du projet étudiant. Aucun email réel ne sera envoyé.',
         ];
 
         (new ContactMessage())->create($message);

@@ -2,9 +2,9 @@
 
 ## Authentification
 
-- Se connecter avec `admin@atypikhouse.test` / `Admin123!`, vérifier l’accès à `/admin/dashboard`.
-- Se connecter avec `owner@atypikhouse.test` / `Owner123!`, vérifier l’accès à `/proprietaire/dashboard`.
-- Se connecter avec `tenant@atypikhouse.test` / `Tenant123!`, vérifier l’accès à `/locataire/dashboard`.
+- Se connecter avec `admin@atypikhouse.fr` / `Admin123!`, vérifier l’accès à `/admin/dashboard`.
+- Se connecter avec `proprietaire@atypikhouse.fr` / `Owner123!`, vérifier l’accès à `/proprietaire/dashboard`.
+- Se connecter avec `locataire@atypikhouse.fr` / `Tenant123!`, vérifier l’accès à `/locataire/dashboard`.
 - Créer un compte locataire depuis `/inscription`, vérifier la redirection vers `/connexion`.
 - Créer un compte propriétaire depuis `/inscription?role=owner`, vérifier la création du profil propriétaire.
 - Vérifier qu’un nouveau compte est créé en statut `pending`, puis l’approuver depuis `/admin/utilisateurs`.
@@ -109,7 +109,7 @@
 - Filtrer `/admin/reservations` par statut, paiement, logement, propriétaire, locataire et période.
 - Confirmer une réservation en attente de validation.
 - Modifier le statut d’une réservation, l’annuler et la marquer terminée.
-- Ouvrir `/admin/reservations/{id}` et vérifier le détail complet : locataire, logement, dates, prix, paiement test et statut.
+- Ouvrir `/admin/reservations/{id}` et vérifier le détail complet : locataire, logement, dates, prix, paiement fictif de démonstration et statut.
 - Filtrer `/admin/avis` par statut, note, logement et auteur.
 - Publier ou rejeter un avis.
 - Supprimer un avis depuis la modération.
