@@ -16,6 +16,7 @@
         'deleted_properties' => 'logements supprimés',
         'bookings' => 'réservations',
         'pending_bookings' => 'réservations à valider',
+        'pending_payment_bookings' => 'réservations en attente de paiement',
         'confirmed_bookings' => 'réservations confirmées',
         'cancelled_bookings' => 'réservations annulées',
         'completed_bookings' => 'réservations terminées',
@@ -59,6 +60,7 @@
         <a class="button compact" href="<?= url('/admin/logements?status=pending') ?>">Valider les logements</a>
         <a class="button compact" href="<?= url('/admin/logements/modifications') ?>">Voir les modifications à valider</a>
         <a class="button compact ghost" href="<?= url('/admin/reservations?status=pending_admin') ?>">Réservations à valider</a>
+        <a class="button compact ghost" href="<?= url('/admin/reservations?status=pending_payment') ?>">Réservations en attente de paiement</a>
         <a class="button compact ghost" href="<?= url('/admin/reservations?payment_status=not_paid') ?>">Paiements en attente</a>
         <a class="button compact ghost" href="<?= url('/admin/avis?status=pending') ?>">Modérer les avis</a>
         <a class="button compact ghost" href="<?= url('/admin/messages') ?>">Voir les messages</a>

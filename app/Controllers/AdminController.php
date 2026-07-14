@@ -460,32 +460,46 @@ final class AdminController extends Controller
         $admin = Auth::requireRole('admin');
         verify_csrf();
         $status = (string) input('status');
-        if (!in_array($status, ['pending_admin', 'confirmed', 'cancelled', 'completed'], true)) {
+        if (!in_array($status, ['pending_admin', 'pending_payment', 'confirmed', 'cancelled', 'completed'], true)) {
             http_response_code(422);
             exit('Statut invalide.');
         }
         $booking = (new Booking())->findForAdmin($id);
-        (new Booking())->updateStatus($id, $status);
+        if (!$booking) {
+            http_response_code(404);
+            exit('Réservation introuvable.');
+        }
+        if ($status === 'confirmed' && $booking['payment_status'] !== 'test_paid') {
+            flash('error', 'Une réservation ne peut être confirmée qu’après paiement fictif validé.');
+            $this->redirect('/admin/reservations/' . $id);
+        }
+        if ($status === 'pending_payment' && $booking['status'] !== 'pending_admin') {
+            flash('error', 'Seule une réservation en attente de validation peut être envoyée au paiement fictif.');
+            $this->redirect('/admin/reservations/' . $id);
+        }
+        if ($status === 'completed' && ($booking['status'] !== 'confirmed' || $booking['payment_status'] !== 'test_paid')) {
+            flash('error', 'Seule une réservation confirmée et payée fictivement peut être marquée comme terminée.');
+            $this->redirect('/admin/reservations/' . $id);
+        }
+        if ($status === 'pending_payment') {
+            (new Booking())->validateForPayment($id);
+        } else {
+            (new Booking())->updateStatus($id, $status);
+        }
         $action = [
-            'confirmed' => 'booking_confirmed_by_admin',
+            'pending_payment' => 'booking_validated_awaiting_payment',
+            'confirmed' => 'booking_status_updated',
             'cancelled' => 'booking_cancelled_by_admin',
             'completed' => 'booking_completed_by_admin',
         ][$status] ?? 'booking_status_updated';
         audit((int) $admin['id'], $action, 'booking', $id);
-        if ($status === 'confirmed' && $booking) {
-            (new MailService())->sendBookingConfirmedNotification(
-                (string) $booking['tenant_email'],
-                (string) $booking['owner_email'],
-                (string) $booking['title']
-            );
-        }
-        flash('success', 'Statut de la réservation mis à jour.');
+        flash('success', $status === 'pending_payment' ? 'La réservation a été validée. Le locataire doit maintenant effectuer le paiement fictif.' : 'Statut de la réservation mis à jour.');
         $this->redirect('/admin/reservations/' . $id);
     }
 
     public function confirmBooking(int $id): void
     {
-        $this->quickBookingStatus($id, 'confirmed', 'booking_confirmed_by_admin', 'Réservation confirmée.');
+        $this->quickBookingStatus($id, 'pending_payment', 'booking_validated_awaiting_payment', 'La réservation a été validée. Le locataire doit maintenant effectuer le paiement fictif.');
     }
 
     public function cancelBooking(int $id): void
@@ -731,7 +745,23 @@ final class AdminController extends Controller
         $admin = Auth::requireRole('admin');
         verify_csrf();
         $booking = (new Booking())->findForAdmin($id);
-        (new Booking())->updateStatus($id, $status);
+        if (!$booking) {
+            http_response_code(404);
+            exit('Réservation introuvable.');
+        }
+        if ($status === 'pending_payment' && $booking['status'] !== 'pending_admin') {
+            flash('error', 'Seule une réservation en attente de validation peut être envoyée au paiement fictif.');
+            $this->redirect('/admin/reservations/' . $id);
+        }
+        if ($status === 'completed' && ($booking['status'] !== 'confirmed' || $booking['payment_status'] !== 'test_paid')) {
+            flash('error', 'Seule une réservation confirmée et payée fictivement peut être marquée comme terminée.');
+            $this->redirect('/admin/reservations/' . $id);
+        }
+        if ($status === 'pending_payment') {
+            (new Booking())->validateForPayment($id);
+        } else {
+            (new Booking())->updateStatus($id, $status);
+        }
         audit((int) $admin['id'], $action, 'booking', $id);
         if ($status === 'confirmed' && $booking) {
             (new MailService())->sendBookingConfirmedNotification(

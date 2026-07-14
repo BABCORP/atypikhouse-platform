@@ -12,7 +12,7 @@ final class Booking extends Model
             return false;
         }
 
-        $stmt = $this->db->prepare('SELECT COUNT(*) FROM bookings WHERE property_id = ? AND status IN ("pending_admin", "confirmed", "completed") AND start_date < ? AND end_date > ?');
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM bookings WHERE property_id = ? AND status IN ("pending_admin", "pending_payment", "confirmed", "completed") AND start_date < ? AND end_date > ?');
         $stmt->execute([$propertyId, $end, $start]);
         if ((int) $stmt->fetchColumn() > 0) {
             return false;
@@ -144,7 +144,7 @@ final class Booking extends Model
 
     public function bookedDatesForOwnerProperty(int $propertyId, int $ownerId): array
     {
-        $stmt = $this->db->prepare('SELECT b.start_date, b.end_date FROM bookings b JOIN properties p ON p.id = b.property_id WHERE b.property_id = ? AND p.owner_id = ? AND b.status IN ("pending_admin", "confirmed", "completed") AND b.end_date >= CURDATE() ORDER BY b.start_date ASC');
+        $stmt = $this->db->prepare('SELECT b.start_date, b.end_date FROM bookings b JOIN properties p ON p.id = b.property_id WHERE b.property_id = ? AND p.owner_id = ? AND b.status IN ("pending_admin", "pending_payment", "confirmed", "completed") AND b.end_date >= CURDATE() ORDER BY b.start_date ASC');
         $stmt->execute([$propertyId, $ownerId]);
         $dates = [];
         foreach ($stmt->fetchAll() as $booking) {
@@ -160,7 +160,7 @@ final class Booking extends Model
 
     public function bookedDatesForProperty(int $propertyId): array
     {
-        $stmt = $this->db->prepare('SELECT start_date, end_date FROM bookings WHERE property_id = ? AND status IN ("pending_admin", "confirmed", "completed") AND end_date >= CURDATE() ORDER BY start_date ASC');
+        $stmt = $this->db->prepare('SELECT start_date, end_date FROM bookings WHERE property_id = ? AND status IN ("pending_admin", "pending_payment", "confirmed", "completed") AND end_date >= CURDATE() ORDER BY start_date ASC');
         $stmt->execute([$propertyId]);
         $dates = [];
         foreach ($stmt->fetchAll() as $booking) {
@@ -254,11 +254,11 @@ final class Booking extends Model
     public function simulatePayment(int $bookingId, bool $success): bool
     {
         $booking = $this->find($bookingId);
-        if (!$booking || !in_array($booking['status'], ['pending_payment', 'confirmed'], true)) {
+        if (!$booking || $booking['status'] !== 'pending_payment' || $booking['payment_status'] === 'test_paid') {
             return false;
         }
         if ($success) {
-            $stmt = $this->db->prepare('SELECT COUNT(*) FROM bookings WHERE id <> ? AND property_id = ? AND status IN ("pending_admin", "confirmed", "completed") AND start_date < ? AND end_date > ?');
+            $stmt = $this->db->prepare('SELECT COUNT(*) FROM bookings WHERE id <> ? AND property_id = ? AND status IN ("pending_admin", "pending_payment", "confirmed", "completed") AND start_date < ? AND end_date > ?');
             $stmt->execute([$bookingId, $booking['property_id'], $booking['end_date'], $booking['start_date']]);
             $success = (int) $stmt->fetchColumn() === 0;
         }
@@ -270,7 +270,7 @@ final class Booking extends Model
         if ($success) {
             $this->db->prepare('UPDATE bookings SET status = "confirmed", payment_status = "test_paid", updated_at = NOW() WHERE id = ?')->execute([$bookingId]);
         } else {
-            $this->db->prepare('UPDATE bookings SET status = "cancelled", updated_at = NOW() WHERE id = ?')->execute([$bookingId]);
+            $this->db->prepare('UPDATE bookings SET payment_status = "test_failed", updated_at = NOW() WHERE id = ?')->execute([$bookingId]);
         }
         return $success;
     }
@@ -279,5 +279,11 @@ final class Booking extends Model
     {
         $stmt = $this->db->prepare('UPDATE bookings SET status = ?, updated_at = NOW() WHERE id = ?');
         $stmt->execute([$status, $id]);
+    }
+
+    public function validateForPayment(int $id): void
+    {
+        $stmt = $this->db->prepare('UPDATE bookings SET status = "pending_payment", payment_status = "not_paid", updated_at = NOW() WHERE id = ? AND status = "pending_admin"');
+        $stmt->execute([$id]);
     }
 }

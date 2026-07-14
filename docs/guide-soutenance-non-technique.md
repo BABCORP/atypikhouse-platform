@@ -262,7 +262,7 @@ Fonctions importantes :
 - comptes à valider ;
 - logements à valider ;
 - modifications à valider ;
-- réservations à confirmer ;
+- réservations à valider avant paiement fictif ;
 - paiements fictifs en attente ;
 - messages non traités ;
 - avis à modérer ;
@@ -609,4 +609,3 @@ Identifiants de démonstration :
 Tu peux terminer avec cette phrase :
 
 > AtypikHouse est un MVP complet de marketplace fictive. Le site présente un parcours public, un espace locataire, un espace propriétaire et un back-office administrateur. Les fonctionnalités principales sont démontrables : recherche, favoris, réservation, paiement fictif, avis, validation des logements, modération et suivi des actions. Le projet reste académique, mais il a été pensé comme une base professionnelle, sécurisée et évolutive.
-

@@ -10,7 +10,7 @@ ALTER TABLE properties
 
 ALTER TABLE bookings
   MODIFY status ENUM('pending_admin', 'pending_payment', 'confirmed', 'cancelled', 'completed') NOT NULL DEFAULT 'pending_admin',
-  MODIFY payment_status ENUM('not_paid', 'test_paid', 'refunded') NOT NULL DEFAULT 'not_paid';
+  MODIFY payment_status ENUM('not_paid', 'test_paid', 'test_failed', 'refunded') NOT NULL DEFAULT 'not_paid';
 
 ALTER TABLE payments
   MODIFY status ENUM('test_pending', 'test_success', 'test_failed', 'test_refunded') NOT NULL;

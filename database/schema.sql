@@ -150,7 +150,7 @@ CREATE TABLE bookings (
   cleaning_fee DECIMAL(10,2) NOT NULL,
   total_price DECIMAL(10,2) NOT NULL,
   status ENUM('pending_admin', 'pending_payment', 'confirmed', 'cancelled', 'completed') NOT NULL DEFAULT 'pending_admin',
-  payment_status ENUM('not_paid', 'test_paid', 'refunded') NOT NULL DEFAULT 'not_paid',
+  payment_status ENUM('not_paid', 'test_paid', 'test_failed', 'refunded') NOT NULL DEFAULT 'not_paid',
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   CONSTRAINT fk_bookings_property FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE,

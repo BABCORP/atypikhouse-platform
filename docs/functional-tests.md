@@ -55,14 +55,14 @@
 
 - Connecté locataire, réserver des dates futures disponibles.
 - Vérifier que la réservation est créée en `pending_admin` avec paiement `not_paid`, puis visible dans `/admin/reservations?status=pending_admin`.
-- Depuis l’admin, confirmer la réservation et vérifier qu’elle passe en `confirmed` sans 403/404.
-- Vérifier que le paiement fictif n’est accessible qu’après validation admin.
+- Depuis l’admin, valider la demande et vérifier qu’elle passe en `pending_payment` sans 403/404.
+- Vérifier que le paiement fictif n’est accessible qu’après validation admin et avant confirmation définitive.
 - Tenter une réservation avec une date passée, vérifier le blocage.
 - Tenter une réservation avec une date de départ avant ou égale à l’arrivée, vérifier le blocage.
 - Tenter une réservation qui chevauche une réservation confirmée, vérifier le blocage.
 - Vérifier le calcul : prix par nuit x nuits + frais de ménage.
-- Simuler un paiement réussi après confirmation admin, vérifier `status=confirmed` et `payment_status=test_paid`.
-- Simuler un paiement échoué, vérifier que la réservation reste non confirmée.
+- Simuler un paiement réussi après validation admin, vérifier `status=confirmed` et `payment_status=test_paid`.
+- Simuler un paiement échoué, vérifier que la réservation reste en `pending_payment` avec `payment_status=test_failed`.
 - Ouvrir le détail réservation locataire, vérifier le reçu fictif imprimable et la mention “Document fictif — aucune transaction réelle”.
 - Depuis `/proprietaire/disponibilites`, définir un prix spécifique sur une nuit future, réserver cette nuit côté locataire et vérifier que le total utilise le prix override + frais de ménage.
 
@@ -107,7 +107,7 @@
 - Réactiver le logement depuis l’admin, vérifier qu’il redevient visible publiquement.
 - Supprimer logiquement un logement depuis l’admin, vérifier qu’il passe en statut “Supprimé”, disparaît du front et conserve ses réservations/avis en historique admin.
 - Filtrer `/admin/reservations` par statut, paiement, logement, propriétaire, locataire et période.
-- Confirmer une réservation en attente de validation.
+- Valider une réservation en attente de validation et vérifier qu’elle passe en attente de paiement.
 - Modifier le statut d’une réservation, l’annuler et la marquer terminée.
 - Ouvrir `/admin/reservations/{id}` et vérifier le détail complet : locataire, logement, dates, prix, paiement fictif de démonstration et statut.
 - Filtrer `/admin/avis` par statut, note, logement et auteur.
@@ -117,7 +117,7 @@
 - Modifier, publier, dépublier puis supprimer un article de blog.
 - Ouvrir `/admin/messages/{id}`, marquer un message comme lu, traité puis archivé.
 - Filtrer les messages par contact/newsletter/RGPD, vérifier le badge “À traiter” sur une demande RGPD nouvelle.
-- Consulter les journaux d’audit, filtrer par action/email/date et vérifier la présence des logs `user_registered_pending`, `user_approved`, `user_rejected`, `user_suspended`, `property_submitted`, `property_approved`, `property_paused`, `property_reactivated`, `property_deleted`, `property_change_requested`, `property_change_approved`, `property_change_rejected`, `booking_created_pending`, `booking_confirmed_by_admin`, `booking_completed_by_admin`, `review_approved`, `blog_published`, `message_processed`.
+- Consulter les journaux d’audit, filtrer par action/email/date et vérifier la présence des logs `user_registered_pending`, `user_approved`, `user_rejected`, `user_suspended`, `property_submitted`, `property_approved`, `property_paused`, `property_reactivated`, `property_deleted`, `property_change_requested`, `property_change_approved`, `property_change_rejected`, `booking_created_pending_admin`, `booking_validated_awaiting_payment`, `fake_payment_succeeded`, `booking_confirmed_after_payment`, `booking_completed_by_admin`, `review_approved`, `blog_published`, `message_processed`.
 - Vérifier la pagination des utilisateurs, logements, messages et réservations admin.
 
 ## Avis

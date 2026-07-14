@@ -12,6 +12,9 @@
             <td>
                 <?php if (($scope ?? 'tenant') === 'tenant'): ?>
                     <a class="button compact ghost" href="<?= url('/locataire/reservations/' . $booking['id']) ?>">Voir</a>
+                    <?php if ($booking['status'] === 'pending_payment' && in_array($booking['payment_status'], ['not_paid', 'test_failed'], true)): ?>
+                        <a class="button compact" href="<?= url('/paiement/' . $booking['id']) ?>">Payer</a>
+                    <?php endif; ?>
                 <?php elseif (($scope ?? '') === 'admin'): ?>
                     <a class="button compact ghost" href="<?= url('/admin/reservations/' . $booking['id']) ?>">Détail</a>
                 <?php else: ?>

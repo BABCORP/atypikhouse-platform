@@ -42,7 +42,7 @@ Les fiches logements affichent une note moyenne en étoiles et le détail des av
 4. Contrôler les propriétaires : validation du profil, statut du compte et nombre de logements.
 5. Filtrer les logements, ouvrir le détail admin, vérifier les images/équipements, modifier la fiche puis publier, refuser, mettre en pause, réactiver ou supprimer logiquement.
 6. Ouvrir “Modifications” pour comparer les valeurs publiées et les valeurs proposées par un propriétaire, puis approuver ou refuser la demande avec un motif.
-7. Filtrer les réservations, consulter le détail complet, confirmer une réservation en attente, l’annuler ou la marquer comme terminée.
+7. Filtrer les réservations, consulter le détail complet, valider une demande de réservation pour déclencher le paiement fictif, l’annuler ou la marquer comme terminée après paiement.
 8. Modérer les avis avec filtres par statut, note, logement ou auteur.
 9. Créer, modifier, publier, dépublier ou supprimer les articles de blog.
 10. Ouvrir les messages contact/newsletter/RGPD, les marquer comme lus, traités ou archivés.
@@ -52,7 +52,7 @@ Un logement mis en pause ou supprimé logiquement n’est plus visible dans le c
 
 Une modification proposée par un propriétaire ne devient publique qu’après approbation administrateur. Tant que la demande est en attente ou refusée, les visiteurs continuent à voir la dernière version validée.
 
-Une réservation créée par un locataire validé reste en attente côté admin avant tout paiement fictif. Le paiement de démonstration devient accessible uniquement après confirmation administrateur.
+Une réservation créée par un locataire validé reste en attente côté admin avant tout paiement fictif. Le paiement de démonstration devient accessible uniquement après validation de la demande par l’administrateur.
 
 ## Cookies et suivi
 

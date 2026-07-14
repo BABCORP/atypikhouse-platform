@@ -48,13 +48,13 @@
             <span><i class="legend-dot booked"></i>Réservé</span>
         </div>
         <div class="availability-calendar" data-availability-calendar data-calendar-payload="<?= e(json_encode($calendarData ?? [], JSON_UNESCAPED_UNICODE)) ?>" aria-live="polite"></div>
-        <p class="notice">Vue administrateur : les dates bloquées proviennent des réservations en attente de validation, confirmées ou terminées.</p>
+        <p class="notice">Vue administrateur : les dates bloquées proviennent des réservations en attente de validation, en attente de paiement, confirmées ou terminées.</p>
     </article>
     <form class="panel inline-admin-form" method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/statut') ?>">
         <?= csrf_field() ?>
         <label>Statut
             <select name="status">
-                <?php foreach (['pending_admin', 'confirmed', 'cancelled', 'completed'] as $status): ?>
+                <?php foreach (['pending_admin', 'pending_payment', 'confirmed', 'cancelled', 'completed'] as $status): ?>
                     <option value="<?= $status ?>" <?= $booking['status'] === $status ? 'selected' : '' ?>><?= status_label($status) ?></option>
                 <?php endforeach; ?>
             </select>
@@ -64,9 +64,11 @@
     </form>
     <div class="actions-row">
         <?php if ($booking['status'] === 'pending_admin'): ?>
-            <form method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/confirmer') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Confirmer</button></form>
+            <form method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/confirmer') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Valider et demander le paiement</button></form>
         <?php endif; ?>
-        <form method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/terminer') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Marquer terminée</button></form>
+        <?php if ($booking['status'] === 'confirmed' && $booking['payment_status'] === 'test_paid'): ?>
+            <form method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/terminer') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Marquer terminée</button></form>
+        <?php endif; ?>
         <form method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/annuler') ?>" data-confirm="Annuler cette réservation ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Annuler</button></form>
     </div>
 </section>

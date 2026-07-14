@@ -123,7 +123,7 @@ Les placeholders `GA4_ID`, `GTM_ID`, `INSTAGRAM_URL`, `FACEBOOK_URL`, `EMAILING_
 - Dashboard propriétaire : logements, création/modification détaillée, upload image contrôlé, soumission en attente de validation, modifications de logements publiés soumises à validation admin, disponibilités, réservations.
 - Dashboard propriétaire : galerie d’images avec texte alternatif, image principale, suppression sécurisée et gestion de plages de disponibilité avec prix spécifique.
 - Calendrier mensuel propriétaire en JavaScript vanilla pour visualiser disponibilités, indisponibilités, prix spécifiques et dates réservées.
-- Dashboard administrateur : statistiques détaillées, comptes à valider, logements à valider, réservations à confirmer, paiements fictifs en attente, derniers logs, avis et messages.
+- Dashboard administrateur : statistiques détaillées, comptes à valider, logements à valider, réservations à valider avant paiement fictif, paiements fictifs en attente, derniers logs, avis et messages.
 - Back-office administrateur démontrable : recherche utilisateurs, détail utilisateur, suspension/réactivation, gestion profils hôtes, validation complète des logements, comparaison et validation des modifications proposées par les propriétaires, détail et édition admin des logements, pause/réactivation/suppression logique des logements, filtres réservations, modération avis, publication/dépublication blog, messages lus/traités/archivés et logs d’audit.
 - Pagination simple et filtres sur plusieurs listes administrateur : utilisateurs, logements, réservations, messages et logs.
 - Réinitialisation de mot de passe locale de démonstration, sans envoi email réel.

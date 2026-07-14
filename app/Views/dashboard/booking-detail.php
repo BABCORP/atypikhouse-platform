@@ -13,7 +13,8 @@
     <p class="notice"><?= e(config('academic_disclaimer')) ?></p>
     <?php if ($booking['status'] === 'pending_admin'): ?>
         <p class="notice">Cette réservation attend la validation de l’administrateur avant le paiement fictif.</p>
-    <?php elseif ($booking['status'] === 'confirmed' && $booking['payment_status'] === 'not_paid'): ?>
+    <?php elseif ($booking['status'] === 'pending_payment' && in_array($booking['payment_status'], ['not_paid', 'test_failed'], true)): ?>
+        <p class="notice">Votre demande a été validée par l’administrateur. Le paiement fictif doit maintenant être effectué pour confirmer la réservation.</p>
         <p><a class="button" href="<?= url('/paiement/' . $booking['id']) ?>">Poursuivre vers le paiement fictif</a></p>
     <?php endif; ?>
     <article class="panel invoice-print" id="facture-fictive">

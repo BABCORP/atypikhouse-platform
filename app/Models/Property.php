@@ -41,7 +41,7 @@ final class Property extends Model
             $sql .= ' AND NOT EXISTS (
                 SELECT 1 FROM bookings b
                 WHERE b.property_id = p.id
-                  AND b.status IN ("pending_admin", "confirmed", "completed")
+                  AND b.status IN ("pending_admin", "pending_payment", "confirmed", "completed")
                   AND b.start_date < ? AND b.end_date > ?
             ) AND NOT EXISTS (
                 SELECT 1 FROM property_availabilities pa

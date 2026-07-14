@@ -58,9 +58,9 @@ final class BookingController extends Controller
             $this->redirect('/hebergements/' . $property['slug']);
         }
         $bookingId = $bookingModel->create($property, (int) $user['id'], $_POST);
-        audit((int) $user['id'], 'booking_created_pending', 'booking', $bookingId);
+        audit((int) $user['id'], 'booking_created_pending_admin', 'booking', $bookingId);
         (new MailService())->sendBookingPendingNotification((string) $user['email'], (string) $property['title']);
-        flash('success', 'Votre réservation fictive a été créée et attend la validation de l’administrateur.');
+        flash('success', 'Votre demande de réservation a été transmise. Elle sera confirmée après validation par l’administrateur, puis paiement fictif.');
         $this->redirect('/locataire/reservations/' . $bookingId);
     }
 
@@ -74,6 +74,10 @@ final class BookingController extends Controller
         }
         if ($booking['status'] === 'pending_admin') {
             flash('error', 'Cette réservation attend la validation de l’administrateur avant paiement fictif.');
+            $this->redirect('/locataire/reservations/' . $bookingId);
+        }
+        if ($booking['status'] !== 'pending_payment' || $booking['payment_status'] === 'test_paid') {
+            flash('error', 'Cette réservation ne peut pas être payée à ce stade.');
             $this->redirect('/locataire/reservations/' . $bookingId);
         }
         $this->view('dashboard/payment', ['title' => 'Paiement fictif', 'booking' => $booking]);
@@ -92,10 +96,17 @@ final class BookingController extends Controller
             flash('error', 'Cette réservation attend la validation de l’administrateur avant paiement fictif.');
             $this->redirect('/locataire/reservations/' . $bookingId);
         }
+        if ($booking['status'] !== 'pending_payment' || $booking['payment_status'] === 'test_paid') {
+            flash('error', 'Cette réservation ne peut pas être payée à ce stade.');
+            $this->redirect('/locataire/reservations/' . $bookingId);
+        }
         $success = input('scenario') === 'success';
         $success = (new Booking())->simulatePayment($bookingId, $success);
-        audit((int) $user['id'], $success ? 'booking_payment_test_success' : 'booking_payment_test_failed', 'booking', $bookingId);
-        flash($success ? 'success' : 'error', $success ? 'Paiement fictif validé. Votre réservation est confirmée.' : 'Paiement fictif refusé. Aucun paiement réel n’a été effectué.');
+        audit((int) $user['id'], $success ? 'fake_payment_succeeded' : 'fake_payment_failed', 'booking', $bookingId);
+        if ($success) {
+            audit((int) $user['id'], 'booking_confirmed_after_payment', 'booking', $bookingId);
+        }
+        flash($success ? 'success' : 'error', $success ? 'Paiement fictif validé. Votre réservation est maintenant confirmée.' : 'Le paiement fictif a échoué. Vous pouvez réessayer.');
         $this->redirect('/locataire/reservations/' . $bookingId);
     }
 

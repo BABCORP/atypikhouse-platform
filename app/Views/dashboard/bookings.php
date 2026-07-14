@@ -41,7 +41,7 @@
             <label>Paiement
                 <select name="payment_status">
                     <option value="">Tous les paiements</option>
-                    <?php foreach (['not_paid', 'test_paid', 'refunded'] as $status): ?>
+                    <?php foreach (['not_paid', 'test_paid', 'test_failed', 'refunded'] as $status): ?>
                         <option value="<?= $status ?>" <?= input('payment_status') === $status ? 'selected' : '' ?>><?= status_label($status) ?></option>
                     <?php endforeach; ?>
                 </select>
