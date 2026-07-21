@@ -62,15 +62,25 @@ final class MailService
         $userSent = $this->send(
             $to,
             'Votre compte AtypikHouse est en attente de validation',
-            '<p>Bonjour ' . e($firstName) . ',</p><p>Votre compte ' . e($roleLabel) . ' a bien été créé. Il sera vérifié par l’équipe AtypikHouse avant utilisation complète.</p>',
+            '<p>Bonjour ' . e($firstName) . ',</p>'
+            . '<p>Votre compte AtypikHouse a bien été créé.</p>'
+            . '<p>Pour garantir la sécurité de la plateforme, il doit maintenant être validé par un administrateur.</p>'
+            . '<p>Vous recevrez un nouvel email lorsque votre compte sera approuvé.</p>'
+            . '<p>À bientôt,<br>L’équipe AtypikHouse</p>'
+            . '<p><strong>Projet étudiant fictif.</strong> Aucun achat, paiement ou réservation réelle ne peut être effectué.</p>',
             null,
             'account_pending_user'
         );
         $adminSent = $this->sendInternalNotification(
-            'Nouveau compte à valider',
-            'Un nouveau compte utilisateur attend une validation administrateur.',
+            'Nouveau compte à valider sur AtypikHouse',
+            'Un nouveau compte vient d’être créé et attend une validation administrateur.',
             'account_pending_admin',
-            ['Email' => $to, 'Rôle' => $roleLabel]
+            [
+                'Prénom' => $firstName,
+                'Email' => $to,
+                'Rôle demandé' => $roleLabel,
+                'Lien back-office' => $this->config['app_url'] . '/admin/utilisateurs',
+            ]
         );
         return $userSent && $adminSent;
     }
@@ -80,10 +90,69 @@ final class MailService
         return $this->send(
             $to,
             'Votre compte AtypikHouse a été validé',
-            '<p>Bonjour ' . e($firstName) . ',</p><p>Votre compte AtypikHouse est maintenant validé. Vous pouvez vous connecter à votre espace.</p>',
+            '<p>Bonjour ' . e($firstName) . ',</p>'
+            . '<p>Votre compte AtypikHouse a été validé par l’administrateur.</p>'
+            . '<p>Vous pouvez maintenant vous connecter et accéder à votre espace.</p>'
+            . '<p>Lien de connexion : <a href="' . e($this->config['app_url'] . '/connexion') . '">' . e($this->config['app_url'] . '/connexion') . '</a></p>'
+            . '<p>À bientôt,<br>L’équipe AtypikHouse</p>'
+            . '<p><strong>Projet étudiant fictif.</strong> Aucun achat, paiement ou réservation réelle ne peut être effectué.</p>',
             null,
             'account_approved'
         );
+    }
+
+    public function sendAccountRejectedNotification(string $to, string $firstName): bool
+    {
+        return $this->send(
+            $to,
+            'Votre compte AtypikHouse n’a pas été validé',
+            '<p>Bonjour ' . e($firstName) . ',</p>'
+            . '<p>Après vérification, votre compte AtypikHouse n’a pas été validé.</p>'
+            . '<p>Pour plus d’informations, vous pouvez contacter l’équipe AtypikHouse à l’adresse ' . e((string) $this->config['support_email']) . '.</p>'
+            . '<p>L’équipe AtypikHouse</p>',
+            null,
+            'account_rejected'
+        );
+    }
+
+    public function sendAccountSuspendedNotification(string $to, string $firstName): bool
+    {
+        return $this->send(
+            $to,
+            'Votre compte AtypikHouse a été suspendu',
+            '<p>Bonjour ' . e($firstName) . ',</p>'
+            . '<p>Votre compte AtypikHouse a été temporairement suspendu.</p>'
+            . '<p>Pour plus d’informations, vous pouvez contacter l’équipe AtypikHouse à l’adresse ' . e((string) $this->config['support_email']) . '.</p>'
+            . '<p>L’équipe AtypikHouse</p>',
+            null,
+            'account_suspended'
+        );
+    }
+
+    public function sendTestEmail(string $to): bool
+    {
+        return $this->send(
+            $to,
+            'Test SMTP AtypikHouse',
+            '<p>Ceci est un email de test envoyé depuis Render par AtypikHouse.</p>',
+            'Ceci est un email de test envoyé depuis Render par AtypikHouse.',
+            'smtp_test'
+        );
+    }
+
+    public function diagnostics(): array
+    {
+        return [
+            'smtp_enabled' => (bool) $this->config['enabled'],
+            'real_email_sending' => (bool) $this->config['real_email_sending'],
+            'demo_mode' => (bool) $this->config['demo_mode'],
+            'log_only' => (bool) $this->config['log_only'],
+            'mail_host_defined' => trim((string) $this->config['smtp']['host']) !== '',
+            'mail_username_defined' => trim((string) $this->config['smtp']['username']) !== '',
+            'mail_password_defined' => trim((string) $this->config['smtp']['password']) !== '',
+            'mail_from_defined' => filter_var((string) $this->config['from']['email'], FILTER_VALIDATE_EMAIL) !== false,
+            'admin_email_defined' => filter_var((string) $this->config['admin_email'], FILTER_VALIDATE_EMAIL) !== false,
+        ];
     }
 
     public function sendPropertySubmittedNotification(string $ownerEmail, string $propertyTitle): bool
@@ -183,7 +252,8 @@ final class MailService
 
     private function smtpReady(): bool
     {
-        return trim((string) $this->config['smtp']['host']) !== ''
+        return ((bool) $this->config['enabled'] || (bool) $this->config['real_email_sending'])
+            && trim((string) $this->config['smtp']['host']) !== ''
             && trim((string) $this->config['smtp']['username']) !== ''
             && trim((string) $this->config['smtp']['password']) !== ''
             && filter_var((string) $this->config['from']['email'], FILTER_VALIDATE_EMAIL);

@@ -141,12 +141,18 @@ final class AuthController extends Controller
             $model->createOwnerProfile($id, $_POST);
         }
         audit($id, 'user_registered_pending', 'user', $id);
-        (new MailService())->sendAccountPendingNotification(
+        $emailSent = (new MailService())->sendAccountPendingNotification(
             strtolower(trim((string) input('email'))),
             trim((string) input('first_name')),
             $role
         );
-        flash('success', 'Votre compte a été créé et attend la validation de l’administrateur.');
+        audit($id, $emailSent ? 'email_registration_pending_sent' : 'email_registration_pending_failed', 'user', $id);
+        flash(
+            $emailSent ? 'success' : 'warning',
+            $emailSent
+                ? 'Votre compte a bien été créé. Il est en attente de validation par l’administrateur. Un email de confirmation vous a été envoyé.'
+                : 'Votre compte a bien été créé et est en attente de validation. L’email de notification n’a pas pu être envoyé pour le moment.'
+        );
         clear_old();
         $this->redirect('/connexion');
     }

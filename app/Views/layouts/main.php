@@ -58,6 +58,7 @@ $ariaCurrent = static fn (string $path): string => $isActivePath($path) ? ' aria
 </header>
 
 <?php if ($message = flash('success')): ?><p class="flash success" role="status"><?= e($message) ?></p><?php endif; ?>
+<?php if ($message = flash('warning')): ?><p class="flash warning" role="status"><?= e($message) ?></p><?php endif; ?>
 <?php if ($message = flash('error')): ?><p class="flash error" role="alert"><?= e($message) ?></p><?php endif; ?>
 
 <main id="contenu">

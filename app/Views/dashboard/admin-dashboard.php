@@ -34,6 +34,36 @@
     <div class="stats">
         <?php foreach ($stats as $label => $value): ?><article><strong><?= is_numeric($value) && str_contains($label, 'revenue') ? money($value) : e((string)$value) ?></strong><span><?= e($statLabels[$label] ?? $label) ?></span></article><?php endforeach; ?>
     </div>
+    <?php if (!empty($mailDiagnostics)): ?>
+        <article class="panel">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Configuration email</p>
+                    <h2>SMTP Render</h2>
+                </div>
+                <form method="post" action="<?= url('/admin/outils/test-email') ?>">
+                    <?= csrf_field() ?>
+                    <button class="button compact" type="submit">Envoyer un email de test</button>
+                </form>
+            </div>
+            <div class="stats compact-stats">
+                <?php foreach ([
+                    'smtp_enabled' => 'SMTP activé',
+                    'real_email_sending' => 'Envoi réel demandé',
+                    'demo_mode' => 'Mode démo',
+                    'log_only' => 'Journalisation seule',
+                    'mail_host_defined' => 'MAIL_HOST défini',
+                    'mail_username_defined' => 'MAIL_USERNAME défini',
+                    'mail_password_defined' => 'MAIL_PASSWORD défini',
+                    'mail_from_defined' => 'Expéditeur défini',
+                    'admin_email_defined' => 'Admin email défini',
+                ] as $key => $label): ?>
+                    <article><strong><?= !empty($mailDiagnostics[$key]) ? 'Oui' : 'Non' ?></strong><span><?= e($label) ?></span></article>
+                <?php endforeach; ?>
+            </div>
+            <p class="notice">Les valeurs sensibles ne sont jamais affichées. Seule leur présence est vérifiée.</p>
+        </article>
+    <?php endif; ?>
     <h2>Logements en attente de validation</h2>
     <?php $properties = $properties ?? []; $scope = 'admin'; require __DIR__ . '/_property-table.php'; ?>
     <?php if (!$properties): ?><p>Aucun logement en attente.</p><?php endif; ?>

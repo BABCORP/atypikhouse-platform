@@ -179,7 +179,6 @@ function status_label(?string $status): string
         'refunded' => 'Remboursé',
         'test_pending' => 'Paiement fictif en attente',
         'test_success' => 'Paiement fictif validé',
-        'test_failed' => 'Paiement fictif échoué',
         'test_refunded' => 'Remboursement fictif',
         'approved' => 'Approuvé',
         'read' => 'Lu',

@@ -992,6 +992,7 @@ th { background: var(--sand); }
 .public-calendar-block { margin-top: 1.15rem; padding-top: 1rem; border-top: 1px solid var(--line); }
 .flash { margin: 1rem clamp(1rem, 6vw, 6rem); padding: 1rem; border-radius: 8px; font-weight: 750; }
 .flash.success { background: #dcf7e9; color: var(--success); }
+.flash.warning { background: #fff3d8; color: #7a4a13; }
 .flash.error { background: #fde2e2; color: var(--danger); }
 .cookie-banner {
   position: fixed;

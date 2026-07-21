@@ -120,4 +120,5 @@ $router->post('/admin/messages/{id}/statut', [AdminController::class, 'updateMes
 $router->post('/admin/messages/{id}/lu', [AdminController::class, 'readMessage']);
 $router->post('/admin/messages/{id}/traite', [AdminController::class, 'processMessage']);
 $router->post('/admin/messages/{id}/archiver', [AdminController::class, 'archiveMessage']);
+$router->post('/admin/outils/test-email', [AdminController::class, 'testEmail']);
 $router->get('/admin/logs', [AdminController::class, 'logs']);

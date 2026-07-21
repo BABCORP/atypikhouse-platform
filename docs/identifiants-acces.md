@@ -76,7 +76,18 @@ BREVO_ENABLED=false
 Valeurs placeholders à placer dans `.env` :
 
 ```text
+SMTP_ENABLED=false
+REAL_EMAIL_SENDING=false
 MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_ENCRYPTION=tls
+MAIL_USERNAME=your-google-account@example.com
+MAIL_PASSWORD=your-google-app-password
+MAIL_FROM_ADDRESS=contact@atypikhouse.fr
+MAIL_FROM_NAME=AtypikHouse
+ADMIN_EMAIL=admin@atypikhouse.fr
+SUPPORT_EMAIL=support@atypikhouse.fr
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_ENCRYPTION=tls
@@ -96,10 +107,12 @@ Si SMTP n’est pas configuré, l’application ne doit pas planter. En mode dé
 Pour tester un envoi réel plus tard :
 
 ```text
+SMTP_ENABLED=true
+REAL_EMAIL_SENDING=true
 MAIL_DEMO_MODE=false
 MAIL_LOG_ONLY=false
-SMTP_USERNAME=...
-SMTP_PASSWORD=...
+MAIL_USERNAME=...
+MAIL_PASSWORD=...
 ```
 
 ## 8. URLs utiles

@@ -24,6 +24,7 @@ final class AdminController extends Controller
         $this->view('dashboard/admin-dashboard', [
             'title' => 'Administration',
             'stats' => (new AdminStats())->dashboard(),
+            'mailDiagnostics' => (new MailService())->diagnostics(),
             'properties' => array_slice(array_filter((new Property())->allForAdmin(), fn (array $property): bool => $property['status'] === 'pending'), 0, 5),
             'propertyChanges' => array_slice((new PropertyChangeRequest())->allPending(), 0, 5),
             'bookings' => array_slice((new Booking())->all(), 0, 5),
@@ -98,7 +99,9 @@ final class AdminController extends Controller
         }
         $model->updateStatus($id, 'suspended');
         audit((int) $admin['id'], 'user_suspended', 'user', $id);
-        flash('success', 'Utilisateur suspendu.');
+        $emailSent = (new MailService())->sendAccountSuspendedNotification((string) $user['email'], (string) $user['first_name']);
+        audit((int) $admin['id'], $emailSent ? 'email_user_suspended_sent' : 'email_user_suspended_failed', 'user', $id);
+        flash($emailSent ? 'success' : 'warning', $emailSent ? 'Utilisateur suspendu. Un email de notification a été envoyé.' : 'Utilisateur suspendu. Attention : l’email de notification n’a pas pu être envoyé.');
         $this->redirect('/admin/utilisateurs');
     }
 
@@ -128,8 +131,9 @@ final class AdminController extends Controller
             $model->updateOwnerProfileStatus((int) $ownerProfile['id'], 'approved');
         }
         audit((int) $admin['id'], 'user_approved', 'user', $id);
-        (new MailService())->sendAccountApprovedNotification((string) $user['email'], (string) $user['first_name']);
-        flash('success', 'Compte utilisateur approuvé.');
+        $emailSent = (new MailService())->sendAccountApprovedNotification((string) $user['email'], (string) $user['first_name']);
+        audit((int) $admin['id'], $emailSent ? 'email_user_approved_sent' : 'email_user_approved_failed', 'user', $id);
+        flash($emailSent ? 'success' : 'warning', $emailSent ? 'Compte utilisateur approuvé. Un email de confirmation a été envoyé.' : 'Compte utilisateur approuvé. Attention : l’email de confirmation n’a pas pu être envoyé.');
         $this->redirect('/admin/utilisateurs');
     }
 
@@ -153,8 +157,20 @@ final class AdminController extends Controller
             $model->updateOwnerProfileStatus((int) $ownerProfile['id'], 'rejected');
         }
         audit((int) $admin['id'], 'user_rejected', 'user', $id);
-        flash('success', 'Compte utilisateur refusé.');
+        $emailSent = (new MailService())->sendAccountRejectedNotification((string) $user['email'], (string) $user['first_name']);
+        audit((int) $admin['id'], $emailSent ? 'email_user_rejected_sent' : 'email_user_rejected_failed', 'user', $id);
+        flash($emailSent ? 'success' : 'warning', $emailSent ? 'Compte utilisateur refusé. Un email d’information a été envoyé.' : 'Compte utilisateur refusé. Attention : l’email d’information n’a pas pu être envoyé.');
         $this->redirect('/admin/utilisateurs');
+    }
+
+    public function testEmail(): void
+    {
+        $admin = Auth::requireRole('admin');
+        verify_csrf();
+        $sent = (new MailService())->sendTestEmail((string) $admin['email']);
+        audit((int) $admin['id'], $sent ? 'email_smtp_test_sent' : 'email_smtp_test_failed', 'mail');
+        flash($sent ? 'success' : 'error', $sent ? 'Email de test envoyé à votre adresse administrateur.' : 'Email de test non envoyé. Vérifiez les variables SMTP dans Render et les logs applicatifs.');
+        $this->redirect('/admin/dashboard');
     }
 
     public function editUser(int $id): void

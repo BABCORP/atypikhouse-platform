@@ -80,7 +80,36 @@ Renseigner ensuite les valeurs de base de données dans `.env`. Les secrets rée
 Configuration SMTP Google prévue :
 
 ```text
+SMTP_ENABLED=false
+REAL_EMAIL_SENDING=false
 MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_ENCRYPTION=tls
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM_ADDRESS=contact@atypikhouse.fr
+MAIL_FROM_NAME=AtypikHouse
+ADMIN_EMAIL=admin@atypikhouse.fr
+SUPPORT_EMAIL=support@atypikhouse.fr
+```
+
+Les anciennes variables `SMTP_HOST`, `SMTP_USERNAME`, `SMTP_PASSWORD` restent acceptées par compatibilité, mais Render peut utiliser les variables `MAIL_*` ci-dessus.
+
+Pour activer l’envoi réel sur Render :
+
+```text
+SMTP_ENABLED=true
+REAL_EMAIL_SENDING=true
+MAIL_DEMO_MODE=false
+MAIL_LOG_ONLY=false
+```
+
+Le mot de passe Gmail doit être un mot de passe d’application Google, jamais le mot de passe principal du compte.
+
+Compatibilité ancienne notation :
+
+```text
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_ENCRYPTION=tls
