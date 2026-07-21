@@ -174,6 +174,10 @@ final class MailService
             'mail_password_defined' => trim((string) $this->config['smtp']['password']) !== '',
             'mail_from_defined' => filter_var((string) $this->config['from']['email'], FILTER_VALIDATE_EMAIL) !== false,
             'admin_email_defined' => filter_var((string) $this->config['admin_email'], FILTER_VALIDATE_EMAIL) !== false,
+            'smtp_host' => (string) $this->config['smtp']['host'],
+            'smtp_port' => (int) $this->config['smtp']['port'],
+            'smtp_encryption' => (string) $this->config['smtp']['encryption'],
+            'smtp_username' => (string) $this->config['smtp']['username'],
         ];
     }
 

@@ -63,6 +63,14 @@
                     <article><strong><?= !empty($mailDiagnostics[$key]) ? 'Oui' : 'Non' ?></strong><span><?= e($label) ?></span></article>
                 <?php endforeach; ?>
             </div>
+            <dl class="detail-list">
+                <dt>Serveur utilisé</dt>
+                <dd><?= e(($mailDiagnostics['smtp_host'] ?? '') . ':' . ($mailDiagnostics['smtp_port'] ?? '')) ?></dd>
+                <dt>Chiffrement</dt>
+                <dd><?= e((string) ($mailDiagnostics['smtp_encryption'] ?? '')) ?></dd>
+                <dt>Compte SMTP</dt>
+                <dd><?= e((string) ($mailDiagnostics['smtp_username'] ?? '')) ?></dd>
+            </dl>
             <p class="notice">Les valeurs sensibles ne sont jamais affichées. Seule leur présence est vérifiée.</p>
         </article>
     <?php endif; ?>
