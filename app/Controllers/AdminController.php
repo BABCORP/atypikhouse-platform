@@ -101,7 +101,7 @@ final class AdminController extends Controller
         audit((int) $admin['id'], 'user_suspended', 'user', $id);
         $emailSent = (new MailService())->sendAccountSuspendedNotification((string) $user['email'], (string) $user['first_name']);
         audit((int) $admin['id'], $emailSent ? 'email_user_suspended_sent' : 'email_user_suspended_failed', 'user', $id);
-        flash($emailSent ? 'success' : 'warning', $emailSent ? 'Utilisateur suspendu. Un email de notification a été envoyé.' : 'Utilisateur suspendu. Attention : l’email de notification n’a pas pu être envoyé.');
+        flash('success', $emailSent ? 'Utilisateur suspendu. Un email de notification a été envoyé.' : 'Utilisateur suspendu. La notification email est consignée dans les logs si l’envoi SMTP échoue.');
         $this->redirect('/admin/utilisateurs');
     }
 
@@ -133,7 +133,7 @@ final class AdminController extends Controller
         audit((int) $admin['id'], 'user_approved', 'user', $id);
         $emailSent = (new MailService())->sendAccountApprovedNotification((string) $user['email'], (string) $user['first_name']);
         audit((int) $admin['id'], $emailSent ? 'email_user_approved_sent' : 'email_user_approved_failed', 'user', $id);
-        flash($emailSent ? 'success' : 'warning', $emailSent ? 'Compte utilisateur approuvé. Un email de confirmation a été envoyé.' : 'Compte utilisateur approuvé. Attention : l’email de confirmation n’a pas pu être envoyé.');
+        flash('success', $emailSent ? 'Compte utilisateur approuvé. Un email de confirmation a été envoyé.' : 'Compte utilisateur approuvé. La notification email est consignée dans les logs si l’envoi SMTP échoue.');
         $this->redirect('/admin/utilisateurs');
     }
 
@@ -159,7 +159,7 @@ final class AdminController extends Controller
         audit((int) $admin['id'], 'user_rejected', 'user', $id);
         $emailSent = (new MailService())->sendAccountRejectedNotification((string) $user['email'], (string) $user['first_name']);
         audit((int) $admin['id'], $emailSent ? 'email_user_rejected_sent' : 'email_user_rejected_failed', 'user', $id);
-        flash($emailSent ? 'success' : 'warning', $emailSent ? 'Compte utilisateur refusé. Un email d’information a été envoyé.' : 'Compte utilisateur refusé. Attention : l’email d’information n’a pas pu être envoyé.');
+        flash('success', $emailSent ? 'Compte utilisateur refusé. Un email d’information a été envoyé.' : 'Compte utilisateur refusé. La notification email est consignée dans les logs si l’envoi SMTP échoue.');
         $this->redirect('/admin/utilisateurs');
     }
 
