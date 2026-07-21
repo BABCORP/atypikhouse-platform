@@ -41,8 +41,10 @@
                     <p class="eyebrow">Configuration email</p>
                     <h2>SMTP Render</h2>
                 </div>
-                <form method="post" action="<?= url('/admin/outils/test-email') ?>">
+                <form class="inline-form" method="post" action="<?= url('/admin/outils/test-email') ?>">
                     <?= csrf_field() ?>
+                    <label class="sr-only" for="test_recipient">Adresse email de test</label>
+                    <input id="test_recipient" type="email" name="test_recipient" placeholder="email utilisateur à tester">
                     <button class="button compact" type="submit">Envoyer un email de test</button>
                 </form>
             </div>

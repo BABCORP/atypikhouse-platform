@@ -168,10 +168,17 @@ final class AdminController extends Controller
         $admin = Auth::requireRole('admin');
         verify_csrf();
         $mailer = new MailService();
-        $recipient = $mailer->testRecipient();
+        $recipient = strtolower(trim((string) input('test_recipient', '')));
+        if ($recipient === '') {
+            $recipient = $mailer->testRecipient();
+        }
+        if (!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
+            flash('error', 'Adresse email de test invalide.');
+            $this->redirect('/admin/dashboard');
+        }
         $sent = $mailer->sendTestEmail($recipient);
         audit((int) $admin['id'], $sent ? 'email_smtp_test_sent' : 'email_smtp_test_failed', 'mail');
-        flash($sent ? 'success' : 'error', $sent ? 'Email de test envoyé à l’adresse SMTP configurée.' : 'Email de test non envoyé. Vérifiez les variables SMTP dans Render et les logs applicatifs.');
+        flash($sent ? 'success' : 'error', $sent ? 'Email de test envoyé à ' . $recipient . '.' : 'Email de test non envoyé à ' . $recipient . '. Vérifiez les logs Render [AtypikHouse mail].');
         $this->redirect('/admin/dashboard');
     }
 
