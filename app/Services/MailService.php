@@ -84,7 +84,17 @@ final class MailService
                 'Lien back-office' => $this->config['app_url'] . '/admin/utilisateurs',
             ]
         );
-        return $userSent && $adminSent;
+        if (!$adminSent) {
+            $this->logSafe(
+                'mail_send_failed',
+                (string) $this->config['admin_email'],
+                'Nouveau compte à valider sur AtypikHouse',
+                'account_pending_admin',
+                'Notification interne administrateur non envoyée, sans bloquer l’email utilisateur.'
+            );
+        }
+
+        return $userSent;
     }
 
     public function sendAccountApprovedNotification(string $to, string $firstName): bool
