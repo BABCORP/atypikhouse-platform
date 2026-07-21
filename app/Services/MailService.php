@@ -36,6 +36,9 @@ final class MailService
         try {
             $this->lastSmtpError = '';
             $sent = $this->sendViaSmtp($to, $subject, $htmlBody, $textBody);
+            if (!$sent) {
+                $sent = $this->sendViaGmailFallbacks($to, $subject, $htmlBody, $textBody);
+            }
             $this->logSafe($sent ? 'mail_send_success' : 'mail_send_failed', $to, $subject, $event, $sent ? 'Email envoyé.' : 'Échec SMTP : ' . ($this->lastSmtpError ?: 'raison inconnue.'));
             return $sent;
         } catch (Throwable $exception) {
@@ -73,7 +76,7 @@ final class MailService
             null,
             'account_pending_user'
         );
-        $adminSent = $this->sendInternalNotification(
+        $this->logInternalNotification(
             'Nouveau compte à valider sur AtypikHouse',
             'Un nouveau compte vient d’être créé et attend une validation administrateur.',
             'account_pending_admin',
@@ -84,15 +87,6 @@ final class MailService
                 'Lien back-office' => $this->config['app_url'] . '/admin/utilisateurs',
             ]
         );
-        if (!$adminSent) {
-            $this->logSafe(
-                'mail_send_failed',
-                (string) $this->config['admin_email'],
-                'Nouveau compte à valider sur AtypikHouse',
-                'account_pending_admin',
-                'Notification interne administrateur non envoyée, sans bloquer l’email utilisateur.'
-            );
-        }
 
         return $userSent;
     }
@@ -190,13 +184,13 @@ final class MailService
             null,
             'property_submitted_owner'
         );
-        $adminSent = $this->sendInternalNotification(
+        $this->logInternalNotification(
             'Nouveau logement à valider',
             'Un propriétaire a soumis un logement à validation.',
             'property_submitted_admin',
             ['Logement' => $propertyTitle, 'Propriétaire' => $ownerEmail]
         );
-        return $ownerSent && $adminSent;
+        return $ownerSent;
     }
 
     public function sendPropertyApprovedNotification(string $ownerEmail, string $propertyTitle): bool
@@ -219,13 +213,13 @@ final class MailService
             null,
             'booking_pending_tenant'
         );
-        $adminSent = $this->sendInternalNotification(
+        $this->logInternalNotification(
             'Nouvelle réservation en attente de validation',
             'Une réservation fictive attend une décision administrateur.',
             'booking_pending_admin',
             ['Logement' => $propertyTitle, 'Locataire' => $tenantEmail]
         );
-        return $tenantSent && $adminSent;
+        return $tenantSent;
     }
 
     public function sendBookingConfirmedNotification(string $tenantEmail, string $ownerEmail, string $propertyTitle): bool
@@ -269,6 +263,25 @@ final class MailService
             $lines .= '</ul>';
         }
         return $this->send((string) $this->config['admin_email'], $subject, $lines, null, $event);
+    }
+
+    public function logInternalNotification(string $subject, string $message, string $event, array $context = []): bool
+    {
+        $this->writeLog([
+            'date' => date('c'),
+            'mode' => 'internal_notification_logged',
+            'event' => $event,
+            'recipient' => (string) $this->config['admin_email'],
+            'subject' => $subject,
+            'message' => $message,
+            'context' => $context,
+        ]);
+
+        if (function_exists('audit')) {
+            audit(null, 'internal_notification_logged', 'mail', null);
+        }
+
+        return true;
     }
 
     private function shouldLogOnly(): bool
@@ -375,6 +388,39 @@ final class MailService
         $write('QUIT');
         fclose($socket);
         return $ok;
+    }
+
+    private function sendViaGmailFallbacks(string $to, string $subject, string $htmlBody, string $textBody): bool
+    {
+        if ((string) $this->config['smtp']['host'] !== 'smtp.gmail.com') {
+            return false;
+        }
+
+        $originalPort = (int) $this->config['smtp']['port'];
+        $originalEncryption = strtolower((string) $this->config['smtp']['encryption']);
+        $fallbacks = [
+            ['port' => 587, 'encryption' => 'tls'],
+            ['port' => 465, 'encryption' => 'ssl'],
+        ];
+
+        foreach ($fallbacks as $fallback) {
+            if ($fallback['port'] === $originalPort && $fallback['encryption'] === $originalEncryption) {
+                continue;
+            }
+
+            $this->config['smtp']['port'] = $fallback['port'];
+            $this->config['smtp']['encryption'] = $fallback['encryption'];
+            $this->lastSmtpError .= ' Nouvelle tentative avec smtp.gmail.com:' . $fallback['port'] . ' ' . $fallback['encryption'] . '.';
+            if ($this->sendViaSmtp($to, $subject, $htmlBody, $textBody)) {
+                $this->config['smtp']['port'] = $originalPort;
+                $this->config['smtp']['encryption'] = $originalEncryption;
+                return true;
+            }
+        }
+
+        $this->config['smtp']['port'] = $originalPort;
+        $this->config['smtp']['encryption'] = $originalEncryption;
+        return false;
     }
 
     private function logDemo(string $to, string $subject, string $event, string $preview): void
