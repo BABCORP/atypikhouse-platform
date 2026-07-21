@@ -7,6 +7,7 @@ use Throwable;
 final class MailService
 {
     private array $config;
+    private string $lastSmtpError = '';
 
     public function __construct()
     {
@@ -33,11 +34,12 @@ final class MailService
         }
 
         try {
+            $this->lastSmtpError = '';
             $sent = $this->sendViaSmtp($to, $subject, $htmlBody, $textBody);
-            $this->logSafe($sent ? 'mail_send_success' : 'mail_send_failed', $to, $subject, $event, $sent ? 'Email envoyé.' : 'Échec SMTP.');
+            $this->logSafe($sent ? 'mail_send_success' : 'mail_send_failed', $to, $subject, $event, $sent ? 'Email envoyé.' : 'Échec SMTP : ' . ($this->lastSmtpError ?: 'raison inconnue.'));
             return $sent;
         } catch (Throwable $exception) {
-            $this->logSafe('mail_send_failed', $to, $subject, $event, 'Erreur SMTP sans détail sensible.');
+            $this->logSafe('mail_send_failed', $to, $subject, $event, 'Erreur SMTP : ' . $this->safeErrorMessage($exception->getMessage()));
             return false;
         }
     }
@@ -138,6 +140,16 @@ final class MailService
             'Ceci est un email de test envoyé depuis Render par AtypikHouse.',
             'smtp_test'
         );
+    }
+
+    public function testRecipient(): string
+    {
+        $username = trim((string) $this->config['smtp']['username']);
+        if (filter_var($username, FILTER_VALIDATE_EMAIL)) {
+            return $username;
+        }
+
+        return (string) $this->config['admin_email'];
     }
 
     public function diagnostics(): array
@@ -267,6 +279,7 @@ final class MailService
         $remote = $encryption === 'ssl' ? 'ssl://' . $host . ':' . $port : $host . ':' . $port;
         $socket = stream_socket_client($remote, $errno, $errstr, 15, STREAM_CLIENT_CONNECT);
         if (!$socket) {
+            $this->lastSmtpError = 'Connexion impossible à ' . $host . ':' . $port . ' (' . $errno . ' ' . $this->safeErrorMessage((string) $errstr) . ')';
             return false;
         }
 
@@ -274,12 +287,16 @@ final class MailService
         $write = static function (string $command) use ($socket): void {
             fwrite($socket, $command . "\r\n");
         };
-        $expect = static function (array $codes) use ($read): bool {
+        $expect = function (array $codes, string $step) use ($read): bool {
             $response = $read();
-            return in_array(substr($response, 0, 3), $codes, true);
+            $ok = in_array(substr($response, 0, 3), $codes, true);
+            if (!$ok) {
+                $this->lastSmtpError = $step . ' refusé (' . $this->safeErrorMessage(trim($response) ?: 'réponse vide') . ')';
+            }
+            return $ok;
         };
 
-        if (!$expect(['220'])) {
+        if (!$expect(['220'], 'Connexion SMTP')) {
             fclose($socket);
             return false;
         }
@@ -289,7 +306,12 @@ final class MailService
         }
         if ($encryption === 'tls') {
             $write('STARTTLS');
-            if (!$expect(['220']) || !stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+            if (!$expect(['220'], 'STARTTLS')) {
+                fclose($socket);
+                return false;
+            }
+            if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+                $this->lastSmtpError = 'Activation TLS impossible.';
                 fclose($socket);
                 return false;
             }
@@ -299,17 +321,17 @@ final class MailService
             }
         }
         $write('AUTH LOGIN');
-        if (!$expect(['334'])) {
+        if (!$expect(['334'], 'AUTH LOGIN')) {
             fclose($socket);
             return false;
         }
         $write(base64_encode((string) $this->config['smtp']['username']));
-        if (!$expect(['334'])) {
+        if (!$expect(['334'], 'Identifiant SMTP')) {
             fclose($socket);
             return false;
         }
         $write(base64_encode((string) $this->config['smtp']['password']));
-        if (!$expect(['235'])) {
+        if (!$expect(['235'], 'Mot de passe SMTP')) {
             fclose($socket);
             return false;
         }
@@ -329,13 +351,13 @@ final class MailService
             . '--' . $boundary . "--\r\n";
 
         $write('MAIL FROM:<' . $from . '>');
-        $ok = $expect(['250']);
+        $ok = $expect(['250'], 'MAIL FROM');
         $write('RCPT TO:<' . $to . '>');
-        $ok = $ok && $expect(['250', '251']);
+        $ok = $ok && $expect(['250', '251'], 'RCPT TO');
         $write('DATA');
-        $ok = $ok && $expect(['354']);
+        $ok = $ok && $expect(['354'], 'DATA');
         $write($message . "\r\n.");
-        $ok = $ok && $expect(['250']);
+        $ok = $ok && $expect(['250'], 'Envoi du message');
         $write('QUIT');
         fclose($socket);
         return $ok;
@@ -376,6 +398,15 @@ final class MailService
             mkdir($directory, 0755, true);
         }
         file_put_contents($directory . '/mail-demo.log', json_encode($data, JSON_UNESCAPED_UNICODE) . PHP_EOL, FILE_APPEND | LOCK_EX);
+        error_log('[AtypikHouse mail] ' . json_encode($data, JSON_UNESCAPED_UNICODE));
+    }
+
+    private function safeErrorMessage(string $message): string
+    {
+        $password = (string) ($this->config['smtp']['password'] ?? '');
+        $username = (string) ($this->config['smtp']['username'] ?? '');
+        $message = str_replace([$password, $username], ['[secret]', '[smtp-user]'], $message);
+        return mb_substr($message, 0, 300);
     }
 
     private function encodeHeader(string $value): string

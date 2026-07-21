@@ -167,9 +167,11 @@ final class AdminController extends Controller
     {
         $admin = Auth::requireRole('admin');
         verify_csrf();
-        $sent = (new MailService())->sendTestEmail((string) $admin['email']);
+        $mailer = new MailService();
+        $recipient = $mailer->testRecipient();
+        $sent = $mailer->sendTestEmail($recipient);
         audit((int) $admin['id'], $sent ? 'email_smtp_test_sent' : 'email_smtp_test_failed', 'mail');
-        flash($sent ? 'success' : 'error', $sent ? 'Email de test envoyé à votre adresse administrateur.' : 'Email de test non envoyé. Vérifiez les variables SMTP dans Render et les logs applicatifs.');
+        flash($sent ? 'success' : 'error', $sent ? 'Email de test envoyé à l’adresse SMTP configurée.' : 'Email de test non envoyé. Vérifiez les variables SMTP dans Render et les logs applicatifs.');
         $this->redirect('/admin/dashboard');
     }
 
