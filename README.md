@@ -77,24 +77,25 @@ cp .env.example .env
 
 Renseigner ensuite les valeurs de base de données dans `.env`. Les secrets réels ne doivent jamais être commitées.
 
-Configuration SMTP Google prévue :
+Configuration SMTP Brevo prévue :
 
 ```text
 SMTP_ENABLED=false
 REAL_EMAIL_SENDING=false
 MAIL_MAILER=smtp
-MAIL_HOST=smtp.gmail.com
+MAIL_HOST=smtp-relay.brevo.com
 MAIL_PORT=587
 MAIL_ENCRYPTION=tls
-MAIL_USERNAME=
+MAIL_USERNAME=b32f0f001@smtp-brevo.com
 MAIL_PASSWORD=
 MAIL_FROM_ADDRESS=contact@atypikhouse.fr
 MAIL_FROM_NAME=AtypikHouse
 ADMIN_EMAIL=admin@atypikhouse.fr
 SUPPORT_EMAIL=support@atypikhouse.fr
+DPO_EMAIL=dpo@atypikhouse.fr
 ```
 
-Les anciennes variables `SMTP_HOST`, `SMTP_USERNAME`, `SMTP_PASSWORD` restent acceptées par compatibilité, mais Render peut utiliser les variables `MAIL_*` ci-dessus.
+Render doit utiliser les variables `MAIL_*` ci-dessus. Les anciennes variables `SMTP_*` restent seulement acceptées par compatibilité locale, mais elles ne sont plus la configuration recommandée.
 
 Pour activer l’envoi réel sur Render :
 
@@ -105,18 +106,16 @@ MAIL_DEMO_MODE=false
 MAIL_LOG_ONLY=false
 ```
 
-Le mot de passe Gmail doit être un mot de passe d’application Google, jamais le mot de passe principal du compte.
-
-Compatibilité ancienne notation :
+Variables Render recommandées pour Brevo :
 
 ```text
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_ENCRYPTION=tls
-SMTP_USERNAME=
-SMTP_PASSWORD=
-SMTP_FROM_EMAIL=contact@atypikhouse.fr
-SMTP_FROM_NAME=AtypikHouse
+MAIL_HOST=smtp-relay.brevo.com
+MAIL_PORT=587
+MAIL_ENCRYPTION=tls
+MAIL_USERNAME=b32f0f001@smtp-brevo.com
+MAIL_PASSWORD=CHANGE_ME_BREVO_SMTP_PASSWORD
+MAIL_FROM_ADDRESS=contact@atypikhouse.fr
+MAIL_FROM_NAME=AtypikHouse
 ```
 
 Pour la démonstration académique, conserver :
@@ -126,7 +125,7 @@ MAIL_DEMO_MODE=true
 MAIL_LOG_ONLY=true
 ```
 
-En mode démonstration, les emails transactionnels sont journalisés localement dans `storage/logs/mail-demo.log` et ne sont pas envoyés réellement. Pour tester un SMTP réel plus tard, renseigner `SMTP_USERNAME` et `SMTP_PASSWORD`, puis passer `MAIL_DEMO_MODE=false` et `MAIL_LOG_ONLY=false`.
+En mode démonstration, les emails transactionnels sont journalisés localement dans `storage/logs/mail-demo.log` et ne sont pas envoyés réellement. Pour activer Brevo sur Render, renseigner `MAIL_USERNAME` et `MAIL_PASSWORD`, puis passer `MAIL_DEMO_MODE=false` et `MAIL_LOG_ONLY=false`.
 
 Les placeholders `GA4_ID`, `GTM_ID`, `INSTAGRAM_URL`, `FACEBOOK_URL`, `EMAILING_PROVIDER`, `EMAILING_API_KEY` et `EMAILING_LIST_ID` sont documentés dans `.env.example`. Aucun identifiant réel n’est stocké dans le dépôt.
 
@@ -155,7 +154,7 @@ Les placeholders `GA4_ID`, `GTM_ID`, `INSTAGRAM_URL`, `FACEBOOK_URL`, `EMAILING_
 - Dashboard administrateur : statistiques détaillées, comptes à valider, logements à valider, réservations à valider avant paiement fictif, paiements fictifs en attente, derniers logs, avis et messages.
 - Back-office administrateur démontrable : recherche utilisateurs, détail utilisateur, suspension/réactivation, gestion profils hôtes, validation complète des logements, comparaison et validation des modifications proposées par les propriétaires, détail et édition admin des logements, pause/réactivation/suppression logique des logements, filtres réservations, modération avis, publication/dépublication blog, messages lus/traités/archivés et logs d’audit.
 - Pagination simple et filtres sur plusieurs listes administrateur : utilisateurs, logements, réservations, messages et logs.
-- Réinitialisation de mot de passe locale de démonstration, sans envoi email réel.
+- Réinitialisation de mot de passe de démonstration, avec journalisation locale ou envoi transactionnel Brevo si SMTP est activé.
 - Reçu/facture fictive imprimable sur le détail de réservation locataire.
 - Pages d’erreur 403/404 propres et confirmations JS sur actions destructives.
 - Contact avec protection CSRF.
@@ -201,9 +200,9 @@ storage/
 
 ## Données, cookies et analytics
 
-Les formulaires contact/newsletter stockent des données uniquement dans la base locale de démonstration. La newsletter réutilise `contact_messages` avec le sujet `Newsletter`; aucune intégration Brevo ni aucun email réel n’est déclenché.
+Les formulaires contact/newsletter stockent des données dans la base de démonstration. La newsletter réutilise `contact_messages` avec le sujet `Newsletter`; l’envoi marketing reste désactivé par défaut. Les emails transactionnels du site peuvent partir via Brevo SMTP lorsque les variables Render sont configurées.
 
-Variables prévues pour une future intégration Brevo :
+Variables prévues pour une future intégration marketing Brevo :
 
 ```bash
 BREVO_API_KEY=
@@ -211,7 +210,7 @@ BREVO_LIST_ID=
 BREVO_ENABLED=false
 ```
 
-Même si `BREVO_ENABLED=true`, le MVP garde une protection académique : la structure d’intégration est prête, mais aucun appel réseau réel n’est déclenché par défaut.
+Même si `BREVO_ENABLED=true`, le MVP garde une protection académique pour la newsletter : la structure d’intégration marketing est prête, mais aucun appel réseau marketing réel n’est déclenché par défaut.
 
 Le bandeau cookies mémorise le choix dans `localStorage`. GA4/GTM ne sont chargés que si un identifiant est fourni par variable d’environnement et si le consentement est accepté.
 
@@ -227,7 +226,7 @@ La suppression admin d’un logement est logique : le statut passe à `deleted`,
 
 Lorsqu’un propriétaire modifie un logement déjà publié ou mis en pause, la version publique n’est pas écrasée directement. Une demande est stockée dans `property_change_requests` avec les nouvelles valeurs proposées, puis l’administrateur compare, approuve ou refuse la modification depuis le back-office. Les images ajoutées dans une demande refusée peuvent rester stockées localement comme artefacts de démonstration.
 
-Limites assumées : pas d’email réel, pas de paiement réel, pas de passerelle Brevo/Stripe, pas de calendrier planning professionnel avec drag-and-drop, pas de système de suppression RGPD automatisé complet, pas de workflow de notification automatique propriétaire après refus/pause. Ces points sont simulés ou documentés pour la soutenance.
+Limites assumées : pas de paiement réel, pas de passerelle Stripe, pas de campagne marketing Brevo active, pas de calendrier planning professionnel avec drag-and-drop, pas de système de suppression RGPD automatisé complet, pas de workflow avancé de notification après chaque action admin. Les emails transactionnels peuvent être envoyés via Brevo SMTP si Render est configuré.
 
 Les vérifications réalisées sur MAMP sont détaillées dans `docs/validation-report.md`.
 

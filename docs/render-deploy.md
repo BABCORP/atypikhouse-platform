@@ -92,4 +92,4 @@ Après import du seed :
 - Vérifier qu’un logement publié peut être modifié sans changer immédiatement la fiche publique.
 - Vérifier `/admin/logements/modifications`.
 
-Le site reste un projet étudiant fictif : aucun paiement réel, aucune réservation réelle et aucun email réel ne sont envoyés.
+Le site reste un projet étudiant fictif : aucun paiement réel et aucune réservation réelle ne sont effectués. Les emails transactionnels peuvent être envoyés via Brevo SMTP uniquement si les variables d’environnement Render sont configurées.

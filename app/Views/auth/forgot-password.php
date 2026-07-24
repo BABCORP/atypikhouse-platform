@@ -3,7 +3,7 @@
         <?= csrf_field() ?>
         <p class="eyebrow">Accès compte</p>
         <h1>Mot de passe oublié</h1>
-        <p>Indiquez votre email. Dans le cadre du projet étudiant, aucun email réel n’est envoyé : le lien de réinitialisation s’affiche après validation.</p>
+        <p>Indiquez votre email. Le lien de réinitialisation est disponible dans la page et peut aussi être envoyé par email si le SMTP Brevo est activé.</p>
         <label>Email
             <input required type="email" name="email" autocomplete="email">
         </label>

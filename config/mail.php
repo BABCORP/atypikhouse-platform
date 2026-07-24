@@ -9,7 +9,7 @@ $smtpEnabled = $bool(env_value('SMTP_ENABLED', false));
 $realEmailSending = $bool(env_value('REAL_EMAIL_SENDING', false));
 $realSendingRequested = $smtpEnabled || $realEmailSending;
 
-$host = env_value('MAIL_HOST', env_value('SMTP_HOST', 'smtp.gmail.com'));
+$host = env_value('MAIL_HOST', env_value('SMTP_HOST', 'smtp-relay.brevo.com'));
 $username = env_value('MAIL_USERNAME', env_value('SMTP_USERNAME', ''));
 $fromEmail = env_value('MAIL_FROM_ADDRESS', env_value('SMTP_FROM_EMAIL', $username ?: 'contact@atypikhouse.fr'));
 
@@ -22,6 +22,7 @@ return [
     'app_url' => rtrim((string) env_value('APP_URL', 'http://localhost:8000'), '/'),
     'admin_email' => env_value('ADMIN_EMAIL', env_value('ADMIN_NOTIFICATION_EMAIL', $fromEmail)),
     'support_email' => env_value('SUPPORT_EMAIL', 'support@atypikhouse.fr'),
+    'dpo_email' => env_value('DPO_EMAIL', 'dpo@atypikhouse.fr'),
     'smtp' => [
         'host' => $host,
         'port' => (int) env_value('MAIL_PORT', env_value('SMTP_PORT', 587)),

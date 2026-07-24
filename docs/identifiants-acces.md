@@ -71,7 +71,7 @@ BREVO_LIST_ID=
 BREVO_ENABLED=false
 ```
 
-## 7. SMTP Google — Envoi d’emails transactionnels
+## 7. SMTP Brevo — Envoi d’emails transactionnels
 
 Valeurs placeholders à placer dans `.env` :
 
@@ -79,28 +79,22 @@ Valeurs placeholders à placer dans `.env` :
 SMTP_ENABLED=false
 REAL_EMAIL_SENDING=false
 MAIL_MAILER=smtp
-MAIL_HOST=smtp.gmail.com
+MAIL_HOST=smtp-relay.brevo.com
 MAIL_PORT=587
 MAIL_ENCRYPTION=tls
-MAIL_USERNAME=your-google-account@example.com
-MAIL_PASSWORD=your-google-app-password
+MAIL_USERNAME=b32f0f001@smtp-brevo.com
+MAIL_PASSWORD=CHANGE_ME_BREVO_SMTP_PASSWORD
 MAIL_FROM_ADDRESS=contact@atypikhouse.fr
 MAIL_FROM_NAME=AtypikHouse
 ADMIN_EMAIL=admin@atypikhouse.fr
 SUPPORT_EMAIL=support@atypikhouse.fr
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_ENCRYPTION=tls
-SMTP_USERNAME=your-google-account@example.com
-SMTP_PASSWORD=your-google-app-password
-SMTP_FROM_EMAIL=contact@atypikhouse.fr
-SMTP_FROM_NAME=AtypikHouse
+DPO_EMAIL=dpo@atypikhouse.fr
 ADMIN_NOTIFICATION_EMAIL=contact@atypikhouse.fr
 MAIL_DEMO_MODE=true
 MAIL_LOG_ONLY=true
 ```
 
-Le mot de passe SMTP ne doit jamais être commité. Si Google SMTP impose un mot de passe d’application, il doit être généré depuis les paramètres de sécurité du compte Google.
+Le mot de passe SMTP Brevo ne doit jamais être commité. Il doit être renseigné uniquement dans les variables d’environnement Render ou dans un fichier `.env` local non versionné.
 
 Si SMTP n’est pas configuré, l’application ne doit pas planter. En mode démonstration, les emails sont journalisés dans `storage/logs/mail-demo.log` et ne sont pas envoyés réellement.
 
@@ -111,8 +105,8 @@ SMTP_ENABLED=true
 REAL_EMAIL_SENDING=true
 MAIL_DEMO_MODE=false
 MAIL_LOG_ONLY=false
-MAIL_USERNAME=...
-MAIL_PASSWORD=...
+MAIL_USERNAME=b32f0f001@smtp-brevo.com
+MAIL_PASSWORD=CHANGE_ME_BREVO_SMTP_PASSWORD
 ```
 
 ## 8. URLs utiles

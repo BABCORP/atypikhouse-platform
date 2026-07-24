@@ -36,9 +36,6 @@ final class MailService
         try {
             $this->lastSmtpError = '';
             $sent = $this->sendViaSmtp($to, $subject, $htmlBody, $textBody);
-            if (!$sent) {
-                $sent = $this->sendViaGmailFallbacks($to, $subject, $htmlBody, $textBody);
-            }
             $this->logSafe($sent ? 'mail_send_success' : 'mail_send_failed', $to, $subject, $event, $sent ? 'Email envoyé.' : 'Échec SMTP : ' . ($this->lastSmtpError ?: 'raison inconnue.'));
             return $sent;
         } catch (Throwable $exception) {
@@ -388,39 +385,6 @@ final class MailService
         $write('QUIT');
         fclose($socket);
         return $ok;
-    }
-
-    private function sendViaGmailFallbacks(string $to, string $subject, string $htmlBody, string $textBody): bool
-    {
-        if ((string) $this->config['smtp']['host'] !== 'smtp.gmail.com') {
-            return false;
-        }
-
-        $originalPort = (int) $this->config['smtp']['port'];
-        $originalEncryption = strtolower((string) $this->config['smtp']['encryption']);
-        $fallbacks = [
-            ['port' => 587, 'encryption' => 'tls'],
-            ['port' => 465, 'encryption' => 'ssl'],
-        ];
-
-        foreach ($fallbacks as $fallback) {
-            if ($fallback['port'] === $originalPort && $fallback['encryption'] === $originalEncryption) {
-                continue;
-            }
-
-            $this->config['smtp']['port'] = $fallback['port'];
-            $this->config['smtp']['encryption'] = $fallback['encryption'];
-            $this->lastSmtpError .= ' Nouvelle tentative avec smtp.gmail.com:' . $fallback['port'] . ' ' . $fallback['encryption'] . '.';
-            if ($this->sendViaSmtp($to, $subject, $htmlBody, $textBody)) {
-                $this->config['smtp']['port'] = $originalPort;
-                $this->config['smtp']['encryption'] = $originalEncryption;
-                return true;
-            }
-        }
-
-        $this->config['smtp']['port'] = $originalPort;
-        $this->config['smtp']['encryption'] = $originalEncryption;
-        return false;
     }
 
     private function logDemo(string $to, string $subject, string $event, string $preview): void

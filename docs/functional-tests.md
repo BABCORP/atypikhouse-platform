@@ -15,7 +15,7 @@
 
 ## Identifiants et emails de démonstration
 
-- Ouvrir `docs/identifiants-acces.md` et vérifier la présence des sections admin, comptes de démonstration, GA4, réseaux sociaux, emailing, SMTP Google et URLs utiles.
+- Ouvrir `docs/identifiants-acces.md` et vérifier la présence des sections admin, comptes de démonstration, GA4, réseaux sociaux, emailing, SMTP Brevo et URLs utiles.
 - Vérifier que `.env` est ignoré par Git et que `.env.example` ne contient que des placeholders.
 - Vérifier que `MAIL_DEMO_MODE=true` et `MAIL_LOG_ONLY=true` empêchent tout envoi réel.
 - Créer un compte depuis `/inscription`, vérifier que `storage/logs/mail-demo.log` contient une entrée sans secret SMTP.

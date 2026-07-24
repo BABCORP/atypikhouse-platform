@@ -64,7 +64,7 @@ Le visiteur peut déposer une demande simulée depuis `/mes-donnees`. Les demand
 
 ## Newsletter
 
-La newsletter fonctionne en mode démonstration : l’email est stocké localement avec consentement. Les variables Brevo sont documentées pour une future intégration, mais aucun email réel n’est envoyé par défaut.
+La newsletter fonctionne en mode démonstration : l’email est stocké localement avec consentement. Les emails transactionnels du site peuvent être envoyés via Brevo SMTP lorsque les variables Render sont configurées.
 
 ## Smoke test
 

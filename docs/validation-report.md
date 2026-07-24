@@ -63,11 +63,11 @@ Après les tests mutables, le schéma et le seed ont été réimportés afin de 
 - Les avis seedés sont fictifs, créés uniquement pour rendre la démonstration plus réaliste ; ils ne représentent aucun vrai client ni aucune vraie réservation.
 - Le paiement est exclusivement fictif et ne traite aucune donnée bancaire.
 - Les identifiants GA4/GTM restent volontairement vides par défaut.
-- L’emailing/newsletter est uniquement stocké localement ; aucune intégration Brevo réelle n’est branchée en V1.
+- La newsletter marketing est stockée localement par défaut ; les emails transactionnels peuvent être envoyés via Brevo SMTP lorsque les variables Render sont configurées.
 - Le calendrier est interactif pour la visualisation et le préremplissage, mais ne remplace pas le formulaire serveur de plages qui reste la source sûre.
 - Les demandes RGPD sont simulées et stockées localement ; aucune suppression automatique réelle n’est exécutée.
-- Le back-office est complet pour un MVP académique, mais ne déclenche pas de notification email réelle vers les hôtes/locataires après modération ou changement de statut.
-- Les validations admin utilisent des messages flash et les statuts en base ; aucune notification email réelle n’est envoyée.
+- Le back-office est complet pour un MVP académique ; les notifications email transactionnelles principales passent par Brevo SMTP si l’envoi réel est activé.
+- Les validations admin conservent les messages flash et les statuts en base ; les notifications internes admin restent journalisées pour éviter de multiplier les envois SMTP.
 - La suppression de logement est volontairement logique (`status=deleted`) pour ne pas casser les réservations, avis et historiques liés.
 - Les images téléversées dans une demande de modification refusée ou remplacée peuvent rester présentes dans `storage/uploads` comme artefacts locaux ; aucun nettoyage automatique avancé n’est déclenché dans ce MVP.
 - Les favoris sont stockés localement pour la démonstration et ne déclenchent aucune notification ni recommandation automatisée.

@@ -6,7 +6,7 @@ Cette fiche sert à comprendre et expliquer le code du site AtypikHouse avec des
 
 AtypikHouse est un site web de réservation d’hébergements insolites.
 
-Le projet est fictif et académique : aucun paiement réel, aucune réservation réelle et aucun email réel ne sont effectués.
+Le projet est fictif et académique : aucun paiement réel ni aucune réservation réelle ne sont effectués. Les emails transactionnels peuvent être envoyés via Brevo SMTP uniquement pour la démonstration technique.
 
 Le site permet de montrer le fonctionnement d’une marketplace :
 
@@ -699,4 +699,3 @@ Phrase à dire :
 Tu peux dire :
 
 > Techniquement, AtypikHouse est un site PHP sur mesure connecté à une base MySQL. Il utilise une organisation MVC, des requêtes préparées avec PDO, une séparation des rôles, des protections sur les formulaires et un back-office complet. Le projet reste fictif, mais il reproduit les principaux mécanismes d’une marketplace professionnelle.
-
