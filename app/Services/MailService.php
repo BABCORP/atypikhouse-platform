@@ -54,9 +54,9 @@ final class MailService
     public function sendContactNotification(string $senderName, string $senderEmail, string $subject): bool
     {
         return $this->sendInternalNotification(
-            'Nouveau message de contact',
-            'Un nouveau message de contact a été enregistré.',
-            'contact_form_submit',
+            'Nouveau message reçu depuis AtypikHouse',
+            'Un nouveau message a été envoyé depuis le formulaire de contact.',
+            'contact_admin_notification',
             [
                 'Nom' => $senderName,
                 'Email' => $senderEmail,
@@ -70,17 +70,17 @@ final class MailService
         $roleLabel = $role === 'owner' ? 'propriétaire' : 'locataire';
         $userSent = $this->send(
             $to,
-            'Votre compte AtypikHouse est en attente de validation',
+            'Votre compte AtypikHouse est en cours d’examen',
             '<p>Bonjour ' . e($firstName) . ',</p>'
             . '<p>Votre compte AtypikHouse a bien été créé.</p>'
-            . '<p>Pour garantir la sécurité de la plateforme, il doit maintenant être validé par un administrateur.</p>'
-            . '<p>Vous recevrez un nouvel email lorsque votre compte sera approuvé.</p>'
+            . '<p>Pour garantir la sécurité et la qualité de la plateforme, il est actuellement en cours d’examen par un administrateur.</p>'
+            . '<p>Vous recevrez un nouvel email dès que votre compte aura été validé ou refusé.</p>'
             . '<p>À bientôt,<br>L’équipe AtypikHouse</p>'
             . '<p><strong>Projet étudiant fictif.</strong> Aucun achat, paiement ou réservation réelle ne peut être effectué.</p>',
             null,
             'account_pending_user'
         );
-        $this->logInternalNotification(
+        $this->sendInternalNotification(
             'Nouveau compte à valider sur AtypikHouse',
             'Un nouveau compte vient d’être créé et attend une validation administrateur.',
             'account_pending_admin',
@@ -99,12 +99,12 @@ final class MailService
     {
         return $this->send(
             $to,
-            'Votre compte AtypikHouse a été validé',
+            'Bienvenue sur AtypikHouse, votre compte est validé',
             '<p>Bonjour ' . e($firstName) . ',</p>'
-            . '<p>Votre compte AtypikHouse a été validé par l’administrateur.</p>'
-            . '<p>Vous pouvez maintenant vous connecter et accéder à votre espace.</p>'
+            . '<p>Bonne nouvelle, votre compte AtypikHouse a été validé.</p>'
+            . '<p>Vous pouvez maintenant vous connecter et accéder à votre espace personnel.</p>'
             . '<p>Lien de connexion : <a href="' . e($this->config['app_url'] . '/connexion') . '">' . e($this->config['app_url'] . '/connexion') . '</a></p>'
-            . '<p>À bientôt,<br>L’équipe AtypikHouse</p>'
+            . '<p>Bienvenue sur AtypikHouse,<br>L’équipe AtypikHouse</p>'
             . '<p><strong>Projet étudiant fictif.</strong> Aucun achat, paiement ou réservation réelle ne peut être effectué.</p>',
             null,
             'account_approved'
@@ -180,51 +180,183 @@ final class MailService
         ];
     }
 
-    public function sendPropertySubmittedNotification(string $ownerEmail, string $propertyTitle): bool
+    public function sendPropertySubmittedNotification(string $ownerEmail, string $propertyTitle, string $ownerFirstName = '', array $details = []): bool
     {
         $ownerSent = $this->send(
             $ownerEmail,
             'Votre logement a été soumis à validation',
-            '<p>Votre logement "' . e($propertyTitle) . '" a bien été soumis à validation par l’équipe AtypikHouse.</p>',
+            '<p>Bonjour ' . e($ownerFirstName !== '' ? $ownerFirstName : 'propriétaire') . ',</p>'
+            . '<p>Votre logement "' . e($propertyTitle) . '" a bien été soumis à l’équipe AtypikHouse.</p>'
+            . '<p>Il sera examiné par un administrateur avant sa publication.</p>'
+            . '<p>Vous recevrez un email dès qu’une décision aura été prise.</p>'
+            . '<p>L’équipe AtypikHouse</p>',
             null,
             'property_submitted_owner'
         );
-        $this->logInternalNotification(
+        $this->sendInternalNotification(
             'Nouveau logement à valider',
             'Un propriétaire a soumis un logement à validation.',
             'property_submitted_admin',
-            ['Logement' => $propertyTitle, 'Propriétaire' => $ownerEmail]
+            [
+                'Logement' => $propertyTitle,
+                'Propriétaire' => $ownerEmail,
+                'Ville' => $details['city'] ?? '',
+                'Prix par nuit' => isset($details['price_per_night']) ? money((float) $details['price_per_night']) : '',
+                'Lien admin' => $this->config['app_url'] . '/admin/logements',
+            ]
         );
         return $ownerSent;
     }
 
-    public function sendPropertyApprovedNotification(string $ownerEmail, string $propertyTitle): bool
+    public function sendPropertyApprovedNotification(string $ownerEmail, string $propertyTitle, string $ownerFirstName = '', string $slug = ''): bool
     {
+        $link = $slug !== '' ? $this->config['app_url'] . '/hebergements/' . $slug : $this->config['app_url'] . '/hebergements';
         return $this->send(
             $ownerEmail,
-            'Votre logement a été validé et publié',
-            '<p>Votre logement "' . e($propertyTitle) . '" a été validé et publié dans le catalogue AtypikHouse.</p>',
+            'Votre logement AtypikHouse a été validé',
+            '<p>Bonjour ' . e($ownerFirstName !== '' ? $ownerFirstName : 'propriétaire') . ',</p>'
+            . '<p>Votre logement "' . e($propertyTitle) . '" a été validé par l’administrateur.</p>'
+            . '<p>Il est maintenant visible sur la plateforme AtypikHouse.</p>'
+            . '<p>Lien : <a href="' . e($link) . '">' . e($link) . '</a></p>'
+            . '<p>L’équipe AtypikHouse</p>',
             null,
             'property_approved'
         );
     }
 
-    public function sendBookingPendingNotification(string $tenantEmail, string $propertyTitle): bool
+    public function sendPropertyRejectedNotification(string $ownerEmail, string $propertyTitle, string $ownerFirstName = '', string $reason = ''): bool
     {
+        $reasonBlock = $reason !== '' ? '<p><strong>Motif :</strong><br>' . e($reason) . '</p>' : '';
+        return $this->send(
+            $ownerEmail,
+            'Votre logement AtypikHouse n’a pas été validé',
+            '<p>Bonjour ' . e($ownerFirstName !== '' ? $ownerFirstName : 'propriétaire') . ',</p>'
+            . '<p>Après examen, votre logement "' . e($propertyTitle) . '" n’a pas été validé.</p>'
+            . $reasonBlock
+            . '<p>Vous pouvez modifier votre annonce puis la soumettre à nouveau.</p>'
+            . '<p>L’équipe AtypikHouse</p>',
+            null,
+            'property_rejected'
+        );
+    }
+
+    public function sendPropertyChangeSubmittedNotification(string $ownerEmail, string $ownerFirstName, string $propertyTitle): bool
+    {
+        $ownerSent = $this->send(
+            $ownerEmail,
+            'Votre demande de modification est en cours d’examen',
+            '<p>Bonjour ' . e($ownerFirstName !== '' ? $ownerFirstName : 'propriétaire') . ',</p>'
+            . '<p>Votre demande de modification pour le logement "' . e($propertyTitle) . '" a bien été transmise.</p>'
+            . '<p>Elle doit être examinée par un administrateur avant d’être publiée.</p>'
+            . '<p>L’équipe AtypikHouse</p>',
+            null,
+            'property_change_submitted_owner'
+        );
+        $this->sendInternalNotification(
+            'Modification de logement à valider',
+            'Un propriétaire a demandé une modification sur un logement.',
+            'property_change_submitted_admin',
+            [
+                'Logement' => $propertyTitle,
+                'Propriétaire' => $ownerEmail,
+                'Lien admin' => $this->config['app_url'] . '/admin/logements/modifications',
+            ]
+        );
+        return $ownerSent;
+    }
+
+    public function sendPropertyChangeApprovedNotification(string $ownerEmail, string $ownerFirstName, string $propertyTitle): bool
+    {
+        return $this->send(
+            $ownerEmail,
+            'Votre modification de logement a été validée',
+            '<p>Bonjour ' . e($ownerFirstName !== '' ? $ownerFirstName : 'propriétaire') . ',</p>'
+            . '<p>Votre demande de modification pour le logement "' . e($propertyTitle) . '" a été validée.</p>'
+            . '<p>Les nouvelles informations sont maintenant visibles sur la plateforme.</p>'
+            . '<p>L’équipe AtypikHouse</p>',
+            null,
+            'property_change_approved'
+        );
+    }
+
+    public function sendPropertyChangeRejectedNotification(string $ownerEmail, string $ownerFirstName, string $propertyTitle, string $reason = ''): bool
+    {
+        $reasonBlock = $reason !== '' ? '<p><strong>Motif :</strong><br>' . e($reason) . '</p>' : '';
+        return $this->send(
+            $ownerEmail,
+            'Votre modification de logement n’a pas été validée',
+            '<p>Bonjour ' . e($ownerFirstName !== '' ? $ownerFirstName : 'propriétaire') . ',</p>'
+            . '<p>Après examen, votre demande de modification pour le logement "' . e($propertyTitle) . '" n’a pas été validée.</p>'
+            . $reasonBlock
+            . '<p>Vous pouvez corriger les informations puis soumettre une nouvelle demande.</p>'
+            . '<p>L’équipe AtypikHouse</p>',
+            null,
+            'property_change_rejected'
+        );
+    }
+
+    public function sendBookingPendingNotification(string $tenantEmail, string $propertyTitle, array $booking = []): bool
+    {
+        $dates = $this->bookingDates($booking);
         $tenantSent = $this->send(
             $tenantEmail,
-            'Votre réservation fictive est en attente de validation',
-            '<p>Votre réservation fictive pour "' . e($propertyTitle) . '" a été créée et attend la validation de l’administrateur.</p>',
+            'Votre demande de réservation a bien été reçue',
+            '<p>Bonjour ' . e((string) ($booking['tenant_first_name'] ?? '')) . ',</p>'
+            . '<p>Votre demande de réservation pour "' . e($propertyTitle) . '" a bien été enregistrée.</p>'
+            . '<p>Elle est maintenant en attente de validation par l’administrateur.</p>'
+            . '<ul>'
+            . '<li><strong>Logement :</strong> ' . e($propertyTitle) . '</li>'
+            . '<li><strong>Dates :</strong> ' . e($dates) . '</li>'
+            . '<li><strong>Nombre de voyageurs :</strong> ' . e((string) ($booking['guests_count'] ?? '')) . '</li>'
+            . '<li><strong>Total :</strong> ' . (isset($booking['total_price']) ? e(money((float) $booking['total_price'])) : '') . '</li>'
+            . '<li><strong>Statut :</strong> En attente de validation</li>'
+            . '</ul>'
+            . '<p>L’équipe AtypikHouse</p>',
             null,
             'booking_pending_tenant'
         );
-        $this->logInternalNotification(
-            'Nouvelle réservation en attente de validation',
-            'Une réservation fictive attend une décision administrateur.',
+        $this->sendInternalNotification(
+            'Nouvelle réservation à valider',
+            'Une nouvelle demande de réservation attend une validation administrateur.',
             'booking_pending_admin',
-            ['Logement' => $propertyTitle, 'Locataire' => $tenantEmail]
+            [
+                'Locataire' => $tenantEmail,
+                'Logement' => $propertyTitle,
+                'Propriétaire' => $booking['owner_email'] ?? '',
+                'Dates' => $dates,
+                'Total' => isset($booking['total_price']) ? money((float) $booking['total_price']) : '',
+                'Lien admin' => $this->config['app_url'] . '/admin/reservations',
+            ]
         );
         return $tenantSent;
+    }
+
+    public function sendBookingAwaitingPaymentNotification(array $booking): bool
+    {
+        $propertyTitle = (string) $booking['title'];
+        $tenantSent = $this->send(
+            (string) $booking['tenant_email'],
+            'Votre réservation est validée, paiement fictif requis',
+            '<p>Bonjour ' . e((string) ($booking['tenant_first_name'] ?? '')) . ',</p>'
+            . '<p>Votre réservation pour "' . e($propertyTitle) . '" a été validée par l’administrateur.</p>'
+            . '<p>Pour finaliser cette réservation, vous devez maintenant effectuer le paiement fictif depuis votre espace locataire.</p>'
+            . '<p>Lien : <a href="' . e($this->config['app_url'] . '/locataire/reservations') . '">' . e($this->config['app_url'] . '/locataire/reservations') . '</a></p>'
+            . '<p><strong>Rappel :</strong> ce paiement est fictif et réalisé uniquement dans le cadre d’une démonstration académique.</p>'
+            . '<p>L’équipe AtypikHouse</p>',
+            null,
+            'booking_payment_required_tenant'
+        );
+        $ownerSent = $this->send(
+            (string) $booking['owner_email'],
+            'Une réservation de votre logement est en attente de paiement',
+            '<p>Bonjour ' . e((string) ($booking['owner_first_name'] ?? '')) . ',</p>'
+            . '<p>Une réservation pour votre logement "' . e($propertyTitle) . '" a été validée par l’administrateur.</p>'
+            . '<p>Elle est maintenant en attente du paiement fictif du locataire.</p>'
+            . '<p>L’équipe AtypikHouse</p>',
+            null,
+            'booking_payment_required_owner'
+        );
+        return $tenantSent && $ownerSent;
     }
 
     public function sendBookingConfirmedNotification(string $tenantEmail, string $ownerEmail, string $propertyTitle): bool
@@ -242,6 +374,70 @@ final class MailService
             '<p>Une réservation fictive a été confirmée pour "' . e($propertyTitle) . '".</p>',
             null,
             'booking_confirmed_owner'
+        );
+        return $tenantSent && $ownerSent;
+    }
+
+    public function sendFakePaymentConfirmedNotification(array $booking): bool
+    {
+        $propertyTitle = (string) $booking['title'];
+        $dates = $this->bookingDates($booking);
+        $tenantSent = $this->send(
+            (string) $booking['tenant_email'],
+            'Votre réservation AtypikHouse est confirmée',
+            '<p>Bonjour ' . e((string) ($booking['tenant_first_name'] ?? '')) . ',</p>'
+            . '<p>Votre paiement fictif a été validé.</p>'
+            . '<p>Votre réservation pour "' . e($propertyTitle) . '" est maintenant confirmée.</p>'
+            . '<ul>'
+            . '<li><strong>Dates :</strong> ' . e($dates) . '</li>'
+            . '<li><strong>Total :</strong> ' . e(money((float) $booking['total_price'])) . '</li>'
+            . '<li><strong>Référence fictive :</strong> ' . e((string) ($booking['test_transaction_id'] ?? '')) . '</li>'
+            . '</ul>'
+            . '<p>Aucun montant réel n’a été débité.</p>'
+            . '<p>L’équipe AtypikHouse</p>',
+            null,
+            'fake_payment_confirmed_tenant'
+        );
+        $ownerSent = $this->send(
+            (string) $booking['owner_email'],
+            'Une réservation de votre logement est confirmée',
+            '<p>Bonjour ' . e((string) ($booking['owner_first_name'] ?? '')) . ',</p>'
+            . '<p>La réservation pour votre logement "' . e($propertyTitle) . '" est maintenant confirmée.</p>'
+            . '<p>Le paiement fictif a été validé par le locataire.</p>'
+            . '<p>L’équipe AtypikHouse</p>',
+            null,
+            'fake_payment_confirmed_owner'
+        );
+        return $tenantSent && $ownerSent;
+    }
+
+    public function sendBookingCancelledNotification(array $booking, string $reason = ''): bool
+    {
+        $propertyTitle = (string) $booking['title'];
+        $dates = $this->bookingDates($booking);
+        $reasonBlock = $reason !== '' ? '<p><strong>Motif :</strong><br>' . e($reason) . '</p>' : '';
+        $tenantSent = $this->send(
+            (string) $booking['tenant_email'],
+            'Votre réservation AtypikHouse a été annulée',
+            '<p>Bonjour ' . e((string) ($booking['tenant_first_name'] ?? '')) . ',</p>'
+            . '<p>Votre réservation pour "' . e($propertyTitle) . '" a été annulée.</p>'
+            . '<ul><li><strong>Dates :</strong> ' . e($dates) . '</li><li><strong>Statut :</strong> Annulée</li></ul>'
+            . $reasonBlock
+            . '<p>Aucun paiement réel n’a été effectué dans le cadre de ce projet étudiant fictif.</p>'
+            . '<p>L’équipe AtypikHouse</p>',
+            null,
+            'booking_cancelled_tenant'
+        );
+        $ownerSent = $this->send(
+            (string) $booking['owner_email'],
+            'Une réservation de votre logement a été annulée',
+            '<p>Bonjour ' . e((string) ($booking['owner_first_name'] ?? '')) . ',</p>'
+            . '<p>La réservation concernant votre logement "' . e($propertyTitle) . '" a été annulée.</p>'
+            . '<ul><li><strong>Locataire :</strong> ' . e((string) ($booking['tenant_email'] ?? '')) . '</li><li><strong>Dates :</strong> ' . e($dates) . '</li></ul>'
+            . $reasonBlock
+            . '<p>L’équipe AtypikHouse</p>',
+            null,
+            'booking_cancelled_owner'
         );
         return $tenantSent && $ownerSent;
     }
@@ -287,6 +483,13 @@ final class MailService
         }
 
         return true;
+    }
+
+    private function bookingDates(array $booking): string
+    {
+        $start = (string) ($booking['start_date'] ?? '');
+        $end = (string) ($booking['end_date'] ?? '');
+        return trim($start . ($end !== '' ? ' au ' . $end : ''));
     }
 
     private function shouldLogOnly(): bool

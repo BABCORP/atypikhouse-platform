@@ -195,11 +195,12 @@ final class PublicController extends Controller
         }
         (new ContactMessage())->create($_POST);
         audit($_SESSION['user_id'] ?? null, 'contact_form_submit', 'contact_message');
-        (new MailService())->sendContactNotification(
+        $emailSent = (new MailService())->sendContactNotification(
             trim((string) input('name')),
             strtolower(trim((string) input('email'))),
             trim((string) input('subject'))
         );
+        audit($_SESSION['user_id'] ?? null, $emailSent ? 'email_contact_admin_sent' : 'email_contact_admin_failed', 'contact_message');
         clear_old();
         flash('success', 'Votre message a bien été transmis. L’équipe AtypikHouse reviendra vers vous prochainement.');
         $this->redirect('/contact');

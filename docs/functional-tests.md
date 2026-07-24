@@ -26,6 +26,14 @@
 - Passer temporairement `MAIL_DEMO_MODE=false` et `MAIL_LOG_ONLY=false` uniquement dans un environnement local sécurisé avec SMTP configuré, puis revenir immédiatement au mode démo.
 - Sur Render, vérifier `/admin/dashboard` : `BREVO_API_KEY définie` doit afficher `Oui` si le fallback API Brevo est configuré.
 - Sur Render, envoyer un email de test depuis `/admin/dashboard` et vérifier un événement `mail_send_success` dans les logs.
+- Créer un compte locataire et vérifier les emails utilisateur + admin : compte en cours d’examen et nouveau compte à valider.
+- Valider puis refuser des comptes test depuis l’admin, vérifier les emails de validation/refus.
+- Soumettre un logement propriétaire, vérifier les emails propriétaire + admin : logement soumis et logement à valider.
+- Valider puis refuser un logement depuis l’admin, vérifier les emails propriétaire correspondants.
+- Soumettre une modification de logement publié, vérifier les emails propriétaire + admin, puis tester validation/refus admin.
+- Créer une réservation locataire, vérifier les emails locataire + admin, puis valider côté admin pour déclencher l’email de paiement fictif requis.
+- Valider le paiement fictif côté locataire et vérifier les emails de réservation confirmée au locataire et au propriétaire.
+- Annuler une réservation côté admin et vérifier les emails d’annulation locataire + propriétaire.
 
 ## Catalogue
 

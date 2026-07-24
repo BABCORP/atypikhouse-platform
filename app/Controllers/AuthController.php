@@ -146,7 +146,7 @@ final class AuthController extends Controller
             trim((string) input('first_name')),
             $role
         );
-        audit($id, $emailSent ? 'email_registration_pending_sent' : 'email_registration_pending_failed', 'user', $id);
+        audit($id, $emailSent ? 'email_account_pending_sent' : 'email_account_pending_failed', 'user', $id);
         flash(
             $emailSent ? 'success' : 'warning',
             $emailSent

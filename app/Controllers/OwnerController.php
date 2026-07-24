@@ -51,7 +51,16 @@ final class OwnerController extends Controller
         }
         $id = (new Property())->create((int) $user['id'], $_POST, $image, $secondaryImages);
         audit((int) $user['id'], 'property_submitted', 'property', $id);
-        (new MailService())->sendPropertySubmittedNotification((string) $user['email'], trim((string) input('title')));
+        $emailSent = (new MailService())->sendPropertySubmittedNotification(
+            (string) $user['email'],
+            trim((string) input('title')),
+            (string) $user['first_name'],
+            [
+                'city' => trim((string) input('city')),
+                'price_per_night' => (float) input('price_per_night'),
+            ]
+        );
+        audit((int) $user['id'], $emailSent ? 'email_property_submitted_sent' : 'email_property_submitted_failed', 'property', $id);
         flash('success', 'Votre logement a été soumis à validation. Il sera publié après vérification par l’administrateur.');
         $this->redirect('/proprietaire/logements');
     }
@@ -100,6 +109,12 @@ final class OwnerController extends Controller
         if (in_array($property['status'], ['published', 'paused'], true)) {
             $requestId = (new PropertyChangeRequest())->createOrReplace($id, (int) $user['id'], $this->proposedPropertyData($_POST, $image, $secondaryImages));
             audit((int) $user['id'], 'property_change_requested', 'property_change_request', $requestId);
+            $emailSent = (new MailService())->sendPropertyChangeSubmittedNotification(
+                (string) $user['email'],
+                (string) $user['first_name'],
+                (string) $property['title']
+            );
+            audit((int) $user['id'], $emailSent ? 'email_property_change_submitted_sent' : 'email_property_change_submitted_failed', 'property_change_request', $requestId);
             flash('success', 'Vos modifications ont été soumises à validation. Elles seront visibles après approbation par l’administrateur.');
             $this->redirect('/proprietaire/logements');
         }

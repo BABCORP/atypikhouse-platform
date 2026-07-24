@@ -59,7 +59,16 @@ final class BookingController extends Controller
         }
         $bookingId = $bookingModel->create($property, (int) $user['id'], $_POST);
         audit((int) $user['id'], 'booking_created_pending_admin', 'booking', $bookingId);
-        (new MailService())->sendBookingPendingNotification((string) $user['email'], (string) $property['title']);
+        $booking = $bookingModel->findForAdmin($bookingId) ?? [
+            'tenant_email' => $user['email'],
+            'tenant_first_name' => $user['first_name'],
+            'title' => $property['title'],
+            'start_date' => input('start_date'),
+            'end_date' => input('end_date'),
+            'guests_count' => input('guests_count'),
+        ];
+        $emailSent = (new MailService())->sendBookingPendingNotification((string) $user['email'], (string) $property['title'], $booking);
+        audit((int) $user['id'], $emailSent ? 'email_booking_created_sent' : 'email_booking_created_failed', 'booking', $bookingId);
         flash('success', 'Votre demande de réservation a été transmise. Elle sera confirmée après validation par l’administrateur, puis paiement fictif.');
         $this->redirect('/locataire/reservations/' . $bookingId);
     }
@@ -105,6 +114,11 @@ final class BookingController extends Controller
         audit((int) $user['id'], $success ? 'fake_payment_succeeded' : 'fake_payment_failed', 'booking', $bookingId);
         if ($success) {
             audit((int) $user['id'], 'booking_confirmed_after_payment', 'booking', $bookingId);
+            $bookingAfterPayment = (new Booking())->findForAdmin($bookingId);
+            if ($bookingAfterPayment) {
+                $emailSent = (new MailService())->sendFakePaymentConfirmedNotification($bookingAfterPayment);
+                audit((int) $user['id'], $emailSent ? 'email_booking_payment_confirmed_sent' : 'email_booking_payment_confirmed_failed', 'booking', $bookingId);
+            }
         }
         flash($success ? 'success' : 'error', $success ? 'Paiement fictif validé. Votre réservation est maintenant confirmée.' : 'Le paiement fictif a échoué. Vous pouvez réessayer.');
         $this->redirect('/locataire/reservations/' . $bookingId);

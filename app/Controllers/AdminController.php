@@ -132,8 +132,8 @@ final class AdminController extends Controller
         }
         audit((int) $admin['id'], 'user_approved', 'user', $id);
         $emailSent = (new MailService())->sendAccountApprovedNotification((string) $user['email'], (string) $user['first_name']);
-        audit((int) $admin['id'], $emailSent ? 'email_user_approved_sent' : 'email_user_approved_failed', 'user', $id);
-        flash('success', $emailSent ? 'Compte utilisateur approuvé. Un email de confirmation a été envoyé.' : 'Compte utilisateur approuvé. La notification email est consignée dans les logs si l’envoi SMTP échoue.');
+        audit((int) $admin['id'], $emailSent ? 'email_account_approved_sent' : 'email_account_approved_failed', 'user', $id);
+        flash('success', $emailSent ? 'Compte utilisateur approuvé. Un email de bienvenue a été envoyé.' : 'Compte utilisateur approuvé. Attention : l’email de bienvenue n’a pas pu être envoyé.');
         $this->redirect('/admin/utilisateurs');
     }
 
@@ -158,7 +158,7 @@ final class AdminController extends Controller
         }
         audit((int) $admin['id'], 'user_rejected', 'user', $id);
         $emailSent = (new MailService())->sendAccountRejectedNotification((string) $user['email'], (string) $user['first_name']);
-        audit((int) $admin['id'], $emailSent ? 'email_user_rejected_sent' : 'email_user_rejected_failed', 'user', $id);
+        audit((int) $admin['id'], $emailSent ? 'email_account_rejected_sent' : 'email_account_rejected_failed', 'user', $id);
         flash('success', $emailSent ? 'Compte utilisateur refusé. Un email d’information a été envoyé.' : 'Compte utilisateur refusé. La notification email est consignée dans les logs si l’envoi SMTP échoue.');
         $this->redirect('/admin/utilisateurs');
     }
@@ -314,13 +314,20 @@ final class AdminController extends Controller
     {
         $admin = Auth::requireRole('admin');
         verify_csrf();
+        $request = (new PropertyChangeRequest())->findForAdmin($id);
         $propertyId = (new PropertyChangeRequest())->approve($id, (int) $admin['id']);
         if (!$propertyId) {
             flash('error', 'Cette demande de modification n’est plus disponible.');
             $this->redirect('/admin/logements/modifications');
         }
         audit((int) $admin['id'], 'property_change_approved', 'property_change_request', $id);
-        flash('success', 'Les modifications du logement ont été approuvées et publiées.');
+        $emailSent = $request ? (new MailService())->sendPropertyChangeApprovedNotification(
+            (string) $request['owner_email'],
+            (string) $request['owner_first_name'],
+            (string) $request['title']
+        ) : false;
+        audit((int) $admin['id'], $emailSent ? 'email_property_change_approved_sent' : 'email_property_change_approved_failed', 'property_change_request', $id);
+        flash('success', $emailSent ? 'Les modifications du logement ont été approuvées et publiées. Un email a été envoyé au propriétaire.' : 'Les modifications du logement ont été approuvées et publiées. Attention : l’email propriétaire n’a pas pu être envoyé.');
         $this->redirect('/admin/logements/' . $propertyId);
     }
 
@@ -329,13 +336,21 @@ final class AdminController extends Controller
         $admin = Auth::requireRole('admin');
         verify_csrf();
         $reason = trim((string) input('rejection_reason', ''));
+        $request = (new PropertyChangeRequest())->findForAdmin($id);
         $propertyId = (new PropertyChangeRequest())->reject($id, (int) $admin['id'], $reason);
         if (!$propertyId) {
             flash('error', 'Cette demande de modification n’est plus disponible.');
             $this->redirect('/admin/logements/modifications');
         }
         audit((int) $admin['id'], 'property_change_rejected', 'property_change_request', $id);
-        flash('success', 'Les modifications du logement ont été refusées.');
+        $emailSent = $request ? (new MailService())->sendPropertyChangeRejectedNotification(
+            (string) $request['owner_email'],
+            (string) $request['owner_first_name'],
+            (string) $request['title'],
+            $reason
+        ) : false;
+        audit((int) $admin['id'], $emailSent ? 'email_property_change_rejected_sent' : 'email_property_change_rejected_failed', 'property_change_request', $id);
+        flash('success', $emailSent ? 'Les modifications du logement ont été refusées. Un email a été envoyé au propriétaire.' : 'Les modifications du logement ont été refusées. Attention : l’email propriétaire n’a pas pu être envoyé.');
         $this->redirect('/admin/logements/' . $propertyId);
     }
 
@@ -393,8 +408,12 @@ final class AdminController extends Controller
         (new Property())->updateStatus($id, $status);
         $action = ['published' => 'property_approved', 'rejected' => 'property_rejected', 'archived' => 'property_disabled', 'paused' => 'property_paused', 'deleted' => 'property_deleted', 'pending' => 'property_submitted'][$status] ?? ('property_' . $status);
         audit((int) $admin['id'], $action, 'property', $id);
-        if ($status === 'published' && $property) {
-            (new MailService())->sendPropertyApprovedNotification((string) $property['owner_email'], (string) $property['title']);
+        if (in_array($status, ['published', 'rejected'], true) && $property) {
+            $mailer = new MailService();
+            $emailSent = $status === 'published'
+                ? $mailer->sendPropertyApprovedNotification((string) $property['owner_email'], (string) $property['title'], (string) ($property['owner_first_name'] ?? ''), (string) ($property['slug'] ?? ''))
+                : $mailer->sendPropertyRejectedNotification((string) $property['owner_email'], (string) $property['title'], (string) ($property['owner_first_name'] ?? ''));
+            audit((int) $admin['id'], $emailSent ? ('email_' . ($status === 'published' ? 'property_approved_sent' : 'property_rejected_sent')) : ('email_' . ($status === 'published' ? 'property_approved_failed' : 'property_rejected_failed')), 'property', $id);
         }
         flash('success', 'Statut du logement mis à jour.');
         $this->redirect('/admin/logements');
@@ -506,6 +525,7 @@ final class AdminController extends Controller
             flash('error', 'Seule une réservation confirmée et payée fictivement peut être marquée comme terminée.');
             $this->redirect('/admin/reservations/' . $id);
         }
+        $emailSent = null;
         if ($status === 'pending_payment') {
             (new Booking())->validateForPayment($id);
         } else {
@@ -518,7 +538,17 @@ final class AdminController extends Controller
             'completed' => 'booking_completed_by_admin',
         ][$status] ?? 'booking_status_updated';
         audit((int) $admin['id'], $action, 'booking', $id);
-        flash('success', $status === 'pending_payment' ? 'La réservation a été validée. Le locataire doit maintenant effectuer le paiement fictif.' : 'Statut de la réservation mis à jour.');
+        if ($status === 'pending_payment') {
+            $emailSent = (new MailService())->sendBookingAwaitingPaymentNotification($booking);
+            audit((int) $admin['id'], $emailSent ? 'email_booking_admin_validation_sent' : 'email_booking_admin_validation_failed', 'booking', $id);
+            audit((int) $admin['id'], $emailSent ? 'email_booking_payment_required_sent' : 'email_booking_payment_required_failed', 'booking', $id);
+        }
+        if ($status === 'cancelled') {
+            $emailSent = (new MailService())->sendBookingCancelledNotification($booking);
+            audit((int) $admin['id'], $emailSent ? 'email_booking_cancelled_sent' : 'email_booking_cancelled_failed', 'booking', $id);
+        }
+        $baseMessage = $status === 'pending_payment' ? 'La réservation a été validée. Le locataire doit maintenant effectuer le paiement fictif.' : 'Statut de la réservation mis à jour.';
+        flash('success', $emailSent === false ? $baseMessage . ' Attention : l’email n’a pas pu être envoyé.' : $baseMessage);
         $this->redirect('/admin/reservations/' . $id);
     }
 
@@ -758,10 +788,26 @@ final class AdminController extends Controller
         }
         $propertyModel->updateStatus($id, $status);
         audit((int) $admin['id'], $action, 'property', $id);
+        $emailSent = null;
         if ($status === 'published' && $action === 'property_approved') {
-            (new MailService())->sendPropertyApprovedNotification((string) $property['owner_email'], (string) $property['title']);
+            $emailSent = (new MailService())->sendPropertyApprovedNotification(
+                (string) $property['owner_email'],
+                (string) $property['title'],
+                (string) ($property['owner_first_name'] ?? ''),
+                (string) ($property['slug'] ?? '')
+            );
+            audit((int) $admin['id'], $emailSent ? 'email_property_approved_sent' : 'email_property_approved_failed', 'property', $id);
         }
-        flash('success', $message);
+        if ($status === 'rejected' && $action === 'property_rejected') {
+            $emailSent = (new MailService())->sendPropertyRejectedNotification(
+                (string) $property['owner_email'],
+                (string) $property['title'],
+                (string) ($property['owner_first_name'] ?? ''),
+                trim((string) input('rejection_reason', ''))
+            );
+            audit((int) $admin['id'], $emailSent ? 'email_property_rejected_sent' : 'email_property_rejected_failed', 'property', $id);
+        }
+        flash('success', $emailSent === false ? $message . ' Attention : l’email propriétaire n’a pas pu être envoyé.' : $message);
         $this->redirect($redirectTo ?? '/admin/logements');
     }
 
@@ -782,20 +828,31 @@ final class AdminController extends Controller
             flash('error', 'Seule une réservation confirmée et payée fictivement peut être marquée comme terminée.');
             $this->redirect('/admin/reservations/' . $id);
         }
+        $emailSent = null;
         if ($status === 'pending_payment') {
             (new Booking())->validateForPayment($id);
         } else {
             (new Booking())->updateStatus($id, $status);
         }
         audit((int) $admin['id'], $action, 'booking', $id);
-        if ($status === 'confirmed' && $booking) {
-            (new MailService())->sendBookingConfirmedNotification(
+        if ($status === 'pending_payment') {
+            $emailSent = (new MailService())->sendBookingAwaitingPaymentNotification($booking);
+            audit((int) $admin['id'], $emailSent ? 'email_booking_admin_validation_sent' : 'email_booking_admin_validation_failed', 'booking', $id);
+            audit((int) $admin['id'], $emailSent ? 'email_booking_payment_required_sent' : 'email_booking_payment_required_failed', 'booking', $id);
+        }
+        if ($status === 'cancelled') {
+            $emailSent = (new MailService())->sendBookingCancelledNotification($booking);
+            audit((int) $admin['id'], $emailSent ? 'email_booking_cancelled_sent' : 'email_booking_cancelled_failed', 'booking', $id);
+        }
+        if ($status === 'confirmed') {
+            $emailSent = (new MailService())->sendBookingConfirmedNotification(
                 (string) $booking['tenant_email'],
                 (string) $booking['owner_email'],
                 (string) $booking['title']
             );
+            audit((int) $admin['id'], $emailSent ? 'email_booking_admin_validation_sent' : 'email_booking_admin_validation_failed', 'booking', $id);
         }
-        flash('success', $message);
+        flash('success', $emailSent === false ? $message . ' Attention : l’email n’a pas pu être envoyé.' : $message);
         $this->redirect('/admin/reservations');
     }
 
