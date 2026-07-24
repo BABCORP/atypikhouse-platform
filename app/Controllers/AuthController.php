@@ -70,7 +70,7 @@ final class AuthController extends Controller
                 $token = bin2hex(random_bytes(32));
                 (new User())->createPasswordReset((int) $user['id'], hash('sha256', $token));
                 audit((int) $user['id'], 'password_reset_requested', 'user', (int) $user['id']);
-                $resetUrl = url('/reinitialiser-mot-de-passe/' . $token);
+                $resetUrl = app_url('/reinitialiser-mot-de-passe/' . $token);
                 (new MailService())->sendPasswordResetDemo($email, $resetUrl);
                 flash('demo_link', 'Lien de réinitialisation généré pour la démonstration académique : ' . $resetUrl);
             }

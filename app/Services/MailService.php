@@ -23,6 +23,7 @@ final class MailService
         }
 
         $textBody ??= trim(strip_tags(str_replace(['<br>', '<br/>', '<br />'], "\n", $htmlBody)));
+        $htmlBody = $this->renderEmail($subject, $htmlBody);
         if ($this->shouldLogOnly()) {
             $this->logDemo($to, $subject, $event, $textBody);
             return true;
@@ -88,7 +89,7 @@ final class MailService
                 'Prénom' => $firstName,
                 'Email' => $to,
                 'Rôle demandé' => $roleLabel,
-                'Lien back-office' => $this->config['app_url'] . '/admin/utilisateurs',
+                'Lien back-office' => $this->appUrl('/admin/utilisateurs'),
             ]
         );
 
@@ -97,13 +98,15 @@ final class MailService
 
     public function sendAccountApprovedNotification(string $to, string $firstName): bool
     {
+        $loginUrl = $this->appUrl('/connexion');
         return $this->send(
             $to,
             'Bienvenue sur AtypikHouse, votre compte est validé',
-            '<p>Bonjour ' . e($firstName) . ',</p>'
-            . '<p>Bonne nouvelle, votre compte AtypikHouse a été validé.</p>'
+            '<p>Bonjour ' . e($this->firstName($firstName)) . ',</p>'
+            . '<p>Bonne nouvelle, votre compte AtypikHouse a été validé par notre équipe.</p>'
             . '<p>Vous pouvez maintenant vous connecter et accéder à votre espace personnel.</p>'
-            . '<p>Lien de connexion : <a href="' . e($this->config['app_url'] . '/connexion') . '">' . e($this->config['app_url'] . '/connexion') . '</a></p>'
+            . $this->emailButton('Se connecter à mon espace', $loginUrl)
+            . '<p style="font-size:14px;line-height:1.6;color:#6B7280;">Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br><a href="' . e($loginUrl) . '" style="color:#2F5D50;">' . e($loginUrl) . '</a></p>'
             . '<p>Bienvenue sur AtypikHouse,<br>L’équipe AtypikHouse</p>'
             . '<p><strong>Projet étudiant fictif.</strong> Aucun achat, paiement ou réservation réelle ne peut être effectué.</p>',
             null,
@@ -202,7 +205,7 @@ final class MailService
                 'Propriétaire' => $ownerEmail,
                 'Ville' => $details['city'] ?? '',
                 'Prix par nuit' => isset($details['price_per_night']) ? money((float) $details['price_per_night']) : '',
-                'Lien admin' => $this->config['app_url'] . '/admin/logements',
+                'Lien admin' => $this->appUrl('/admin/logements'),
             ]
         );
         return $ownerSent;
@@ -210,14 +213,14 @@ final class MailService
 
     public function sendPropertyApprovedNotification(string $ownerEmail, string $propertyTitle, string $ownerFirstName = '', string $slug = ''): bool
     {
-        $link = $slug !== '' ? $this->config['app_url'] . '/hebergements/' . $slug : $this->config['app_url'] . '/hebergements';
+        $link = $slug !== '' ? $this->appUrl('/hebergements/' . $slug) : $this->appUrl('/hebergements');
         return $this->send(
             $ownerEmail,
             'Votre logement AtypikHouse a été validé',
             '<p>Bonjour ' . e($ownerFirstName !== '' ? $ownerFirstName : 'propriétaire') . ',</p>'
             . '<p>Votre logement "' . e($propertyTitle) . '" a été validé par l’administrateur.</p>'
             . '<p>Il est maintenant visible sur la plateforme AtypikHouse.</p>'
-            . '<p>Lien : <a href="' . e($link) . '">' . e($link) . '</a></p>'
+            . $this->emailButton('Voir mon logement', $link)
             . '<p>L’équipe AtypikHouse</p>',
             null,
             'property_approved'
@@ -259,7 +262,7 @@ final class MailService
             [
                 'Logement' => $propertyTitle,
                 'Propriétaire' => $ownerEmail,
-                'Lien admin' => $this->config['app_url'] . '/admin/logements/modifications',
+                'Lien admin' => $this->appUrl('/admin/logements/modifications'),
             ]
         );
         return $ownerSent;
@@ -325,7 +328,7 @@ final class MailService
                 'Propriétaire' => $booking['owner_email'] ?? '',
                 'Dates' => $dates,
                 'Total' => isset($booking['total_price']) ? money((float) $booking['total_price']) : '',
-                'Lien admin' => $this->config['app_url'] . '/admin/reservations',
+                'Lien admin' => $this->appUrl('/admin/reservations'),
             ]
         );
         return $tenantSent;
@@ -340,7 +343,7 @@ final class MailService
             '<p>Bonjour ' . e((string) ($booking['tenant_first_name'] ?? '')) . ',</p>'
             . '<p>Votre réservation pour "' . e($propertyTitle) . '" a été validée par l’administrateur.</p>'
             . '<p>Pour finaliser cette réservation, vous devez maintenant effectuer le paiement fictif depuis votre espace locataire.</p>'
-            . '<p>Lien : <a href="' . e($this->config['app_url'] . '/locataire/reservations') . '">' . e($this->config['app_url'] . '/locataire/reservations') . '</a></p>'
+            . $this->emailButton('Voir ma réservation', $this->appUrl('/locataire/reservations'))
             . '<p><strong>Rappel :</strong> ce paiement est fictif et réalisé uniquement dans le cadre d’une démonstration académique.</p>'
             . '<p>L’équipe AtypikHouse</p>',
             null,
@@ -490,6 +493,75 @@ final class MailService
         $start = (string) ($booking['start_date'] ?? '');
         $end = (string) ($booking['end_date'] ?? '');
         return trim($start . ($end !== '' ? ' au ' . $end : ''));
+    }
+
+    private function appUrl(string $path): string
+    {
+        if (function_exists('app_url')) {
+            return app_url($path);
+        }
+
+        $base = rtrim((string) ($this->config['app_url'] ?? ''), '/');
+        $isPlaceholder = $base === ''
+            || str_contains($base, 'ton-url-render')
+            || str_contains($base, 'CHANGE_ME')
+            || str_contains($base, 'URL_RENDER')
+            || str_contains($base, 'ton-site')
+            || str_contains($base, 'atypikhouse.test');
+
+        if ($isPlaceholder) {
+            $host = $_SERVER['HTTP_HOST'] ?? '';
+            if ($host !== '') {
+                $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https' ? 'https' : 'http';
+                $base = $scheme . '://' . $host;
+            } else {
+                $base = 'https://atypikhouse-platform.onrender.com';
+            }
+        }
+
+        return $base . '/' . ltrim($path, '/');
+    }
+
+    private function firstName(string $value): string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return '';
+        }
+
+        return mb_convert_case($value, MB_CASE_TITLE, 'UTF-8');
+    }
+
+    private function emailButton(string $label, string $url): string
+    {
+        return '<p style="text-align:center;margin:28px 0;">'
+            . '<a href="' . e($url) . '" style="display:inline-block;background:#C96F4A;color:#ffffff;text-decoration:none;padding:14px 22px;border-radius:999px;font-weight:bold;font-size:15px;">'
+            . e($label)
+            . '</a></p>';
+    }
+
+    private function renderEmail(string $subject, string $content): string
+    {
+        return '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>' . e($subject) . '</title></head>'
+            . '<body style="margin:0;padding:0;background:#F6F1E8;font-family:Arial,Helvetica,sans-serif;color:#24332E;">'
+            . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F6F1E8;padding:32px 12px;">'
+            . '<tr><td align="center">'
+            . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#FFFDF8;border-radius:18px;overflow:hidden;border:1px solid #E8DDCF;">'
+            . '<tr><td style="padding:28px 32px;background:#2F5D50;text-align:center;">'
+            . '<div style="font-size:30px;line-height:1.1;font-weight:700;color:#FFFDF8;font-family:Georgia,Times,serif;">AtypikHouse</div>'
+            . '<div style="margin-top:8px;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;color:#DCECE4;">Séjours insolites et nature</div>'
+            . '</td></tr>'
+            . '<tr><td style="padding:32px;">'
+            . '<h1 style="margin:0 0 18px;color:#2F5D50;font-size:26px;line-height:1.25;font-family:Georgia,Times,serif;">' . e($subject) . '</h1>'
+            . '<div style="font-size:16px;line-height:1.65;color:#24332E;">' . $content . '</div>'
+            . '</td></tr>'
+            . '<tr><td style="padding:20px 32px;background:#F6F1E8;color:#6B7280;font-size:13px;line-height:1.5;text-align:center;">'
+            . '<strong style="color:#2F5D50;">AtypikHouse</strong><br>'
+            . 'Projet étudiant fictif. Aucun achat, paiement ou réservation réelle ne peut être effectué.'
+            . '</td></tr>'
+            . '</table>'
+            . '</td></tr></table>'
+            . '</body></html>';
     }
 
     private function shouldLogOnly(): bool

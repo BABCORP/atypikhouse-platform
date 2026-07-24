@@ -214,13 +214,24 @@ function current_url(): string
     return request_origin() . url($path);
 }
 
+function app_url(string $path = ''): string
+{
+    return request_origin() . url($path);
+}
+
 function request_origin(): string
 {
     $configured = rtrim((string) config('base_url', ''), '/');
     $isConfiguredForLocal = str_contains($configured, 'localhost') || str_contains($configured, '127.0.0.1');
+    $isPlaceholder = $configured === ''
+        || str_contains($configured, 'ton-url-render')
+        || str_contains($configured, 'CHANGE_ME')
+        || str_contains($configured, 'URL_RENDER')
+        || str_contains($configured, 'ton-site')
+        || str_contains($configured, 'atypikhouse.test');
     $host = $_SERVER['HTTP_HOST'] ?? '';
 
-    if ($configured !== '' && (!$isConfiguredForLocal || $host === '' || str_contains($host, 'localhost') || str_contains($host, '127.0.0.1'))) {
+    if (!$isPlaceholder && (!$isConfiguredForLocal || $host === '' || str_contains($host, 'localhost') || str_contains($host, '127.0.0.1'))) {
         return $configured;
     }
 
@@ -228,7 +239,7 @@ function request_origin(): string
         ? 'https'
         : 'http';
 
-    return $host !== '' ? $scheme . '://' . $host : $configured;
+    return $host !== '' ? $scheme . '://' . $host : ($isPlaceholder ? 'https://atypikhouse-platform.onrender.com' : $configured);
 }
 
 function pagination_meta(int $total, int $page, int $perPage = 20): array
