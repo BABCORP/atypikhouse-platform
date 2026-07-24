@@ -24,7 +24,7 @@
 - Soumettre le formulaire contact, vérifier une entrée mail de démonstration.
 - Vérifier dans `/admin/logs` la présence d’événements `mail_demo_logged` après les actions précédentes.
 - Passer temporairement `MAIL_DEMO_MODE=false` et `MAIL_LOG_ONLY=false` uniquement dans un environnement local sécurisé avec SMTP configuré, puis revenir immédiatement au mode démo.
-- Sur Render, vérifier `/admin/dashboard` : `BREVO_API_KEY définie` doit afficher `Oui` si le fallback API Brevo est configuré.
+- Sur Render, vérifier `/admin/dashboard` : le serveur SMTP doit afficher `smtp-relay.brevo.com` et le fallback Brevo doit indiquer `2525/tls, 465/ssl`.
 - Sur Render, envoyer un email de test depuis `/admin/dashboard` et vérifier un événement `mail_send_success` dans les logs.
 
 ## Catalogue

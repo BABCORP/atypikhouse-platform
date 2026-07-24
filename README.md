@@ -93,7 +93,6 @@ MAIL_FROM_NAME=AtypikHouse
 ADMIN_EMAIL=admin@atypikhouse.fr
 SUPPORT_EMAIL=support@atypikhouse.fr
 DPO_EMAIL=dpo@atypikhouse.fr
-BREVO_API_KEY=
 ```
 
 Render doit utiliser les variables `MAIL_*` ci-dessus. Les anciennes variables `SMTP_*` restent seulement acceptées par compatibilité locale, mais elles ne sont plus la configuration recommandée.
@@ -117,10 +116,9 @@ MAIL_USERNAME=b32f0f001@smtp-brevo.com
 MAIL_PASSWORD=CHANGE_ME_BREVO_SMTP_PASSWORD
 MAIL_FROM_ADDRESS=contact@atypikhouse.fr
 MAIL_FROM_NAME=AtypikHouse
-BREVO_API_KEY=CHANGE_ME_BREVO_API_KEY
 ```
 
-Si Render bloque la connexion SMTP sortante sur le port 587, `BREVO_API_KEY` permet au service mail de basculer automatiquement sur l’API HTTPS Brevo. La clé API ne doit jamais être commitée.
+Si Render bloque la connexion SMTP sortante sur le port 587, utiliser `MAIL_PORT=2525` avec `MAIL_ENCRYPTION=tls`. L’application essaie aussi automatiquement les ports Brevo alternatifs `2525/tls` puis `465/ssl` si le premier port configuré ne répond pas.
 
 Pour la démonstration académique, conserver :
 
@@ -209,7 +207,7 @@ Les formulaires contact/newsletter stockent des données dans la base de démons
 Variables prévues pour une future intégration marketing Brevo :
 
 ```bash
-BREVO_API_KEY=
+EMAILING_API_KEY=
 BREVO_LIST_ID=
 BREVO_ENABLED=false
 ```

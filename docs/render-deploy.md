@@ -44,7 +44,7 @@ DB_SSL_CA=/chemin/ca.pem
 DB_SSL_VERIFY=false
 GA4_ID=
 GTM_ID=
-BREVO_API_KEY=
+EMAILING_API_KEY=
 BREVO_LIST_ID=
 ```
 

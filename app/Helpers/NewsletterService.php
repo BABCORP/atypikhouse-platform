@@ -17,7 +17,7 @@ final class NewsletterService
 
         (new ContactMessage())->create($message);
 
-        if (!config('brevo_enabled') || config('brevo_api_key') === '' || config('brevo_list_id') === '') {
+        if (!config('brevo_enabled') || config('brevo_list_id') === '') {
             audit($userId, 'newsletter_demo_subscribe', 'contact_message');
             return 'demo';
         }

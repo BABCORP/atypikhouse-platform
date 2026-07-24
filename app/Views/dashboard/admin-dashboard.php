@@ -59,7 +59,6 @@
                     'mail_password_defined' => 'MAIL_PASSWORD défini',
                     'mail_from_defined' => 'Expéditeur défini',
                     'admin_email_defined' => 'Admin email défini',
-                    'brevo_api_key_defined' => 'BREVO_API_KEY définie',
                 ] as $key => $label): ?>
                     <article><strong><?= !empty($mailDiagnostics[$key]) ? 'Oui' : 'Non' ?></strong><span><?= e($label) ?></span></article>
                 <?php endforeach; ?>
@@ -71,6 +70,8 @@
                 <dd><?= e((string) ($mailDiagnostics['smtp_encryption'] ?? '')) ?></dd>
                 <dt>Compte SMTP</dt>
                 <dd><?= e((string) ($mailDiagnostics['smtp_username'] ?? '')) ?></dd>
+                <dt>Fallback Brevo</dt>
+                <dd><?= e((string) (($mailDiagnostics['brevo_smtp_fallbacks'] ?? '') ?: 'Non')) ?></dd>
             </dl>
             <p class="notice">Les valeurs sensibles ne sont jamais affichées. Seule leur présence est vérifiée.</p>
         </article>
