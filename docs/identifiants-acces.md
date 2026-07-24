@@ -90,11 +90,12 @@ ADMIN_EMAIL=admin@atypikhouse.fr
 SUPPORT_EMAIL=support@atypikhouse.fr
 DPO_EMAIL=dpo@atypikhouse.fr
 ADMIN_NOTIFICATION_EMAIL=contact@atypikhouse.fr
+BREVO_API_KEY=CHANGE_ME_BREVO_API_KEY
 MAIL_DEMO_MODE=true
 MAIL_LOG_ONLY=true
 ```
 
-Le mot de passe SMTP Brevo ne doit jamais être commité. Il doit être renseigné uniquement dans les variables d’environnement Render ou dans un fichier `.env` local non versionné.
+Le mot de passe SMTP Brevo et la clé API Brevo ne doivent jamais être commités. Ils doivent être renseignés uniquement dans les variables d’environnement Render ou dans un fichier `.env` local non versionné.
 
 Si SMTP n’est pas configuré, l’application ne doit pas planter. En mode démonstration, les emails sont journalisés dans `storage/logs/mail-demo.log` et ne sont pas envoyés réellement.
 
@@ -107,7 +108,10 @@ MAIL_DEMO_MODE=false
 MAIL_LOG_ONLY=false
 MAIL_USERNAME=b32f0f001@smtp-brevo.com
 MAIL_PASSWORD=CHANGE_ME_BREVO_SMTP_PASSWORD
+BREVO_API_KEY=CHANGE_ME_BREVO_API_KEY
 ```
+
+Si Render bloque le SMTP sortant, l’application utilise `BREVO_API_KEY` pour envoyer les emails transactionnels via l’API HTTPS Brevo.
 
 ## 8. URLs utiles
 

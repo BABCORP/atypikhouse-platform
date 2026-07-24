@@ -93,6 +93,7 @@ MAIL_FROM_NAME=AtypikHouse
 ADMIN_EMAIL=admin@atypikhouse.fr
 SUPPORT_EMAIL=support@atypikhouse.fr
 DPO_EMAIL=dpo@atypikhouse.fr
+BREVO_API_KEY=
 ```
 
 Render doit utiliser les variables `MAIL_*` ci-dessus. Les anciennes variables `SMTP_*` restent seulement acceptées par compatibilité locale, mais elles ne sont plus la configuration recommandée.
@@ -116,7 +117,10 @@ MAIL_USERNAME=b32f0f001@smtp-brevo.com
 MAIL_PASSWORD=CHANGE_ME_BREVO_SMTP_PASSWORD
 MAIL_FROM_ADDRESS=contact@atypikhouse.fr
 MAIL_FROM_NAME=AtypikHouse
+BREVO_API_KEY=CHANGE_ME_BREVO_API_KEY
 ```
+
+Si Render bloque la connexion SMTP sortante sur le port 587, `BREVO_API_KEY` permet au service mail de basculer automatiquement sur l’API HTTPS Brevo. La clé API ne doit jamais être commitée.
 
 Pour la démonstration académique, conserver :
 

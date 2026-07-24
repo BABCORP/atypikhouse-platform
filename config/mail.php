@@ -23,6 +23,7 @@ return [
     'admin_email' => env_value('ADMIN_EMAIL', env_value('ADMIN_NOTIFICATION_EMAIL', $fromEmail)),
     'support_email' => env_value('SUPPORT_EMAIL', 'support@atypikhouse.fr'),
     'dpo_email' => env_value('DPO_EMAIL', 'dpo@atypikhouse.fr'),
+    'brevo_api_key' => env_value('BREVO_API_KEY', env_value('EMAILING_API_KEY', '')),
     'smtp' => [
         'host' => $host,
         'port' => (int) env_value('MAIL_PORT', env_value('SMTP_PORT', 587)),
