@@ -36,8 +36,12 @@ final class MailService
         try {
             $this->lastSmtpError = '';
             $sent = $this->sendViaSmtp($to, $subject, $htmlBody, $textBody);
-            if (!$sent) {
-                $sent = $this->sendViaBrevoSmtpFallbacks($to, $subject, $htmlBody, $textBody);
+            if (!$sent && $this->brevoApiReady()) {
+                $smtpError = $this->lastSmtpError;
+                $sent = $this->sendViaBrevoApi($to, $subject, $htmlBody, $textBody);
+                if (!$sent && $smtpError !== '') {
+                    $this->lastSmtpError = $smtpError . ' Fallback API Brevo échoué : ' . $this->lastSmtpError;
+                }
             }
             $this->logSafe($sent ? 'mail_send_success' : 'mail_send_failed', $to, $subject, $event, $sent ? 'Email envoyé.' : 'Échec SMTP : ' . ($this->lastSmtpError ?: 'raison inconnue.'));
             return $sent;
@@ -168,7 +172,7 @@ final class MailService
             'mail_password_defined' => trim((string) $this->config['smtp']['password']) !== '',
             'mail_from_defined' => filter_var((string) $this->config['from']['email'], FILTER_VALIDATE_EMAIL) !== false,
             'admin_email_defined' => filter_var((string) $this->config['admin_email'], FILTER_VALIDATE_EMAIL) !== false,
-            'brevo_smtp_fallbacks' => (string) $this->config['smtp']['host'] === 'smtp-relay.brevo.com' ? '2525/tls, 465/ssl' : '',
+            'brevo_api_key_defined' => $this->brevoApiReady(),
             'smtp_host' => (string) $this->config['smtp']['host'],
             'smtp_port' => (int) $this->config['smtp']['port'],
             'smtp_encryption' => (string) $this->config['smtp']['encryption'],
@@ -299,13 +303,19 @@ final class MailService
             && filter_var((string) $this->config['from']['email'], FILTER_VALIDATE_EMAIL);
     }
 
+    private function brevoApiReady(): bool
+    {
+        return trim((string) ($this->config['brevo_api_key'] ?? '')) !== ''
+            && filter_var((string) $this->config['from']['email'], FILTER_VALIDATE_EMAIL);
+    }
+
     private function sendViaSmtp(string $to, string $subject, string $htmlBody, string $textBody): bool
     {
         $host = (string) $this->config['smtp']['host'];
         $port = (int) $this->config['smtp']['port'];
         $encryption = strtolower((string) $this->config['smtp']['encryption']);
         $remote = $encryption === 'ssl' ? 'ssl://' . $host . ':' . $port : $host . ':' . $port;
-        $socket = stream_socket_client($remote, $errno, $errstr, 8, STREAM_CLIENT_CONNECT);
+        $socket = stream_socket_client($remote, $errno, $errstr, 15, STREAM_CLIENT_CONNECT);
         if (!$socket) {
             $this->lastSmtpError = 'Connexion impossible à ' . $host . ':' . $port . ' (' . $errno . ' ' . $this->safeErrorMessage((string) $errstr) . ')';
             return false;
@@ -391,43 +401,68 @@ final class MailService
         return $ok;
     }
 
-    private function sendViaBrevoSmtpFallbacks(string $to, string $subject, string $htmlBody, string $textBody): bool
+    private function sendViaBrevoApi(string $to, string $subject, string $htmlBody, string $textBody): bool
     {
-        if ((string) $this->config['smtp']['host'] !== 'smtp-relay.brevo.com') {
+        $payload = json_encode([
+            'sender' => [
+                'name' => (string) $this->config['from']['name'],
+                'email' => (string) $this->config['from']['email'],
+            ],
+            'to' => [['email' => $to]],
+            'subject' => $subject,
+            'htmlContent' => $htmlBody,
+            'textContent' => $textBody,
+        ], JSON_UNESCAPED_UNICODE);
+
+        if ($payload === false) {
+            $this->lastSmtpError = 'Payload API Brevo invalide.';
             return false;
         }
 
-        $originalPort = (int) $this->config['smtp']['port'];
-        $originalEncryption = strtolower((string) $this->config['smtp']['encryption']);
-        $initialError = $this->lastSmtpError;
-        $fallbackErrors = [];
-        $fallbacks = [
-            ['port' => 2525, 'encryption' => 'tls'],
-            ['port' => 465, 'encryption' => 'ssl'],
-            ['port' => 587, 'encryption' => 'tls'],
+        $headers = [
+            'accept: application/json',
+            'content-type: application/json',
+            'api-key: ' . (string) $this->config['brevo_api_key'],
         ];
 
-        foreach ($fallbacks as $fallback) {
-            if ($originalPort === $fallback['port'] && $originalEncryption === $fallback['encryption']) {
-                continue;
-            }
+        if (function_exists('curl_init')) {
+            $curl = curl_init('https://api.brevo.com/v3/smtp/email');
+            curl_setopt_array($curl, [
+                CURLOPT_POST => true,
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_POSTFIELDS => $payload,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 20,
+            ]);
+            $response = curl_exec($curl);
+            $status = (int) curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $error = curl_error($curl);
+            curl_close($curl);
 
-            $this->config['smtp']['port'] = $fallback['port'];
-            $this->config['smtp']['encryption'] = $fallback['encryption'];
-
-            if ($this->sendViaSmtp($to, $subject, $htmlBody, $textBody)) {
-                $this->config['smtp']['port'] = $originalPort;
-                $this->config['smtp']['encryption'] = $originalEncryption;
+            if ($status >= 200 && $status < 300) {
                 return true;
             }
 
-            $fallbackErrors[] = $fallback['port'] . '/' . $fallback['encryption'] . ' : ' . $this->lastSmtpError;
+            $this->lastSmtpError = 'API Brevo refusée (' . $status . ' ' . $this->safeErrorMessage($error !== '' ? $error : (string) $response) . ')';
+            return false;
         }
 
-        $this->config['smtp']['port'] = $originalPort;
-        $this->config['smtp']['encryption'] = $originalEncryption;
-        $this->lastSmtpError = trim($initialError . ' Fallbacks SMTP Brevo échoués : ' . implode(' | ', $fallbackErrors));
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => implode("\r\n", $headers),
+                'content' => $payload,
+                'timeout' => 20,
+                'ignore_errors' => true,
+            ],
+        ]);
+        $response = @file_get_contents('https://api.brevo.com/v3/smtp/email', false, $context);
+        $statusLine = $http_response_header[0] ?? '';
+        if (preg_match('/\s(2\d\d)\s/', $statusLine)) {
+            return true;
+        }
 
+        $this->lastSmtpError = 'API Brevo refusée (' . $this->safeErrorMessage($statusLine . ' ' . (string) $response) . ')';
         return false;
     }
 

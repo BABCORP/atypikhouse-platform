@@ -54,11 +54,11 @@ Ne pas déposer de vrai mot de passe ou token social dans ce document.
 
 ## 6. Prestataire emailing / newsletter
 
-| Service | URL | Identifiant | Clé API | Statut |
+| Service | URL | Identifiant | API Key | Statut |
 | --- | --- | --- | --- | --- |
-| Brevo / Mailchimp / Bluejet | `PLACEHOLDER_PROVIDER_URL` | `PLACEHOLDER_EMAILING_LOGIN` | Non configurée | Placeholder optionnel |
+| Brevo / Mailchimp / Bluejet | `PLACEHOLDER_PROVIDER_URL` | `PLACEHOLDER_EMAILING_LOGIN` | `PLACEHOLDER_API_KEY` | Placeholder |
 
-L’intégration emailing marketing externe est prévue comme structure de configuration. Aucun envoi marketing réel n’est effectué par défaut. Les emails transactionnels AtypikHouse utilisent Brevo SMTP et ne nécessitent pas de clé API.
+L’intégration emailing externe est prévue comme structure de configuration. Aucun envoi marketing réel n’est effectué par défaut.
 
 Variables prévues :
 
@@ -66,6 +66,7 @@ Variables prévues :
 EMAILING_PROVIDER=
 EMAILING_API_KEY=
 EMAILING_LIST_ID=
+BREVO_API_KEY=
 BREVO_LIST_ID=
 BREVO_ENABLED=false
 ```
@@ -89,11 +90,12 @@ ADMIN_EMAIL=admin@atypikhouse.fr
 SUPPORT_EMAIL=support@atypikhouse.fr
 DPO_EMAIL=dpo@atypikhouse.fr
 ADMIN_NOTIFICATION_EMAIL=contact@atypikhouse.fr
+BREVO_API_KEY=CHANGE_ME_BREVO_API_KEY
 MAIL_DEMO_MODE=true
 MAIL_LOG_ONLY=true
 ```
 
-Le mot de passe SMTP Brevo ne doit jamais être commité. Il doit être renseigné uniquement dans les variables d’environnement Render ou dans un fichier `.env` local non versionné.
+Le mot de passe SMTP Brevo et la clé API Brevo ne doivent jamais être commités. Ils doivent être renseignés uniquement dans les variables d’environnement Render ou dans un fichier `.env` local non versionné.
 
 Si SMTP n’est pas configuré, l’application ne doit pas planter. En mode démonstration, les emails sont journalisés dans `storage/logs/mail-demo.log` et ne sont pas envoyés réellement.
 
@@ -106,9 +108,10 @@ MAIL_DEMO_MODE=false
 MAIL_LOG_ONLY=false
 MAIL_USERNAME=b32f0f001@smtp-brevo.com
 MAIL_PASSWORD=CHANGE_ME_BREVO_SMTP_PASSWORD
+BREVO_API_KEY=CHANGE_ME_BREVO_API_KEY
 ```
 
-Si Render bloque le port SMTP configuré, l’application tente automatiquement les ports Brevo alternatifs `2525/tls` puis `465/ssl`. En pratique, `MAIL_PORT=2525` et `MAIL_ENCRYPTION=tls` sont les valeurs à essayer en priorité sur Render.
+Si Render bloque le SMTP sortant, l’application utilise `BREVO_API_KEY` pour envoyer les emails transactionnels via l’API HTTPS Brevo.
 
 ## 8. URLs utiles
 
