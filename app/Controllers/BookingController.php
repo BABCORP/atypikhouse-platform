@@ -37,7 +37,7 @@ final class BookingController extends Controller
             $this->redirect('/connexion');
         }
         if ($user['status'] !== 'active') {
-            flash('error', 'Votre compte locataire doit être validé par l’administrateur avant de réserver.');
+            flash('error', 'Votre compte locataire doit être actif pour réserver ce logement.');
             $this->redirect('/hebergements/' . $property['slug']);
         }
         if (!valid_date((string) input('start_date')) || !valid_date((string) input('end_date')) || nights_between((string) input('start_date'), (string) input('end_date')) < 1) {
@@ -165,7 +165,7 @@ final class BookingController extends Controller
             $this->redirect('/connexion');
         }
         if ($user['status'] !== 'active') {
-            flash('error', 'Votre compte locataire doit être validé par l’administrateur avant d’utiliser ce parcours.');
+            flash('error', 'Votre compte locataire doit être actif pour utiliser ce parcours.');
             $this->redirect('/hebergements');
         }
 

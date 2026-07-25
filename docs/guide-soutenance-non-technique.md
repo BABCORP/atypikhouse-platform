@@ -48,7 +48,7 @@ Le visiteur peut consulter les pages publiques :
 - contact ;
 - pages légales.
 
-Il ne peut pas réserver tant qu’il n’est pas connecté avec un compte locataire validé.
+Il ne peut pas réserver tant qu’il n’est pas connecté avec un compte locataire actif.
 
 ### Locataire / voyageur
 
@@ -323,7 +323,7 @@ Fonctionnement :
 
 Fonctionnement :
 
-- réservation uniquement pour les locataires validés ;
+- réservation uniquement pour les locataires actifs ;
 - propriétaires et administrateurs ne peuvent pas réserver ;
 - contrôle des dates ;
 - contrôle de la capacité ;

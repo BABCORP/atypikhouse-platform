@@ -96,6 +96,24 @@ final class MailService
         return $userSent;
     }
 
+    public function sendTenantWelcomeNotification(string $to, string $firstName): bool
+    {
+        $loginUrl = $this->appUrl('/connexion');
+        return $this->send(
+            $to,
+            'Bienvenue sur AtypikHouse',
+            '<p>Bonjour ' . e($this->firstName($firstName)) . ',</p>'
+            . '<p>Votre compte locataire AtypikHouse a bien été créé.</p>'
+            . '<p>Vous pouvez vous connecter dès maintenant pour explorer les logements, ajouter des favoris et préparer une réservation fictive.</p>'
+            . $this->emailButton('Se connecter à mon espace', $loginUrl)
+            . '<p style="font-size:14px;line-height:1.6;color:#6B7280;">Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br><a href="' . e($loginUrl) . '" style="color:#2F5D50;">' . e($loginUrl) . '</a></p>'
+            . '<p>À bientôt,<br>L’équipe AtypikHouse</p>'
+            . '<p><strong>Projet étudiant fictif.</strong> Aucun achat, paiement ou réservation réelle ne peut être effectué.</p>',
+            null,
+            'account_tenant_welcome'
+        );
+    }
+
     public function sendAccountApprovedNotification(string $to, string $firstName): bool
     {
         $loginUrl = $this->appUrl('/connexion');

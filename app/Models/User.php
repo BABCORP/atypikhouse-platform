@@ -29,7 +29,10 @@ final class User extends Model
 
     public function create(array $data): int
     {
-        $stmt = $this->db->prepare('INSERT INTO users (first_name, last_name, email, password_hash, phone, role, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, "pending", NOW(), NOW())');
+        $status = in_array($data['status'] ?? '', ['active', 'pending', 'rejected', 'suspended'], true)
+            ? $data['status']
+            : 'pending';
+        $stmt = $this->db->prepare('INSERT INTO users (first_name, last_name, email, password_hash, phone, role, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())');
         $stmt->execute([
             trim($data['first_name']),
             trim($data['last_name']),
@@ -37,6 +40,7 @@ final class User extends Model
             password_hash($data['password'], PASSWORD_DEFAULT),
             trim($data['phone'] ?? ''),
             $data['role'],
+            $status,
         ]);
         return (int) $this->db->lastInsertId();
     }

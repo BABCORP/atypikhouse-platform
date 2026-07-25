@@ -5,10 +5,10 @@
 - Se connecter avec `admin@atypikhouse.fr` / `Admin123!`, vérifier l’accès à `/admin/dashboard`.
 - Se connecter avec `proprietaire@atypikhouse.fr` / `Owner123!`, vérifier l’accès à `/proprietaire/dashboard`.
 - Se connecter avec `locataire@atypikhouse.fr` / `Tenant123!`, vérifier l’accès à `/locataire/dashboard`.
-- Créer un compte locataire depuis `/inscription`, vérifier la redirection vers `/connexion`.
+- Créer un compte locataire depuis `/inscription`, vérifier la redirection vers `/connexion` et le statut `active`.
 - Créer un compte propriétaire depuis `/inscription?role=owner`, vérifier la création du profil propriétaire.
-- Vérifier qu’un nouveau compte est créé en statut `pending`, puis l’approuver depuis `/admin/utilisateurs`.
-- Vérifier qu’un compte locataire `pending` ne peut pas réserver.
+- Vérifier qu’un nouveau compte propriétaire est créé en statut `pending`, puis l’approuver depuis `/admin/utilisateurs`.
+- Vérifier qu’un compte locataire créé depuis l’inscription peut se connecter sans validation admin.
 - Vérifier qu’un compte propriétaire `pending` ne peut pas ajouter de logement.
 - Essayer une connexion avec un mauvais mot de passe, vérifier le message d’erreur.
 - Passer un utilisateur en `suspended` depuis l’admin, vérifier qu’il ne peut plus se connecter.
@@ -26,7 +26,8 @@
 - Passer temporairement `MAIL_DEMO_MODE=false` et `MAIL_LOG_ONLY=false` uniquement dans un environnement local sécurisé avec SMTP configuré, puis revenir immédiatement au mode démo.
 - Sur Render, vérifier `/admin/dashboard` : `BREVO_API_KEY définie` doit afficher `Oui` si le fallback API Brevo est configuré.
 - Sur Render, envoyer un email de test depuis `/admin/dashboard` et vérifier un événement `mail_send_success` dans les logs.
-- Créer un compte locataire et vérifier les emails utilisateur + admin : compte en cours d’examen et nouveau compte à valider.
+- Créer un compte locataire et vérifier l’email utilisateur : bienvenue sur AtypikHouse.
+- Créer un compte propriétaire et vérifier les emails utilisateur + admin : compte en cours d’examen et nouveau compte à valider.
 - Valider puis refuser des comptes test depuis l’admin, vérifier les emails de validation/refus.
 - Soumettre un logement propriétaire, vérifier les emails propriétaire + admin : logement soumis et logement à valider.
 - Valider puis refuser un logement depuis l’admin, vérifier les emails propriétaire correspondants.
@@ -127,7 +128,7 @@
 - Modifier, publier, dépublier puis supprimer un article de blog.
 - Ouvrir `/admin/messages/{id}`, marquer un message comme lu, traité puis archivé.
 - Filtrer les messages par contact/newsletter/RGPD, vérifier le badge “À traiter” sur une demande RGPD nouvelle.
-- Consulter les journaux d’audit, filtrer par action/email/date et vérifier la présence des logs `user_registered_pending`, `user_approved`, `user_rejected`, `user_suspended`, `property_submitted`, `property_approved`, `property_paused`, `property_reactivated`, `property_deleted`, `property_change_requested`, `property_change_approved`, `property_change_rejected`, `booking_created_pending_admin`, `booking_validated_awaiting_payment`, `fake_payment_succeeded`, `booking_confirmed_after_payment`, `booking_completed_by_admin`, `review_approved`, `blog_published`, `message_processed`.
+- Consulter les journaux d’audit, filtrer par action/email/date et vérifier la présence des logs `user_registered_active`, `user_registered_pending`, `user_approved`, `user_rejected`, `user_suspended`, `property_submitted`, `property_approved`, `property_paused`, `property_reactivated`, `property_deleted`, `property_change_requested`, `property_change_approved`, `property_change_rejected`, `booking_created_pending_admin`, `booking_validated_awaiting_payment`, `fake_payment_succeeded`, `booking_confirmed_after_payment`, `booking_completed_by_admin`, `review_approved`, `blog_published`, `message_processed`.
 - Vérifier la pagination des utilisateurs, logements, messages et réservations admin.
 
 ## Avis

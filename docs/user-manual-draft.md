@@ -2,11 +2,11 @@
 
 ## Visiteur
 
-Un visiteur peut consulter l’accueil, le concept, le catalogue, les fiches logements, le blog, les pages légales et le formulaire de contact. Pour réserver, il doit créer un compte locataire, puis attendre la validation administrateur.
+Un visiteur peut consulter l’accueil, le concept, le catalogue, les fiches logements, le blog, les pages légales et le formulaire de contact. Pour réserver, il doit créer un compte locataire actif immédiatement après inscription.
 
 ## Locataire
 
-1. Créer un compte ou se connecter avec un compte validé.
+1. Créer un compte locataire ou se connecter avec un compte actif.
 2. Parcourir `/hebergements`.
 3. Utiliser la liste de destinations disponibles pour filtrer les logements publiés.
 4. Ajouter ou retirer un logement des favoris avec le bouton cœur sur une carte ou une fiche.
@@ -52,7 +52,7 @@ Un logement mis en pause ou supprimé logiquement n’est plus visible dans le c
 
 Une modification proposée par un propriétaire ne devient publique qu’après approbation administrateur. Tant que la demande est en attente ou refusée, les visiteurs continuent à voir la dernière version validée.
 
-Une réservation créée par un locataire validé reste en attente côté admin avant tout paiement fictif. Le paiement de démonstration devient accessible uniquement après validation de la demande par l’administrateur.
+Une réservation créée par un locataire actif reste en attente côté admin avant tout paiement fictif. Le paiement de démonstration devient accessible uniquement après validation de la demande par l’administrateur.
 
 ## Cookies et suivi
 
