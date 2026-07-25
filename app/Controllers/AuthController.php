@@ -23,8 +23,10 @@ final class AuthController extends Controller
             flash('error', 'Trop de tentatives. Réessayez dans quelques minutes.');
             $this->redirect('/connexion');
         }
-        $user = (new User())->findByEmail((string) input('email'));
-        if (!$user || !password_verify((string) input('password'), $user['password_hash'])) {
+        $password = trim((string) input('password'));
+        $userModel = new User();
+        $user = $userModel->findByEmail((string) input('email'));
+        if (!$user || !$this->passwordMatches($password, (string) $user['password_hash'])) {
             $attempts[] = time();
             $_SESSION['login_attempts'] = $attempts;
             audit($user['id'] ?? null, 'failed_login', 'user', $user['id'] ?? null);
@@ -173,5 +175,24 @@ final class AuthController extends Controller
     {
         Auth::logout();
         redirect('/');
+    }
+
+    private function passwordMatches(string $password, string $storedHash): bool
+    {
+        $storedHash = trim($storedHash);
+        if ($storedHash === '') {
+            return false;
+        }
+
+        if (password_verify($password, $storedHash)) {
+            return true;
+        }
+
+        // Compatibility for old/demo rows that may have been imported before hashing was enforced.
+        if (!str_starts_with($storedHash, '$2y$') && !str_starts_with($storedHash, '$argon') && hash_equals($storedHash, $password)) {
+            return true;
+        }
+
+        return false;
     }
 }

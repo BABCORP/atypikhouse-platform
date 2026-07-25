@@ -5,9 +5,9 @@
         <label>Type de compte<select name="role" id="role-select"><option value="tenant" <?= $role !== 'owner' ? 'selected' : '' ?>>Locataire</option><option value="owner" <?= $role === 'owner' ? 'selected' : '' ?>>Propriétaire</option></select></label>
         <label>Prénom<input required name="first_name" value="<?= old('first_name') ?>"></label>
         <label>Nom<input required name="last_name" value="<?= old('last_name') ?>"></label>
-        <label>Email<input required type="email" name="email" value="<?= old('email') ?>"></label>
+        <label>Email<input required type="email" name="email" autocomplete="email" value="<?= old('email') ?>"></label>
         <label>Téléphone<input name="phone" value="<?= old('phone') ?>"></label>
-        <label>Mot de passe<input required type="password" name="password" minlength="8"></label>
+        <label>Mot de passe<input required type="password" name="password" minlength="8" autocomplete="new-password"></label>
         <fieldset class="owner-fields"><legend>Profil propriétaire</legend>
             <label>Nom commercial<input name="company_name" value="<?= old('company_name') ?>"></label>
             <label>Adresse<input name="address" value="<?= old('address') ?>"></label>

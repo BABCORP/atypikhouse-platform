@@ -37,7 +37,7 @@ final class User extends Model
             trim($data['first_name']),
             trim($data['last_name']),
             strtolower(trim($data['email'])),
-            password_hash($data['password'], PASSWORD_DEFAULT),
+            password_hash(trim((string) $data['password']), PASSWORD_DEFAULT),
             trim($data['phone'] ?? ''),
             $data['role'],
             $status,
@@ -140,7 +140,7 @@ final class User extends Model
     public function updatePassword(int $id, string $password): void
     {
         $stmt = $this->db->prepare('UPDATE users SET password_hash = ?, updated_at = NOW() WHERE id = ?');
-        $stmt->execute([password_hash($password, PASSWORD_DEFAULT), $id]);
+        $stmt->execute([password_hash(trim($password), PASSWORD_DEFAULT), $id]);
     }
 
     public function createPasswordReset(int $userId, string $tokenHash): void
