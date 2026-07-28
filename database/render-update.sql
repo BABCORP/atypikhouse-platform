@@ -15,6 +15,49 @@ ALTER TABLE bookings
 ALTER TABLE payments
   MODIFY status ENUM('test_pending', 'test_success', 'test_failed', 'test_refunded') NOT NULL;
 
+-- Index de performance non destructifs pour les pages publiques, réservations et dashboards.
+SET @idx_exists := (
+  SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'property_images' AND INDEX_NAME = 'idx_property_images_main_lookup'
+);
+SET @sql := IF(@idx_exists = 0, 'ALTER TABLE property_images ADD INDEX idx_property_images_main_lookup (property_id, is_main, id)', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @idx_exists := (
+  SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'property_amenities' AND INDEX_NAME = 'idx_property_amenities_lookup'
+);
+SET @sql := IF(@idx_exists = 0, 'ALTER TABLE property_amenities ADD INDEX idx_property_amenities_lookup (property_id, amenity_name)', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @idx_exists := (
+  SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'bookings' AND INDEX_NAME = 'idx_bookings_availability_lookup'
+);
+SET @sql := IF(@idx_exists = 0, 'ALTER TABLE bookings ADD INDEX idx_bookings_availability_lookup (property_id, status, start_date, end_date)', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @idx_exists := (
+  SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'bookings' AND INDEX_NAME = 'idx_bookings_tenant_order'
+);
+SET @sql := IF(@idx_exists = 0, 'ALTER TABLE bookings ADD INDEX idx_bookings_tenant_order (tenant_id, start_date)', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @idx_exists := (
+  SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'reviews' AND INDEX_NAME = 'idx_reviews_property_status'
+);
+SET @sql := IF(@idx_exists = 0, 'ALTER TABLE reviews ADD INDEX idx_reviews_property_status (property_id, status)', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @idx_exists := (
+  SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'reviews' AND INDEX_NAME = 'idx_reviews_status_created'
+);
+SET @sql := IF(@idx_exists = 0, 'ALTER TABLE reviews ADD INDEX idx_reviews_status_created (status, created_at)', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
 -- Normalise les comptes de démonstration sans toucher aux comptes créés par les utilisateurs.
 -- Identifiants attendus :
 -- admin@atypikhouse.fr / Admin123!

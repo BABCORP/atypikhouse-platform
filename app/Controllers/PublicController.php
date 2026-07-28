@@ -80,12 +80,16 @@ final class PublicController extends Controller
         }
         $reviewModel = new Review();
         $userId = isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
+        $propertyId = (int) $property['id'];
+        $images = $model->images($propertyId);
+        $availabilities = $model->availabilities($propertyId);
+        $bookedDates = (new Booking())->bookedDatesForProperty($propertyId);
         audit($_SESSION['user_id'] ?? null, 'property_view', 'property', (int) $property['id']);
         $this->view('public/property', [
             'title' => $property['title'] . ' - AtypikHouse',
             'metaDescription' => $property['short_description'],
             'canonical' => url('/hebergements/' . $property['slug']),
-            'ogImage' => image_url($model->images((int) $property['id'])[0]['image_path'] ?? null),
+            'ogImage' => image_url($images[0]['image_path'] ?? null),
             'jsonLd' => [
                 '@context' => 'https://schema.org',
                 '@type' => 'LodgingBusiness',
@@ -102,19 +106,19 @@ final class PublicController extends Controller
                 'additionalProperty' => ['name' => 'Projet étudiant fictif', 'value' => config('academic_disclaimer')],
             ],
             'property' => $property,
-            'images' => $model->images((int) $property['id']),
-            'amenities' => $model->amenities((int) $property['id']),
-            'availabilities' => $model->availabilities((int) $property['id']),
+            'images' => $images,
+            'amenities' => $model->amenities($propertyId),
+            'availabilities' => $availabilities,
             'calendarData' => [
                 'availabilities' => array_map(static fn (array $row): array => [
                     'date' => $row['date'],
                     'is_available' => (int) $row['is_available'],
                     'price_override' => $row['price_override'] !== null ? (float) $row['price_override'] : null,
-                ], $model->availabilities((int) $property['id'])),
-                'booked_dates' => (new Booking())->bookedDatesForProperty((int) $property['id']),
+                ], $availabilities),
+                'booked_dates' => $bookedDates,
             ],
-            'reviews' => $reviewModel->forProperty((int) $property['id']),
-            'ratingSummary' => $reviewModel->summaryForProperty((int) $property['id']),
+            'reviews' => $reviewModel->forProperty($propertyId),
+            'ratingSummary' => $reviewModel->summaryForProperty($propertyId),
             'favoriteIds' => $userId ? (new Favorite())->idsForUser($userId) : [],
             'currentUser' => $userId ? \App\Core\Auth::user() : null,
             'related' => $model->published(['type' => $property['type']], 3),

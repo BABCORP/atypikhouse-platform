@@ -89,14 +89,16 @@ CREATE TABLE property_images (
   alt_text VARCHAR(255) NOT NULL,
   is_main BOOLEAN NOT NULL DEFAULT FALSE,
   created_at DATETIME NOT NULL,
-  CONSTRAINT fk_property_images_property FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE
+  CONSTRAINT fk_property_images_property FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE,
+  INDEX idx_property_images_main_lookup (property_id, is_main, id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE property_amenities (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   property_id INT UNSIGNED NOT NULL,
   amenity_name VARCHAR(120) NOT NULL,
-  CONSTRAINT fk_property_amenities_property FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE
+  CONSTRAINT fk_property_amenities_property FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE,
+  INDEX idx_property_amenities_lookup (property_id, amenity_name)
 ) ENGINE=InnoDB;
 
 CREATE TABLE property_availabilities (
@@ -164,7 +166,9 @@ CREATE TABLE bookings (
   INDEX idx_bookings_payment_status (payment_status),
   INDEX idx_bookings_start_date (start_date),
   INDEX idx_bookings_end_date (end_date),
-  INDEX idx_bookings_created_at (created_at)
+  INDEX idx_bookings_created_at (created_at),
+  INDEX idx_bookings_availability_lookup (property_id, status, start_date, end_date),
+  INDEX idx_bookings_tenant_order (tenant_id, start_date)
 ) ENGINE=InnoDB;
 
 CREATE TABLE payments (
@@ -192,6 +196,8 @@ CREATE TABLE reviews (
   CONSTRAINT fk_reviews_property FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE,
   CONSTRAINT fk_reviews_tenant FOREIGN KEY (tenant_id) REFERENCES users(id) ON DELETE CASCADE,
   INDEX idx_reviews_property_id (property_id),
+  INDEX idx_reviews_property_status (property_id, status),
+  INDEX idx_reviews_status_created (status, created_at),
   CHECK (rating BETWEEN 1 AND 5)
 ) ENGINE=InnoDB;
 

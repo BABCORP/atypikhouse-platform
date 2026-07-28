@@ -30,19 +30,31 @@ final class MailService
             return true;
         }
 
-        if (!$this->smtpReady()) {
-            $this->logSafe('mail_send_failed', $to, $subject, $event, 'Configuration SMTP incomplète.');
+        if (!$this->smtpReady() && !$this->brevoApiReady()) {
+            $this->logSafe('mail_send_failed', $to, $subject, $event, 'Configuration email incomplète.');
             return false;
         }
 
         try {
             $this->lastSmtpError = '';
-            $sent = $this->sendViaSmtp($to, $subject, $htmlBody, $textBody);
-            if (!$sent && $this->brevoApiReady()) {
-                $smtpError = $this->lastSmtpError;
+            $sent = false;
+            if ($this->preferBrevoApi()) {
                 $sent = $this->sendViaBrevoApi($to, $subject, $htmlBody, $textBody);
-                if (!$sent && $smtpError !== '') {
-                    $this->lastSmtpError = $smtpError . ' Fallback API Brevo échoué : ' . $this->lastSmtpError;
+                if (!$sent && $this->smtpReady()) {
+                    $apiError = $this->lastSmtpError;
+                    $sent = $this->sendViaSmtp($to, $subject, $htmlBody, $textBody);
+                    if (!$sent && $apiError !== '') {
+                        $this->lastSmtpError = $apiError . ' Fallback SMTP échoué : ' . $this->lastSmtpError;
+                    }
+                }
+            } elseif ($this->smtpReady()) {
+                $sent = $this->sendViaSmtp($to, $subject, $htmlBody, $textBody);
+                if (!$sent && $this->brevoApiReady()) {
+                    $smtpError = $this->lastSmtpError;
+                    $sent = $this->sendViaBrevoApi($to, $subject, $htmlBody, $textBody);
+                    if (!$sent && $smtpError !== '') {
+                        $this->lastSmtpError = $smtpError . ' Fallback API Brevo échoué : ' . $this->lastSmtpError;
+                    }
                 }
             }
             $durationMs = (int) round((microtime(true) - $startedAt) * 1000);
@@ -635,6 +647,11 @@ final class MailService
     {
         return trim((string) ($this->config['brevo_api_key'] ?? '')) !== ''
             && filter_var((string) $this->config['from']['email'], FILTER_VALIDATE_EMAIL);
+    }
+
+    private function preferBrevoApi(): bool
+    {
+        return (bool) ($this->config['prefer_brevo_api'] ?? true) && $this->brevoApiReady();
     }
 
     private function sendViaSmtp(string $to, string $subject, string $htmlBody, string $textBody): bool

@@ -8,35 +8,76 @@ final class AdminStats extends Model
 {
     public function dashboard(): array
     {
+        $users = $this->db->query('SELECT
+            COUNT(*) AS users,
+            SUM(role = "owner") AS owners,
+            SUM(role = "tenant") AS tenants,
+            SUM(role = "admin") AS admins,
+            SUM(status = "pending") AS pending_users,
+            SUM(status = "suspended") AS suspended_users
+            FROM users')->fetch() ?: [];
+
+        $properties = $this->db->query('SELECT
+            SUM(status = "published") AS published_properties,
+            SUM(status = "pending") AS pending_properties,
+            SUM(status = "rejected") AS rejected_properties,
+            SUM(status = "paused") AS paused_properties,
+            SUM(status = "deleted") AS deleted_properties
+            FROM properties')->fetch() ?: [];
+
+        $bookings = $this->db->query('SELECT
+            COUNT(*) AS bookings,
+            SUM(status = "pending_admin") AS pending_bookings,
+            SUM(status = "pending_payment") AS pending_payment_bookings,
+            SUM(status = "confirmed") AS confirmed_bookings,
+            SUM(status = "cancelled") AS cancelled_bookings,
+            SUM(status = "completed") AS completed_bookings,
+            SUM(status = "pending_payment" AND payment_status = "not_paid") AS pending_payments,
+            SUM(payment_status = "test_paid") AS paid_payments,
+            COALESCE(SUM(CASE WHEN payment_status = "test_paid" THEN total_price ELSE 0 END), 0) AS simulated_revenue
+            FROM bookings')->fetch() ?: [];
+
+        $reviews = $this->db->query('SELECT
+            SUM(status = "pending") AS pending_reviews,
+            SUM(status = "published") AS published_reviews,
+            SUM(status = "rejected") AS rejected_reviews
+            FROM reviews')->fetch() ?: [];
+
+        $messages = $this->db->query('SELECT
+            SUM(status = "new") AS unread_messages,
+            SUM(status = "read") AS read_messages,
+            SUM(status = "processed") AS processed_messages
+            FROM contact_messages')->fetch() ?: [];
+
         return [
-            'users' => (int) $this->db->query('SELECT COUNT(*) FROM users')->fetchColumn(),
-            'owners' => (int) $this->db->query('SELECT COUNT(*) FROM users WHERE role = "owner"')->fetchColumn(),
-            'tenants' => (int) $this->db->query('SELECT COUNT(*) FROM users WHERE role = "tenant"')->fetchColumn(),
-            'admins' => (int) $this->db->query('SELECT COUNT(*) FROM users WHERE role = "admin"')->fetchColumn(),
-            'pending_users' => (int) $this->db->query('SELECT COUNT(*) FROM users WHERE status = "pending"')->fetchColumn(),
-            'suspended_users' => (int) $this->db->query('SELECT COUNT(*) FROM users WHERE status = "suspended"')->fetchColumn(),
-            'published_properties' => (int) $this->db->query('SELECT COUNT(*) FROM properties WHERE status = "published"')->fetchColumn(),
-            'pending_properties' => (int) $this->db->query('SELECT COUNT(*) FROM properties WHERE status = "pending"')->fetchColumn(),
+            'users' => (int) ($users['users'] ?? 0),
+            'owners' => (int) ($users['owners'] ?? 0),
+            'tenants' => (int) ($users['tenants'] ?? 0),
+            'admins' => (int) ($users['admins'] ?? 0),
+            'pending_users' => (int) ($users['pending_users'] ?? 0),
+            'suspended_users' => (int) ($users['suspended_users'] ?? 0),
+            'published_properties' => (int) ($properties['published_properties'] ?? 0),
+            'pending_properties' => (int) ($properties['pending_properties'] ?? 0),
             'pending_property_changes' => (int) $this->db->query('SELECT COUNT(*) FROM property_change_requests WHERE status = "pending"')->fetchColumn(),
-            'rejected_properties' => (int) $this->db->query('SELECT COUNT(*) FROM properties WHERE status = "rejected"')->fetchColumn(),
-            'paused_properties' => (int) $this->db->query('SELECT COUNT(*) FROM properties WHERE status = "paused"')->fetchColumn(),
-            'deleted_properties' => (int) $this->db->query('SELECT COUNT(*) FROM properties WHERE status = "deleted"')->fetchColumn(),
-            'bookings' => (int) $this->db->query('SELECT COUNT(*) FROM bookings')->fetchColumn(),
-            'pending_bookings' => (int) $this->db->query('SELECT COUNT(*) FROM bookings WHERE status = "pending_admin"')->fetchColumn(),
-            'pending_payment_bookings' => (int) $this->db->query('SELECT COUNT(*) FROM bookings WHERE status = "pending_payment"')->fetchColumn(),
-            'confirmed_bookings' => (int) $this->db->query('SELECT COUNT(*) FROM bookings WHERE status = "confirmed"')->fetchColumn(),
-            'cancelled_bookings' => (int) $this->db->query('SELECT COUNT(*) FROM bookings WHERE status = "cancelled"')->fetchColumn(),
-            'completed_bookings' => (int) $this->db->query('SELECT COUNT(*) FROM bookings WHERE status = "completed"')->fetchColumn(),
-            'pending_payments' => (int) $this->db->query('SELECT COUNT(*) FROM bookings WHERE status = "pending_payment" AND payment_status = "not_paid"')->fetchColumn(),
-            'paid_payments' => (int) $this->db->query('SELECT COUNT(*) FROM bookings WHERE payment_status = "test_paid"')->fetchColumn(),
+            'rejected_properties' => (int) ($properties['rejected_properties'] ?? 0),
+            'paused_properties' => (int) ($properties['paused_properties'] ?? 0),
+            'deleted_properties' => (int) ($properties['deleted_properties'] ?? 0),
+            'bookings' => (int) ($bookings['bookings'] ?? 0),
+            'pending_bookings' => (int) ($bookings['pending_bookings'] ?? 0),
+            'pending_payment_bookings' => (int) ($bookings['pending_payment_bookings'] ?? 0),
+            'confirmed_bookings' => (int) ($bookings['confirmed_bookings'] ?? 0),
+            'cancelled_bookings' => (int) ($bookings['cancelled_bookings'] ?? 0),
+            'completed_bookings' => (int) ($bookings['completed_bookings'] ?? 0),
+            'pending_payments' => (int) ($bookings['pending_payments'] ?? 0),
+            'paid_payments' => (int) ($bookings['paid_payments'] ?? 0),
             'failed_payments' => (int) $this->db->query('SELECT COUNT(*) FROM payments WHERE status = "test_failed"')->fetchColumn(),
-            'pending_reviews' => (int) $this->db->query('SELECT COUNT(*) FROM reviews WHERE status = "pending"')->fetchColumn(),
-            'published_reviews' => (int) $this->db->query('SELECT COUNT(*) FROM reviews WHERE status = "published"')->fetchColumn(),
-            'rejected_reviews' => (int) $this->db->query('SELECT COUNT(*) FROM reviews WHERE status = "rejected"')->fetchColumn(),
-            'unread_messages' => (int) $this->db->query('SELECT COUNT(*) FROM contact_messages WHERE status = "new"')->fetchColumn(),
-            'read_messages' => (int) $this->db->query('SELECT COUNT(*) FROM contact_messages WHERE status = "read"')->fetchColumn(),
-            'processed_messages' => (int) $this->db->query('SELECT COUNT(*) FROM contact_messages WHERE status = "processed"')->fetchColumn(),
-            'simulated_revenue' => (float) $this->db->query('SELECT COALESCE(SUM(total_price), 0) FROM bookings WHERE payment_status = "test_paid"')->fetchColumn(),
+            'pending_reviews' => (int) ($reviews['pending_reviews'] ?? 0),
+            'published_reviews' => (int) ($reviews['published_reviews'] ?? 0),
+            'rejected_reviews' => (int) ($reviews['rejected_reviews'] ?? 0),
+            'unread_messages' => (int) ($messages['unread_messages'] ?? 0),
+            'read_messages' => (int) ($messages['read_messages'] ?? 0),
+            'processed_messages' => (int) ($messages['processed_messages'] ?? 0),
+            'simulated_revenue' => (float) ($bookings['simulated_revenue'] ?? 0),
         ];
     }
 }
