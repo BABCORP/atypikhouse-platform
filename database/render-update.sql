@@ -15,6 +15,40 @@ ALTER TABLE bookings
 ALTER TABLE payments
   MODIFY status ENUM('test_pending', 'test_success', 'test_failed', 'test_refunded') NOT NULL;
 
+-- Normalise les comptes de démonstration sans toucher aux comptes créés par les utilisateurs.
+-- Identifiants attendus :
+-- admin@atypikhouse.fr / Admin123!
+-- proprietaire@atypikhouse.fr / Owner123!
+-- locataire@atypikhouse.fr / Tenant123!
+INSERT INTO users (first_name, last_name, email, password_hash, phone, role, status, created_at, updated_at) VALUES
+('Alice', 'Admin', 'admin@atypikhouse.fr', '$2y$10$Oat6mjhrzZM6xSGMb.0xd.l3yDcO5HJyL03kJChOPFdW3ijr3P/42', '0102030405', 'admin', 'active', NOW(), NOW()),
+('Olivier', 'Hôte', 'proprietaire@atypikhouse.fr', '$2y$10$A/uo/afqjiF6bPBqTSFMPOOIclPt4OPCucaY5oVQjbnXjc48tdp1C', '0601020304', 'owner', 'active', NOW(), NOW()),
+('Tania', 'Voyage', 'locataire@atypikhouse.fr', '$2y$10$FUhhwW14yTv8rI388a3CEens3nO1sA5qQJB8bv0LYROJzF7TMQkqq', '0609080706', 'tenant', 'active', NOW(), NOW())
+ON DUPLICATE KEY UPDATE
+  first_name = VALUES(first_name),
+  last_name = VALUES(last_name),
+  password_hash = VALUES(password_hash),
+  phone = VALUES(phone),
+  role = VALUES(role),
+  status = VALUES(status),
+  updated_at = NOW();
+
+INSERT INTO owner_profiles (user_id, company_name, address, city, postal_code, country, description, verification_status, created_at, updated_at)
+SELECT u.id, 'Forêts & Refuges', '12 rue du Château', 'Pierrefonds', '60350', 'France', 'Exploitant fictif de logements insolites éco-responsables.', 'approved', NOW(), NOW()
+FROM users u
+WHERE u.email = 'proprietaire@atypikhouse.fr'
+  AND NOT EXISTS (
+    SELECT 1
+    FROM owner_profiles op
+    WHERE op.user_id = u.id
+  );
+
+UPDATE owner_profiles op
+JOIN users u ON u.id = op.user_id
+SET op.verification_status = 'approved',
+    op.updated_at = NOW()
+WHERE u.email = 'proprietaire@atypikhouse.fr';
+
 -- Corrige les réservations historiques si un ancien déploiement avait stocké seulement prix/nuit + ménage.
 -- La date de départ est exclue du nombre de nuits : 2026-09-05 -> 2026-09-09 = 4 nuits.
 UPDATE bookings b
