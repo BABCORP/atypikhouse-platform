@@ -21,6 +21,17 @@ document.addEventListener("submit", (event) => {
   }
 });
 
+document.addEventListener("submit", (event) => {
+  const form = event.target;
+  if (!(form instanceof HTMLFormElement) || event.defaultPrevented) return;
+  const submitter = event.submitter instanceof HTMLButtonElement ? event.submitter : form.querySelector("button[type='submit']");
+  if (!submitter || submitter.dataset.submitting === "true") return;
+  submitter.dataset.submitting = "true";
+  submitter.dataset.originalText = submitter.textContent || "";
+  submitter.textContent = submitter.dataset.loadingText || "Traitement en cours...";
+  submitter.disabled = true;
+});
+
 document.addEventListener("click", (event) => {
   const button = event.target instanceof Element ? event.target.closest("[data-print-target]") : null;
   if (!button) return;

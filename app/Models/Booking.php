@@ -26,10 +26,9 @@ final class Booking extends Model
     public function create(array $property, int $tenantId, array $data): int
     {
         $pricing = $this->calculatePrice((int) $property['id'], (string) $data['start_date'], (string) $data['end_date'], (float) $property['price_per_night'], (float) $property['cleaning_fee']);
-        $nights = $pricing['nights'];
-        $subtotal = $pricing['subtotal'];
-        $cleaning = (float) $property['cleaning_fee'];
-        $total = $pricing['total'];
+        if ($pricing['nights'] < 1) {
+            throw new \InvalidArgumentException('La date de départ doit être postérieure à la date d’arrivée.');
+        }
 
         $stmt = $this->db->prepare('INSERT INTO bookings (property_id, tenant_id, start_date, end_date, nights, guests_count, subtotal, cleaning_fee, total_price, status, payment_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, "pending_admin", "not_paid", NOW(), NOW())');
         $stmt->execute([
@@ -37,23 +36,35 @@ final class Booking extends Model
             $tenantId,
             $data['start_date'],
             $data['end_date'],
-            $nights,
+            $pricing['nights'],
             (int) $data['guests_count'],
-            $subtotal,
-            $cleaning,
-            $total,
+            $pricing['subtotal'],
+            $pricing['cleaning_fee'],
+            $pricing['total'],
         ]);
         return (int) $this->db->lastInsertId();
     }
 
     public function calculatePrice(int $propertyId, string $start, string $end, float $basePrice, float $cleaningFee): array
     {
+        if (!valid_date($start) || !valid_date($end) || nights_between($start, $end) < 1) {
+            return [
+                'nights' => 0,
+                'nights_prices' => [],
+                'price_per_night' => max(0, $basePrice),
+                'cleaning_fee' => max(0, $cleaningFee),
+                'subtotal' => 0.0,
+                'total' => 0.0,
+            ];
+        }
+
         $prices = $this->nightlyPrices($propertyId, $start, $end, $basePrice);
         $subtotal = array_sum(array_column($prices, 'price'));
 
         return [
             'nights' => count($prices),
             'nights_prices' => $prices,
+            'price_per_night' => $basePrice,
             'subtotal' => $subtotal,
             'cleaning_fee' => $cleaningFee,
             'total' => $subtotal + $cleaningFee,

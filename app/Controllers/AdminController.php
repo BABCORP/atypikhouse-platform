@@ -848,7 +848,8 @@ final class AdminController extends Controller
             $emailSent = (new MailService())->sendBookingConfirmedNotification(
                 (string) $booking['tenant_email'],
                 (string) $booking['owner_email'],
-                (string) $booking['title']
+                (string) $booking['title'],
+                $booking
             );
             audit((int) $admin['id'], $emailSent ? 'email_booking_admin_validation_sent' : 'email_booking_admin_validation_failed', 'booking', $id);
         }

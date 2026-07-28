@@ -15,6 +15,18 @@ ALTER TABLE bookings
 ALTER TABLE payments
   MODIFY status ENUM('test_pending', 'test_success', 'test_failed', 'test_refunded') NOT NULL;
 
+-- Corrige les réservations historiques si un ancien déploiement avait stocké seulement prix/nuit + ménage.
+-- La date de départ est exclue du nombre de nuits : 2026-09-05 -> 2026-09-09 = 4 nuits.
+UPDATE bookings b
+JOIN properties p ON p.id = b.property_id
+SET
+  b.nights = DATEDIFF(b.end_date, b.start_date),
+  b.subtotal = ROUND(p.price_per_night * DATEDIFF(b.end_date, b.start_date), 2),
+  b.cleaning_fee = p.cleaning_fee,
+  b.total_price = ROUND((p.price_per_night * DATEDIFF(b.end_date, b.start_date)) + p.cleaning_fee, 2),
+  b.updated_at = NOW()
+WHERE b.end_date > b.start_date;
+
 CREATE TABLE IF NOT EXISTS property_favorites (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id INT UNSIGNED NOT NULL,

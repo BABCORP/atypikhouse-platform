@@ -16,6 +16,7 @@ final class MailService
 
     public function send(string $to, string $subject, string $htmlBody, ?string $textBody = null, string $event = 'transactional'): bool
     {
+        $startedAt = microtime(true);
         $to = strtolower(trim($to));
         if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
             $this->logSafe('mail_send_failed', $to, $subject, $event, 'Adresse destinataire invalide.');
@@ -44,10 +45,12 @@ final class MailService
                     $this->lastSmtpError = $smtpError . ' Fallback API Brevo échoué : ' . $this->lastSmtpError;
                 }
             }
-            $this->logSafe($sent ? 'mail_send_success' : 'mail_send_failed', $to, $subject, $event, $sent ? 'Email envoyé.' : 'Échec SMTP : ' . ($this->lastSmtpError ?: 'raison inconnue.'));
+            $durationMs = (int) round((microtime(true) - $startedAt) * 1000);
+            $this->logSafe($sent ? 'mail_send_success' : 'mail_send_failed', $to, $subject, $event, ($sent ? 'Email envoyé.' : 'Échec SMTP : ' . ($this->lastSmtpError ?: 'raison inconnue.')) . ' Durée : ' . $durationMs . ' ms.');
             return $sent;
         } catch (Throwable $exception) {
-            $this->logSafe('mail_send_failed', $to, $subject, $event, 'Erreur SMTP : ' . $this->safeErrorMessage($exception->getMessage()));
+            $durationMs = (int) round((microtime(true) - $startedAt) * 1000);
+            $this->logSafe('mail_send_failed', $to, $subject, $event, 'Erreur SMTP : ' . $this->safeErrorMessage($exception->getMessage()) . ' Durée : ' . $durationMs . ' ms.');
             return false;
         }
     }
@@ -319,6 +322,7 @@ final class MailService
     public function sendBookingPendingNotification(string $tenantEmail, string $propertyTitle, array $booking = []): bool
     {
         $dates = $this->bookingDates($booking);
+        $priceLines = $this->bookingPriceLines($booking);
         $tenantSent = $this->send(
             $tenantEmail,
             'Votre demande de réservation a bien été reçue',
@@ -329,7 +333,7 @@ final class MailService
             . '<li><strong>Logement :</strong> ' . e($propertyTitle) . '</li>'
             . '<li><strong>Dates :</strong> ' . e($dates) . '</li>'
             . '<li><strong>Nombre de voyageurs :</strong> ' . e((string) ($booking['guests_count'] ?? '')) . '</li>'
-            . '<li><strong>Total :</strong> ' . (isset($booking['total_price']) ? e(money((float) $booking['total_price'])) : '') . '</li>'
+            . $priceLines
             . '<li><strong>Statut :</strong> En attente de validation</li>'
             . '</ul>'
             . '<p>L’équipe AtypikHouse</p>',
@@ -345,6 +349,9 @@ final class MailService
                 'Logement' => $propertyTitle,
                 'Propriétaire' => $booking['owner_email'] ?? '',
                 'Dates' => $dates,
+                'Nuits' => isset($booking['nights']) ? (string) (int) $booking['nights'] : '',
+                'Sous-total' => isset($booking['subtotal']) ? money((float) $booking['subtotal']) : '',
+                'Frais de ménage' => isset($booking['cleaning_fee']) ? money((float) $booking['cleaning_fee']) : '',
                 'Total' => isset($booking['total_price']) ? money((float) $booking['total_price']) : '',
                 'Lien admin' => $this->appUrl('/admin/reservations'),
             ]
@@ -355,12 +362,14 @@ final class MailService
     public function sendBookingAwaitingPaymentNotification(array $booking): bool
     {
         $propertyTitle = (string) $booking['title'];
+        $priceLines = $this->bookingPriceLines($booking);
         $tenantSent = $this->send(
             (string) $booking['tenant_email'],
             'Votre réservation est validée, paiement fictif requis',
             '<p>Bonjour ' . e((string) ($booking['tenant_first_name'] ?? '')) . ',</p>'
             . '<p>Votre réservation pour "' . e($propertyTitle) . '" a été validée par l’administrateur.</p>'
             . '<p>Pour finaliser cette réservation, vous devez maintenant effectuer le paiement fictif depuis votre espace locataire.</p>'
+            . '<ul>' . $priceLines . '</ul>'
             . $this->emailButton('Voir ma réservation', $this->appUrl('/locataire/reservations'))
             . '<p><strong>Rappel :</strong> ce paiement est fictif et réalisé uniquement dans le cadre d’une démonstration académique.</p>'
             . '<p>L’équipe AtypikHouse</p>',
@@ -373,6 +382,7 @@ final class MailService
             '<p>Bonjour ' . e((string) ($booking['owner_first_name'] ?? '')) . ',</p>'
             . '<p>Une réservation pour votre logement "' . e($propertyTitle) . '" a été validée par l’administrateur.</p>'
             . '<p>Elle est maintenant en attente du paiement fictif du locataire.</p>'
+            . '<ul>' . $priceLines . '</ul>'
             . '<p>L’équipe AtypikHouse</p>',
             null,
             'booking_payment_required_owner'
@@ -380,19 +390,21 @@ final class MailService
         return $tenantSent && $ownerSent;
     }
 
-    public function sendBookingConfirmedNotification(string $tenantEmail, string $ownerEmail, string $propertyTitle): bool
+    public function sendBookingConfirmedNotification(string $tenantEmail, string $ownerEmail, string $propertyTitle, array $booking = []): bool
     {
+        $priceLines = $this->bookingPriceLines($booking);
+        $details = $priceLines !== '' ? '<ul>' . $priceLines . '</ul>' : '';
         $tenantSent = $this->send(
             $tenantEmail,
             'Votre réservation fictive a été confirmée',
-            '<p>Votre réservation fictive pour "' . e($propertyTitle) . '" a été confirmée.</p>',
+            '<p>Votre réservation fictive pour "' . e($propertyTitle) . '" a été confirmée.</p>' . $details,
             null,
             'booking_confirmed_tenant'
         );
         $ownerSent = $this->send(
             $ownerEmail,
             'Une réservation a été confirmée pour votre logement',
-            '<p>Une réservation fictive a été confirmée pour "' . e($propertyTitle) . '".</p>',
+            '<p>Une réservation fictive a été confirmée pour "' . e($propertyTitle) . '".</p>' . $details,
             null,
             'booking_confirmed_owner'
         );
@@ -403,6 +415,7 @@ final class MailService
     {
         $propertyTitle = (string) $booking['title'];
         $dates = $this->bookingDates($booking);
+        $priceLines = $this->bookingPriceLines($booking);
         $tenantSent = $this->send(
             (string) $booking['tenant_email'],
             'Votre réservation AtypikHouse est confirmée',
@@ -411,7 +424,7 @@ final class MailService
             . '<p>Votre réservation pour "' . e($propertyTitle) . '" est maintenant confirmée.</p>'
             . '<ul>'
             . '<li><strong>Dates :</strong> ' . e($dates) . '</li>'
-            . '<li><strong>Total :</strong> ' . e(money((float) $booking['total_price'])) . '</li>'
+            . $priceLines
             . '<li><strong>Référence fictive :</strong> ' . e((string) ($booking['test_transaction_id'] ?? '')) . '</li>'
             . '</ul>'
             . '<p>Aucun montant réel n’a été débité.</p>'
@@ -436,13 +449,14 @@ final class MailService
     {
         $propertyTitle = (string) $booking['title'];
         $dates = $this->bookingDates($booking);
+        $priceLines = $this->bookingPriceLines($booking);
         $reasonBlock = $reason !== '' ? '<p><strong>Motif :</strong><br>' . e($reason) . '</p>' : '';
         $tenantSent = $this->send(
             (string) $booking['tenant_email'],
             'Votre réservation AtypikHouse a été annulée',
             '<p>Bonjour ' . e((string) ($booking['tenant_first_name'] ?? '')) . ',</p>'
             . '<p>Votre réservation pour "' . e($propertyTitle) . '" a été annulée.</p>'
-            . '<ul><li><strong>Dates :</strong> ' . e($dates) . '</li><li><strong>Statut :</strong> Annulée</li></ul>'
+            . '<ul><li><strong>Dates :</strong> ' . e($dates) . '</li>' . $priceLines . '<li><strong>Statut :</strong> Annulée</li></ul>'
             . $reasonBlock
             . '<p>Aucun paiement réel n’a été effectué dans le cadre de ce projet étudiant fictif.</p>'
             . '<p>L’équipe AtypikHouse</p>',
@@ -511,6 +525,27 @@ final class MailService
         $start = (string) ($booking['start_date'] ?? '');
         $end = (string) ($booking['end_date'] ?? '');
         return trim($start . ($end !== '' ? ' au ' . $end : ''));
+    }
+
+    private function bookingPriceLines(array $booking): string
+    {
+        $lines = '';
+        if (isset($booking['price_per_night'])) {
+            $lines .= '<li><strong>Prix par nuit :</strong> ' . e(money((float) $booking['price_per_night'])) . '</li>';
+        }
+        if (isset($booking['nights'])) {
+            $lines .= '<li><strong>Nombre de nuits :</strong> ' . (int) $booking['nights'] . '</li>';
+        }
+        if (isset($booking['subtotal'])) {
+            $lines .= '<li><strong>Sous-total :</strong> ' . e(money((float) $booking['subtotal'])) . '</li>';
+        }
+        if (isset($booking['cleaning_fee'])) {
+            $lines .= '<li><strong>Frais de ménage :</strong> ' . e(money((float) $booking['cleaning_fee'])) . '</li>';
+        }
+        if (isset($booking['total_price'])) {
+            $lines .= '<li><strong>Total simulé :</strong> ' . e(money((float) $booking['total_price'])) . '</li>';
+        }
+        return $lines;
     }
 
     private function appUrl(string $path): string
@@ -608,11 +643,13 @@ final class MailService
         $port = (int) $this->config['smtp']['port'];
         $encryption = strtolower((string) $this->config['smtp']['encryption']);
         $remote = $encryption === 'ssl' ? 'ssl://' . $host . ':' . $port : $host . ':' . $port;
-        $socket = stream_socket_client($remote, $errno, $errstr, 15, STREAM_CLIENT_CONNECT);
+        $timeout = (int) ($this->config['smtp_timeout'] ?? 6);
+        $socket = stream_socket_client($remote, $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT);
         if (!$socket) {
             $this->lastSmtpError = 'Connexion impossible à ' . $host . ':' . $port . ' (' . $errno . ' ' . $this->safeErrorMessage((string) $errstr) . ')';
             return false;
         }
+        stream_set_timeout($socket, $timeout);
 
         $read = static fn (): string => (string) fgets($socket, 515);
         $write = static function (string $command) use ($socket): void {
@@ -725,7 +762,8 @@ final class MailService
                 CURLOPT_HTTPHEADER => $headers,
                 CURLOPT_POSTFIELDS => $payload,
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_TIMEOUT => 20,
+                CURLOPT_CONNECTTIMEOUT => (int) ($this->config['api_timeout'] ?? 6),
+                CURLOPT_TIMEOUT => (int) ($this->config['api_timeout'] ?? 6),
             ]);
             $response = curl_exec($curl);
             $status = (int) curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -745,7 +783,7 @@ final class MailService
                 'method' => 'POST',
                 'header' => implode("\r\n", $headers),
                 'content' => $payload,
-                'timeout' => 20,
+                'timeout' => (int) ($this->config['api_timeout'] ?? 6),
                 'ignore_errors' => true,
             ],
         ]);

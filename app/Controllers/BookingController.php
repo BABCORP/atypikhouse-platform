@@ -41,7 +41,7 @@ final class BookingController extends Controller
             $this->redirect('/hebergements/' . $property['slug']);
         }
         if (!valid_date((string) input('start_date')) || !valid_date((string) input('end_date')) || nights_between((string) input('start_date'), (string) input('end_date')) < 1) {
-            flash('error', 'Veuillez sélectionner des dates valides.');
+            flash('error', 'La date de départ doit être postérieure à la date d’arrivée.');
             $this->redirect('/hebergements/' . $property['slug']);
         }
         if ((string) input('start_date') < date('Y-m-d')) {

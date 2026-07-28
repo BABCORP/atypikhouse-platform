@@ -28,7 +28,9 @@ CREATE TABLE users (
   status ENUM('active', 'pending', 'rejected', 'suspended') NOT NULL DEFAULT 'active',
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
-  INDEX idx_users_email (email)
+  INDEX idx_users_email (email),
+  INDEX idx_users_role (role),
+  INDEX idx_users_status (status)
 ) ENGINE=InnoDB;
 
 CREATE TABLE owner_profiles (
@@ -72,6 +74,7 @@ CREATE TABLE properties (
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   CONSTRAINT fk_properties_owner FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_properties_owner_id (owner_id),
   INDEX idx_properties_slug (slug),
   INDEX idx_properties_city (city),
   INDEX idx_properties_region (region),
@@ -157,8 +160,11 @@ CREATE TABLE bookings (
   CONSTRAINT fk_bookings_tenant FOREIGN KEY (tenant_id) REFERENCES users(id) ON DELETE CASCADE,
   INDEX idx_bookings_property_id (property_id),
   INDEX idx_bookings_tenant_id (tenant_id),
+  INDEX idx_bookings_status (status),
+  INDEX idx_bookings_payment_status (payment_status),
   INDEX idx_bookings_start_date (start_date),
-  INDEX idx_bookings_end_date (end_date)
+  INDEX idx_bookings_end_date (end_date),
+  INDEX idx_bookings_created_at (created_at)
 ) ENGINE=InnoDB;
 
 CREATE TABLE payments (
@@ -210,7 +216,9 @@ CREATE TABLE contact_messages (
   subject VARCHAR(190) NOT NULL,
   message TEXT NOT NULL,
   status ENUM('new', 'read', 'processed', 'archived') NOT NULL DEFAULT 'new',
-  created_at DATETIME NOT NULL
+  created_at DATETIME NOT NULL,
+  INDEX idx_contact_messages_status (status),
+  INDEX idx_contact_messages_created_at (created_at)
 ) ENGINE=InnoDB;
 
 CREATE TABLE audit_logs (
@@ -221,7 +229,9 @@ CREATE TABLE audit_logs (
   entity_id INT UNSIGNED NULL,
   ip_address VARCHAR(45) NULL,
   created_at DATETIME NOT NULL,
-  CONSTRAINT fk_audit_logs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+  CONSTRAINT fk_audit_logs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+  INDEX idx_audit_logs_created_at (created_at),
+  INDEX idx_audit_logs_action (action)
 ) ENGINE=InnoDB;
 
 CREATE TABLE password_resets (

@@ -126,7 +126,7 @@ function audit(?int $userId, string $action, string $entityType, ?int $entityId 
 
 function money(float|int|string $amount): string
 {
-    return number_format((float) $amount, 2, ',', ' ') . ' EUR';
+    return number_format((float) $amount, 2, ',', ' ') . ' €';
 }
 
 function rating_stars(float|int|string $rating, string $label = 'Note'): string
@@ -143,7 +143,12 @@ function rating_stars(float|int|string $rating, string $label = 'Note'): string
 function nights_between(string $start, string $end): int
 {
     try {
-        return (int) (new DateTimeImmutable($start))->diff(new DateTimeImmutable($end))->days;
+        $startDate = new DateTimeImmutable($start);
+        $endDate = new DateTimeImmutable($end);
+        if ($endDate <= $startDate) {
+            return 0;
+        }
+        return (int) $startDate->diff($endDate)->days;
     } catch (Throwable) {
         return 0;
     }
