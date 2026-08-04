@@ -83,6 +83,13 @@ document.addEventListener("click", (event) => {
   if (choice === "accept") loadAnalytics();
 });
 
+document.addEventListener("click", (event) => {
+  const button = event.target instanceof Element ? event.target.closest("[data-cookie-manage]") : null;
+  if (!button || !cookieBanner) return;
+  cookieBanner.hidden = false;
+  cookieBanner.querySelector("[data-cookie-choice]")?.focus();
+});
+
 const roleSelect = document.querySelector("#role-select");
 const ownerFields = document.querySelector(".owner-fields");
 if (roleSelect && ownerFields) {

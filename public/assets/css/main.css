@@ -102,6 +102,22 @@ img { max-width: 100%; display: block; }
 .footer-brand strong { display: block; font-family: "Lora", Georgia, serif; font-size: 2rem; margin-bottom: .75rem; }
 .footer-column h2 { font: 700 1rem "Montserrat", system-ui, sans-serif; margin: 0 0 .75rem; }
 .footer-column nav { display: grid; gap: .55rem; }
+.footer-cookie-control {
+  appearance: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: white;
+  font: inherit;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+}
+.footer-cookie-control:hover,
+.footer-cookie-control:focus-visible {
+  color: var(--sand);
+  outline-offset: 3px;
+}
 .disclaimer, .notice { font-weight: 700; color: #ffe2c7; }
 .notice { color: var(--forest); background: var(--sand); padding: .8rem; border-radius: 8px; }
 
