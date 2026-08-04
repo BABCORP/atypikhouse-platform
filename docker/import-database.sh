@@ -6,9 +6,9 @@ if [ "${DB_AUTO_IMPORT:-false}" != "true" ]; then
 fi
 
 if [ "${APP_ENV:-local}" = "production" ] && [ "${DB_AUTO_IMPORT_FORCE:-false}" = "true" ] && [ "${DB_ALLOW_PRODUCTION_FORCE_IMPORT:-false}" != "true" ]; then
-    echo "Import forcé refusé en production. Cette action pourrait supprimer les comptes créés par les utilisateurs." >&2
-    echo "Pour une mise à jour en production, utilisez database/render-update.sql ou définissez explicitement DB_ALLOW_PRODUCTION_FORCE_IMPORT=true une seule fois." >&2
-    exit 1
+    echo "Import forcé ignoré en production pour éviter de supprimer les comptes créés par les utilisateurs." >&2
+    echo "Le service continue de démarrer. Pour une mise à jour en production, utilisez database/render-update.sql." >&2
+    exit 0
 fi
 
 if [ -z "${DB_HOST:-}" ] || [ -z "${DB_PORT:-}" ] || [ -z "${DB_DATABASE:-}" ] || [ -z "${DB_USERNAME:-}" ] || [ -z "${DB_PASSWORD:-}" ]; then
