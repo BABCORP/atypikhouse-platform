@@ -268,11 +268,6 @@ final class Booking extends Model
         if (!$booking || $booking['status'] !== 'pending_payment' || $booking['payment_status'] === 'test_paid') {
             return false;
         }
-        if ($success) {
-            $stmt = $this->db->prepare('SELECT COUNT(*) FROM bookings WHERE id <> ? AND property_id = ? AND status IN ("pending_admin", "pending_payment", "confirmed", "completed") AND start_date < ? AND end_date > ?');
-            $stmt->execute([$bookingId, $booking['property_id'], $booking['end_date'], $booking['start_date']]);
-            $success = (int) $stmt->fetchColumn() === 0;
-        }
         $status = $success ? 'test_success' : 'test_failed';
         $transaction = 'TEST-' . strtoupper(bin2hex(random_bytes(5)));
         $this->db->prepare('INSERT INTO payments (booking_id, provider, test_transaction_id, amount, status, created_at) VALUES (?, "simulation", ?, ?, ?, NOW())')

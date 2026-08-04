@@ -109,7 +109,7 @@ final class BookingController extends Controller
             flash('error', 'Cette réservation ne peut pas être payée à ce stade.');
             $this->redirect('/locataire/reservations/' . $bookingId);
         }
-        $success = input('scenario') === 'success';
+        $success = input('scenario') !== 'failure';
         $success = (new Booking())->simulatePayment($bookingId, $success);
         audit((int) $user['id'], $success ? 'fake_payment_succeeded' : 'fake_payment_failed', 'booking', $bookingId);
         if ($success) {
