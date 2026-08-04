@@ -64,10 +64,12 @@ const loadAnalytics = () => {
   }
 };
 
+const COOKIE_CONSENT_KEY = "atypik_cookie_consent_v2";
 const cookieBanner = document.querySelector("[data-cookie-banner]");
-const consent = localStorage.getItem("atypik_cookie_consent");
-if (cookieBanner && !consent) {
-  cookieBanner.hidden = false;
+const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
+window.dataLayer = window.dataLayer || [];
+if (cookieBanner) {
+  cookieBanner.hidden = Boolean(consent);
 }
 if (consent === "accept") {
   loadAnalytics();
@@ -76,9 +78,8 @@ document.addEventListener("click", (event) => {
   const button = event.target instanceof Element ? event.target.closest("[data-cookie-choice]") : null;
   if (!button) return;
   const choice = button.getAttribute("data-cookie-choice") === "accept" ? "accept" : "refuse";
-  localStorage.setItem("atypik_cookie_consent", choice);
+  localStorage.setItem(COOKIE_CONSENT_KEY, choice);
   if (cookieBanner) cookieBanner.hidden = true;
-  window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({ event: `cookie_consent_${choice}` });
   if (choice === "accept") loadAnalytics();
 });

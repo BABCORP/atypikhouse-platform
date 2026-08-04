@@ -1032,6 +1032,23 @@ th { background: var(--sand); }
 .cookie-banner[hidden] { display: none; }
 .cookie-banner p { margin: 0; }
 .cookie-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.cookie-manage-floating {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 21;
+  padding: .6rem .85rem;
+  border: 1px solid rgba(255,255,255,.45);
+  border-radius: 999px;
+  background: var(--forest);
+  color: white;
+  font: 800 .85rem "Montserrat", system-ui, sans-serif;
+  box-shadow: 0 12px 28px rgba(24,60,42,.24);
+  cursor: pointer;
+}
+.cookie-banner:not([hidden]) + .cookie-manage-floating {
+  display: none;
+}
 
 @media (max-width: 900px) {
   .hero { min-height: 660px; padding-top: 3.5rem; }

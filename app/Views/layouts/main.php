@@ -75,13 +75,14 @@ $ariaCurrent = static fn (string $path): string => $isActivePath($path) ? ' aria
     <div class="footer-column"><h2>Suivez-nous</h2><nav aria-label="Réseaux sociaux AtypikHouse"><a href="https://www.instagram.com/atypikhouse__off/" target="_blank" rel="noopener noreferrer" aria-label="Suivre AtypikHouse sur Instagram">@atypikhouse__off</a></nav></div>
     <div class="footer-column"><h2>Informations</h2><nav aria-label="Liens légaux"><a href="<?= url('/mentions-legales') ?>">Mentions légales</a><a href="<?= url('/cgu') ?>">CGU</a><a href="<?= url('/cgv') ?>">CGV</a><a href="<?= url('/politique-confidentialite') ?>">Confidentialité</a><a href="<?= url('/mes-donnees') ?>">Mes données</a><a href="<?= url('/cookies') ?>">Cookies</a><button class="footer-cookie-control" type="button" data-cookie-manage>Gérer les cookies</button></nav></div>
 </footer>
-<div class="cookie-banner" data-cookie-banner hidden>
+<div class="cookie-banner" data-cookie-banner>
     <p><strong>Gestion des cookies</strong><br>Nous utilisons uniquement des cookies de session et, si vous acceptez, des emplacements prêts pour GA4/GTM sans identifiant réel par défaut.</p>
     <div class="cookie-actions">
         <button class="button compact" type="button" data-cookie-choice="accept">Accepter</button>
         <button class="button ghost compact" type="button" data-cookie-choice="refuse">Refuser</button>
     </div>
 </div>
+<button class="cookie-manage-floating" type="button" data-cookie-manage aria-label="Gérer les préférences cookies">Cookies</button>
 <script src="<?= asset('js/main.js') ?>" defer></script>
 </body>
 </html>
