@@ -5,6 +5,12 @@ if [ "${DB_AUTO_IMPORT:-false}" != "true" ]; then
     exit 0
 fi
 
+if [ "${APP_ENV:-local}" = "production" ] && [ "${DB_AUTO_IMPORT_FORCE:-false}" = "true" ] && [ "${DB_ALLOW_PRODUCTION_FORCE_IMPORT:-false}" != "true" ]; then
+    echo "Import forcé refusé en production. Cette action pourrait supprimer les comptes créés par les utilisateurs." >&2
+    echo "Pour une mise à jour en production, utilisez database/render-update.sql ou définissez explicitement DB_ALLOW_PRODUCTION_FORCE_IMPORT=true une seule fois." >&2
+    exit 1
+fi
+
 if [ -z "${DB_HOST:-}" ] || [ -z "${DB_PORT:-}" ] || [ -z "${DB_DATABASE:-}" ] || [ -z "${DB_USERNAME:-}" ] || [ -z "${DB_PASSWORD:-}" ]; then
     echo "DB_AUTO_IMPORT=true mais une variable DB_* manque. Requis: DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD." >&2
     exit 1
@@ -45,7 +51,7 @@ if [ "$TABLES_COUNT" = "connection_failed" ]; then
 fi
 
 if [ "$TABLES_COUNT" != "0" ] && [ "${DB_AUTO_IMPORT_FORCE:-false}" != "true" ]; then
-    echo "Base MySQL déjà initialisée (${TABLES_COUNT} tables). Import ignoré."
+    echo "Base MySQL déjà initialisée (${TABLES_COUNT} tables). Import destructif ignoré pour conserver les comptes utilisateurs."
     exit 0
 fi
 

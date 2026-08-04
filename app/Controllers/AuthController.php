@@ -23,15 +23,17 @@ final class AuthController extends Controller
             flash('error', 'Trop de tentatives. Réessayez dans quelques minutes.');
             $this->redirect('/connexion');
         }
+        $email = strtolower(trim((string) input('email')));
         $password = trim((string) input('password'));
         $userModel = new User();
-        $user = $userModel->findByEmail((string) input('email'));
+        $user = $userModel->findByEmail($email);
         if (!$user || !$this->passwordMatches($password, (string) $user['password_hash'])) {
             $attempts[] = time();
             $_SESSION['login_attempts'] = $attempts;
             audit($user['id'] ?? null, 'failed_login', 'user', $user['id'] ?? null);
+            $this->logLoginFailure($email, $user);
             flash('error', 'Identifiants incorrects.');
-            remember_old(['email' => input('email')]);
+            remember_old(['email' => $email]);
             $this->redirect('/connexion');
         }
         if (in_array($user['status'], ['suspended', 'rejected'], true)) {
@@ -194,5 +196,22 @@ final class AuthController extends Controller
         }
 
         return false;
+    }
+
+    private function logLoginFailure(string $email, ?array $user): void
+    {
+        $payload = [
+            'date' => date('c'),
+            'event' => 'login_failed',
+            'email' => $email,
+            'reason' => $user ? 'password_mismatch' : 'email_not_found',
+            'user_id' => $user['id'] ?? null,
+            'status' => $user['status'] ?? null,
+            'role' => $user['role'] ?? null,
+            'hash_prefix' => isset($user['password_hash']) ? substr((string) $user['password_hash'], 0, 4) : null,
+            'hash_length' => isset($user['password_hash']) ? strlen((string) $user['password_hash']) : null,
+        ];
+
+        error_log('[AtypikHouse auth] ' . json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 }

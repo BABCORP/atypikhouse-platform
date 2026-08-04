@@ -14,5 +14,9 @@ services:
         sync: false
       - key: DB_AUTO_IMPORT
         value: "false"
+      - key: DB_AUTO_IMPORT_FORCE
+        value: "false"
+      - key: DB_ALLOW_PRODUCTION_FORCE_IMPORT
+        value: "false"
       - key: BREVO_ENABLED
         value: "false"
