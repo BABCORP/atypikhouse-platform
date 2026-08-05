@@ -135,6 +135,26 @@ if (!$breadcrumbs && $currentPath !== '/') {
     <?= $content ?>
 </main>
 
+<section class="site-newsletter" aria-labelledby="site-newsletter-title">
+    <div class="site-newsletter__content">
+        <p class="eyebrow">Newsletter</p>
+        <h2 id="site-newsletter-title">Recevoir l’inspiration séjour nature</h2>
+        <p>Idées de cabanes, séjours responsables, nouveautés du catalogue et conseils pour préparer une escapade insolite.</p>
+    </div>
+    <form role="form" class="site-newsletter__form" method="post" action="<?= url('/newsletter') ?>" data-track="newsletter_submit">
+        <?= csrf_field() ?>
+        <input type="hidden" name="redirect" value="<?= e($currentPath) ?>">
+        <label>Email
+            <input required type="email" name="email" autocomplete="email" placeholder="vous@exemple.fr">
+        </label>
+        <label class="checkbox">
+            <input required type="checkbox" name="newsletter_consent" value="1">
+            J’accepte de recevoir la newsletter AtypikHouse dans le cadre de cette démonstration académique.
+        </label>
+        <button class="button" type="submit">S’inscrire à la newsletter</button>
+    </form>
+</section>
+
 <footer class="site-footer">
     <div class="footer-brand">
         <strong>AtypikHouse</strong>

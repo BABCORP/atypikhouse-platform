@@ -236,13 +236,24 @@ final class PublicController extends Controller
     {
         verify_csrf();
         $email = strtolower(trim((string) input('email', '')));
+        $redirect = $this->safeNewsletterRedirect();
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || input('newsletter_consent') !== '1') {
             flash('error', 'Merci d’indiquer une adresse email valide et d’accepter le consentement newsletter dans le cadre de la démonstration académique.');
-            $this->redirect('/');
+            $this->redirect($redirect);
         }
         $mode = (new NewsletterService())->subscribe($email, isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null);
         flash('success', $mode === 'demo' ? 'Votre inscription newsletter a été enregistrée pour la démonstration académique.' : 'Inscription enregistrée dans la file emailing sécurisée.');
-        $this->redirect('/');
+        $this->redirect($redirect);
+    }
+
+    private function safeNewsletterRedirect(): string
+    {
+        $redirect = trim((string) input('redirect', '/'));
+        if ($redirect === '' || !str_starts_with($redirect, '/') || str_starts_with($redirect, '//')) {
+            return '/';
+        }
+
+        return $redirect;
     }
 
     public function privacyRequest(): void

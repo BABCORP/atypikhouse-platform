@@ -48,14 +48,6 @@
             <p>AtypikHouse valorise les séjours nature, l’éco-score, les équipements utiles et les propriétaires engagés. Les données restent fictives, mais le parcours reproduit un vrai modèle de marketplace.</p>
             <a class="text-link" href="<?= url('/concept') ?>" data-track="cta_click">Comprendre le concept</a>
         </article>
-        <form role="form" class="panel newsletter-form" method="post" action="<?= url('/newsletter') ?>" data-track="newsletter_submit">
-            <?= csrf_field() ?>
-            <p class="eyebrow">Inspiration</p>
-            <h2>Recevoir l’inspiration séjour nature</h2>
-            <label>Email<input required type="email" name="email" placeholder="vous@exemple.fr"></label>
-            <label class="checkbox"><input required type="checkbox" name="newsletter_consent" value="1"> J’accepte l’inscription newsletter dans le cadre de cette démonstration académique.</label>
-            <button class="button full" type="submit">S’inscrire</button>
-        </form>
     </div>
     <div class="home-flow-secondary">
         <article role="article" class="home-proof">
