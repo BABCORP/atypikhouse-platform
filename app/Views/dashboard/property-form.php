@@ -22,7 +22,7 @@ $amenityOptions = [
 $customAmenities = array_values(array_diff($selectedAmenities, $amenityOptions));
 ?>
 <section class="section form-layout">
-    <form class="panel" method="post" enctype="multipart/form-data" action="<?= $isEdit ? url('/proprietaire/logements/' . $property['id'] . '/modifier') : url('/proprietaire/logements/ajouter') ?>" data-track="property_submit">
+    <form role="form" class="panel" method="post" enctype="multipart/form-data" action="<?= $isEdit ? url('/proprietaire/logements/' . $property['id'] . '/modifier') : url('/proprietaire/logements/ajouter') ?>" data-track="property_submit">
         <?= csrf_field() ?>
         <p class="eyebrow">Soumission hôte</p>
         <h1><?= e($title) ?></h1>
@@ -122,20 +122,20 @@ $customAmenities = array_values(array_diff($selectedAmenities, $amenityOptions))
             <h3>Image principale actuelle</h3>
             <div class="owner-gallery-grid">
                 <?php foreach ($mainImages as $image): ?>
-                    <article class="owner-image-card">
+                    <article role="article" class="owner-image-card">
                         <img src="<?= image_url($image['image_path']) ?>" alt="<?= e($image['alt_text']) ?>" loading="lazy">
                         <span class="badge <?= (int) $image['is_main'] === 1 ? 'published' : '' ?>"><?= (int) $image['is_main'] === 1 ? 'Image principale' : 'Image secondaire' ?></span>
                         <?php if (!$requiresValidation): ?>
-                            <form method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/alt') ?>">
+                            <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/alt') ?>">
                                 <?= csrf_field() ?>
                                 <label>Texte alternatif<input name="alt_text" value="<?= e($image['alt_text']) ?>" required></label>
                                 <button class="button compact" type="submit">Mettre à jour</button>
                             </form>
                             <div class="actions-row">
                                 <?php if ((int) $image['is_main'] !== 1): ?>
-                                    <form method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/principale') ?>"><?= csrf_field() ?><button class="button ghost compact" type="submit">Définir principale</button></form>
+                                    <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/principale') ?>"><?= csrf_field() ?><button class="button ghost compact" type="submit">Définir principale</button></form>
                                 <?php endif; ?>
-                                <form method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/supprimer') ?>" data-confirm="Supprimer cette image du logement ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
+                                <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/supprimer') ?>" data-confirm="Supprimer cette image du logement ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
                             </div>
                         <?php endif; ?>
                     </article>
@@ -144,18 +144,18 @@ $customAmenities = array_values(array_diff($selectedAmenities, $amenityOptions))
             <h3>Autres images</h3>
             <div class="owner-gallery-grid">
                 <?php foreach ($secondaryImages as $image): ?>
-                    <article class="owner-image-card">
+                    <article role="article" class="owner-image-card">
                         <img src="<?= image_url($image['image_path']) ?>" alt="<?= e($image['alt_text']) ?>" loading="lazy">
                         <span class="badge muted">Image secondaire</span>
                         <?php if (!$requiresValidation): ?>
-                            <form method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/alt') ?>">
+                            <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/alt') ?>">
                                 <?= csrf_field() ?>
                                 <label>Texte alternatif<input name="alt_text" value="<?= e($image['alt_text']) ?>" required></label>
                                 <button class="button compact" type="submit">Mettre à jour</button>
                             </form>
                             <div class="actions-row">
-                                <form method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/principale') ?>"><?= csrf_field() ?><button class="button ghost compact" type="submit">Définir principale</button></form>
-                                <form method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/supprimer') ?>" data-confirm="Supprimer cette image du logement ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
+                                <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/principale') ?>"><?= csrf_field() ?><button class="button ghost compact" type="submit">Définir principale</button></form>
+                                <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/supprimer') ?>" data-confirm="Supprimer cette image du logement ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
                             </div>
                         <?php endif; ?>
                     </article>

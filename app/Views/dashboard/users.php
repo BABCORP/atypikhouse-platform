@@ -6,7 +6,7 @@
             <h1>Utilisateurs</h1>
         </div>
     </div>
-    <form class="filters panel" method="get">
+    <form role="form" class="filters panel" method="get">
         <label>Recherche
             <input name="search" value="<?= e(input('search', '')) ?>" placeholder="Nom, prénom ou email">
         </label>
@@ -43,17 +43,17 @@
                     <a class="button compact ghost" href="<?= url('/admin/utilisateurs/' . $u['id']) ?>">Voir</a>
                     <a class="button compact ghost" href="<?= url('/admin/utilisateurs/' . $u['id'] . '/modifier') ?>">Modifier</a>
                     <?php if ($u['status'] !== 'active'): ?>
-                        <form method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/approuver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Approuver</button></form>
+                        <form role="form" method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/approuver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Approuver</button></form>
                     <?php endif; ?>
                     <?php if ($u['status'] !== 'rejected'): ?>
-                        <form method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/refuser') ?>" data-confirm="Refuser ce compte utilisateur ?"><?= csrf_field() ?><button class="button ghost compact" type="submit">Refuser</button></form>
+                        <form role="form" method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/refuser') ?>" data-confirm="Refuser ce compte utilisateur ?"><?= csrf_field() ?><button class="button ghost compact" type="submit">Refuser</button></form>
                     <?php endif; ?>
                     <?php if ($u['status'] === 'suspended'): ?>
-                        <form method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/reactiver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Réactiver</button></form>
+                        <form role="form" method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/reactiver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Réactiver</button></form>
                     <?php else: ?>
-                        <form method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/suspendre') ?>" data-confirm="Suspendre ce compte utilisateur ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Suspendre</button></form>
+                        <form role="form" method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/suspendre') ?>" data-confirm="Suspendre ce compte utilisateur ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Suspendre</button></form>
                     <?php endif; ?>
-                    <form method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/statut') ?>">
+                    <form role="form" method="post" action="<?= url('/admin/utilisateurs/' . $u['id'] . '/statut') ?>">
                         <?= csrf_field() ?>
                         <select name="status" aria-label="Changer le statut de <?= e($u['email']) ?>">
                             <?php foreach (['active', 'pending', 'rejected', 'suspended'] as $status): ?>

@@ -1,4 +1,4 @@
-<main class="concept-page">
+<div class="concept-page">
     <section class="concept-hero">
         <div class="concept-hero__content">
             <p class="eyebrow">Marketplace responsable</p>
@@ -28,12 +28,12 @@
     </section>
 
     <section class="concept-section concept-audiences">
-        <article class="concept-audience-card concept-audience-card--traveler">
+        <article role="article" class="concept-audience-card concept-audience-card--traveler">
             <span class="concept-icon" aria-hidden="true">01</span>
             <h2>Pour les voyageurs</h2>
             <p>Une expérience claire pour comparer des cabanes, tiny houses, dômes ou logements nature, se projeter dans un séjour et comprendre le prix avant une simulation de paiement.</p>
         </article>
-        <article class="concept-audience-card concept-audience-card--host">
+        <article role="article" class="concept-audience-card concept-audience-card--host">
             <span class="concept-icon" aria-hidden="true">02</span>
             <h2>Pour les hôtes</h2>
             <p>Un espace propriétaire pour ajouter un logement, gérer les images, ouvrir ou fermer des disponibilités, suivre les réservations et soumettre les annonces à validation.</p>
@@ -60,22 +60,22 @@
             <p>Le projet privilégie la projection émotionnelle, le tourisme responsable et une expérience simple pour deux publics : voyageurs en quête d’évasion et propriétaires souhaitant gérer leurs logements depuis un espace clair.</p>
         </div>
         <div class="concept-values">
-            <article class="concept-card concept-card--nature">
+            <article role="article" class="concept-card concept-card--nature">
                 <span class="concept-card__mark" aria-hidden="true">N</span>
                 <h3>Nature</h3>
                 <p>Des séjours pensés pour se reconnecter au paysage, au calme et aux grands espaces.</p>
             </article>
-            <article class="concept-card concept-card--trust">
+            <article role="article" class="concept-card concept-card--trust">
                 <span class="concept-card__mark" aria-hidden="true">C</span>
                 <h3>Confiance</h3>
                 <p>Des logements validés, des avis modérés et une séparation claire des rôles.</p>
             </article>
-            <article class="concept-card concept-card--simple">
+            <article role="article" class="concept-card concept-card--simple">
                 <span class="concept-card__mark" aria-hidden="true">S</span>
                 <h3>Simplicité</h3>
             <p>Une recherche fluide, une réservation de démonstration et un espace utilisateur facile à comprendre.</p>
             </article>
-            <article class="concept-card concept-card--responsible">
+            <article role="article" class="concept-card concept-card--responsible">
                 <span class="concept-card__mark" aria-hidden="true">R</span>
                 <h3>Responsabilité</h3>
                 <p>Une approche orientée tourisme responsable, sobriété et valorisation des séjours nature.</p>
@@ -89,10 +89,10 @@
             <h2>Un parcours marketplace complet, sans transaction réelle</h2>
         </div>
         <div class="concept-steps">
-            <article><span>1</span><h3>Rechercher</h3><p>Filtrer les logements par destination, type, capacité, prix ou dates.</p></article>
-            <article><span>2</span><h3>Comparer</h3><p>Consulter les photos, équipements, avis publiés et disponibilités.</p></article>
-            <article><span>3</span><h3>Réserver</h3><p>Créer une réservation fictive avec paiement fictif de démonstration, sans carte bancaire réelle.</p></article>
-            <article><span>4</span><h3>Partager</h3><p>Laisser un avis après un séjour terminé, avec modération administrateur.</p></article>
+            <article role="article"><span>1</span><h3>Rechercher</h3><p>Filtrer les logements par destination, type, capacité, prix ou dates.</p></article>
+            <article role="article"><span>2</span><h3>Comparer</h3><p>Consulter les photos, équipements, avis publiés et disponibilités.</p></article>
+            <article role="article"><span>3</span><h3>Réserver</h3><p>Créer une réservation fictive avec paiement fictif de démonstration, sans carte bancaire réelle.</p></article>
+            <article role="article"><span>4</span><h3>Partager</h3><p>Laisser un avis après un séjour terminé, avec modération administrateur.</p></article>
         </div>
     </section>
 
@@ -102,4 +102,4 @@
         <p>Explorez les cabanes, tiny houses, dômes et logements nature disponibles dans cette démonstration académique.</p>
         <a class="button secondary" href="<?= url('/hebergements') ?>" data-track="cta_click">Voir les séjours nature</a>
     </section>
-</main>
+</div>

@@ -1,5 +1,5 @@
 <?php $user = \App\Core\Auth::user(); ?>
-<nav class="dashboard-nav" aria-label="Navigation espace utilisateur">
+<nav role="navigation" class="dashboard-nav" aria-label="Navigation espace utilisateur">
     <?php if ($user['role'] === 'tenant'): ?>
         <a href="<?= url('/locataire/dashboard') ?>">Tableau de bord</a><a href="<?= url('/locataire/reservations') ?>">Réservations</a><a href="<?= url('/locataire/favoris') ?>">Favoris</a><a href="<?= url('/locataire/avis') ?>">Avis</a><a href="<?= url('/locataire/profil') ?>">Profil</a>
     <?php elseif ($user['role'] === 'owner'): ?>

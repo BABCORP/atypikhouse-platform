@@ -12,7 +12,7 @@
         </div>
     </div>
     <div class="dashboard-grid two">
-        <article class="panel">
+        <article role="article" class="panel">
             <h2>Identité</h2>
             <dl class="detail-list">
                 <dt>Rôle</dt><dd><span class="badge"><?= role_label($user['role']) ?></span></dd>
@@ -23,20 +23,20 @@
             </dl>
             <div class="actions-row">
                 <?php if ($user['status'] !== 'active'): ?>
-                    <form method="post" action="<?= url('/admin/utilisateurs/' . $user['id'] . '/approuver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Approuver</button></form>
+                    <form role="form" method="post" action="<?= url('/admin/utilisateurs/' . $user['id'] . '/approuver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Approuver</button></form>
                 <?php endif; ?>
                 <?php if ($user['status'] !== 'rejected'): ?>
-                    <form method="post" action="<?= url('/admin/utilisateurs/' . $user['id'] . '/refuser') ?>" data-confirm="Refuser ce compte utilisateur ?"><?= csrf_field() ?><button class="button ghost compact" type="submit">Refuser</button></form>
+                    <form role="form" method="post" action="<?= url('/admin/utilisateurs/' . $user['id'] . '/refuser') ?>" data-confirm="Refuser ce compte utilisateur ?"><?= csrf_field() ?><button class="button ghost compact" type="submit">Refuser</button></form>
                 <?php endif; ?>
                 <?php if ($user['status'] === 'suspended'): ?>
-                    <form method="post" action="<?= url('/admin/utilisateurs/' . $user['id'] . '/reactiver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Réactiver</button></form>
+                    <form role="form" method="post" action="<?= url('/admin/utilisateurs/' . $user['id'] . '/reactiver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Réactiver</button></form>
                 <?php else: ?>
-                    <form method="post" action="<?= url('/admin/utilisateurs/' . $user['id'] . '/suspendre') ?>" data-confirm="Suspendre ce compte utilisateur ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Suspendre</button></form>
+                    <form role="form" method="post" action="<?= url('/admin/utilisateurs/' . $user['id'] . '/suspendre') ?>" data-confirm="Suspendre ce compte utilisateur ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Suspendre</button></form>
                 <?php endif; ?>
             </div>
         </article>
         <?php if (!empty($ownerProfile)): ?>
-            <article class="panel">
+            <article role="article" class="panel">
                 <h2>Profil hôte</h2>
                 <dl class="detail-list">
                     <dt>Société</dt><dd><?= e($ownerProfile['company_name']) ?></dd>

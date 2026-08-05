@@ -7,10 +7,10 @@
     </div>
 </section>
 <section class="section steps">
-    <article><span>1</span><h2>Créer votre profil</h2><p>Présentez votre activité, votre localisation et votre démarche d’accueil.</p></article>
-    <article><span>2</span><h2>Soumettre un logement</h2><p>Ajoutez description, photos, équipements, prix et texte alternatif pour le SEO.</p></article>
-    <article><span>3</span><h2>Attendre la validation</h2><p>L’administrateur approuve ou refuse la publication pour garder un catalogue cohérent.</p></article>
-    <article><span>4</span><h2>Piloter le planning</h2><p>Définissez les plages disponibles, les indisponibilités et les tarifs spécifiques.</p></article>
+    <article role="article"><span>1</span><h2>Créer votre profil</h2><p>Présentez votre activité, votre localisation et votre démarche d’accueil.</p></article>
+    <article role="article"><span>2</span><h2>Soumettre un logement</h2><p>Ajoutez description, photos, équipements, prix et texte alternatif pour le SEO.</p></article>
+    <article role="article"><span>3</span><h2>Attendre la validation</h2><p>L’administrateur approuve ou refuse la publication pour garder un catalogue cohérent.</p></article>
+    <article role="article"><span>4</span><h2>Piloter le planning</h2><p>Définissez les plages disponibles, les indisponibilités et les tarifs spécifiques.</p></article>
 </section>
 <section class="section split">
     <div>

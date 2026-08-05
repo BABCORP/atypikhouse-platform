@@ -10,7 +10,7 @@
         <p>La demande est stockée localement dans les messages administrateur. Aucun traitement juridique réel ni suppression automatique de compte n’est exécuté.</p>
         <a class="text-link" href="<?= url('/politique-confidentialite') ?>">Lire la politique de confidentialité</a>
     </aside>
-    <form class="panel contact-form" method="post" data-track="form_submit">
+    <form role="form" class="panel contact-form" method="post" data-track="form_submit">
         <?= csrf_field() ?>
         <label>Nom complet<input required name="name" value="<?= old('name') ?>"></label>
         <label>Email<input required type="email" name="email" value="<?= old('email') ?>"></label>

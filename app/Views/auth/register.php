@@ -1,5 +1,5 @@
 <section class="section form-layout narrow">
-    <form class="panel" method="post" data-track="owner_signup">
+    <form role="form" class="panel" method="post" data-track="owner_signup">
         <h1>Créer un compte</h1>
         <?= csrf_field() ?>
         <label>Type de compte<select name="role" id="role-select"><option value="tenant" <?= $role !== 'owner' ? 'selected' : '' ?>>Locataire</option><option value="owner" <?= $role === 'owner' ? 'selected' : '' ?>>Propriétaire</option></select></label>

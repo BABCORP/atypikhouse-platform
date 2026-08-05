@@ -2,7 +2,7 @@
 <section class="section">
     <h1>Mes avis</h1>
     <?php foreach ($reviews as $review): ?>
-        <article class="panel">
+        <article role="article" class="panel">
             <strong><?= e($review['title']) ?></strong>
             <p class="rating-summary"><?= rating_stars((int) $review['rating'], 'Note de votre avis') ?> <span><?= (int)$review['rating'] ?>/5 · <?= e(status_label($review['status'])) ?></span></p>
             <p><?= e($review['comment']) ?></p>

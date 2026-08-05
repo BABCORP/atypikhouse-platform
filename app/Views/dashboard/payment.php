@@ -1,5 +1,5 @@
 <section class="section form-layout narrow">
-    <form class="panel" method="post" data-track="booking_confirm">
+    <form role="form" class="panel" method="post" data-track="booking_confirm">
         <h1>Paiement fictif de démonstration</h1>
         <?= csrf_field() ?>
         <p><strong><?= e(config('academic_disclaimer')) ?></strong></p>

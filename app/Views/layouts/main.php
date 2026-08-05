@@ -37,10 +37,10 @@ $ariaCurrent = static fn (string $path): string => $isActivePath($path) ? ' aria
 </head>
 <body>
 <a class="skip-link" href="#contenu">Aller au contenu</a>
-<header class="site-header">
+<header class="site-header" role="banner">
     <a class="brand" href="<?= url('/') ?>" aria-label="AtypikHouse, accueil">AtypikHouse</a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="navigation-principale">Menu</button>
-    <nav class="main-nav" id="navigation-principale" aria-label="Navigation principale">
+    <nav role="navigation" class="main-nav" id="navigation-principale" aria-label="Navigation principale">
         <a class="<?= e($navLinkClass('/')) ?>" href="<?= url('/') ?>"<?= $ariaCurrent('/') ?>>Accueil</a>
         <a class="<?= e($navLinkClass('/concept')) ?>" href="<?= url('/concept') ?>"<?= $ariaCurrent('/concept') ?>>Le concept</a>
         <a class="<?= e($navLinkClass('/hebergements')) ?>" href="<?= url('/hebergements') ?>"<?= $ariaCurrent('/hebergements') ?>>Hébergements</a>
@@ -50,7 +50,7 @@ $ariaCurrent = static fn (string $path): string => $isActivePath($path) ? ' aria
         <a class="<?= e($navLinkClass('/contact')) ?>" href="<?= url('/contact') ?>"<?= $ariaCurrent('/contact') ?>>Contact</a>
         <?php if ($currentUser): ?>
             <a class="button ghost" href="<?= url('/' . ($currentUser['role'] === 'admin' ? 'admin' : ($currentUser['role'] === 'owner' ? 'proprietaire' : 'locataire')) . '/dashboard') ?>">Mon espace</a>
-            <form method="post" action="<?= url('/deconnexion') ?>"><?= csrf_field() ?><button class="link-button" type="submit">Déconnexion</button></form>
+            <form role="form" method="post" action="<?= url('/deconnexion') ?>"><?= csrf_field() ?><button class="link-button" type="submit">Déconnexion</button></form>
         <?php else: ?>
             <a class="button ghost" href="<?= url('/connexion') ?>">Connexion</a>
         <?php endif; ?>
@@ -61,7 +61,7 @@ $ariaCurrent = static fn (string $path): string => $isActivePath($path) ? ' aria
 <?php if ($message = flash('warning')): ?><p class="flash warning" role="status"><?= e($message) ?></p><?php endif; ?>
 <?php if ($message = flash('error')): ?><p class="flash error" role="alert"><?= e($message) ?></p><?php endif; ?>
 
-<main id="contenu">
+<main id="contenu" role="main">
     <?= $content ?>
 </main>
 
@@ -71,9 +71,9 @@ $ariaCurrent = static fn (string $path): string => $isActivePath($path) ? ' aria
         <p>Des séjours insolites et responsables pour renouer avec la nature.</p>
         <p class="disclaimer"><?= e(config('academic_disclaimer')) ?></p>
     </div>
-    <div class="footer-column"><h2>Explorer</h2><nav aria-label="Explorer AtypikHouse"><a href="<?= url('/hebergements') ?>">Hébergements</a><a href="<?= url('/concept') ?>">Le concept</a><a href="<?= url('/devenir-hote') ?>">Devenir hôte</a><a href="<?= url('/contact') ?>">Contact</a></nav></div>
-    <div class="footer-column"><h2>Suivez-nous</h2><nav aria-label="Réseaux sociaux AtypikHouse"><a href="https://www.instagram.com/atypikhouse__off/" target="_blank" rel="noopener noreferrer" aria-label="Suivre AtypikHouse sur Instagram">@atypikhouse__off</a></nav></div>
-    <div class="footer-column"><h2>Informations</h2><nav aria-label="Liens légaux"><a href="<?= url('/mentions-legales') ?>">Mentions légales</a><a href="<?= url('/cgu') ?>">CGU</a><a href="<?= url('/cgv') ?>">CGV</a><a href="<?= url('/politique-confidentialite') ?>">Confidentialité</a><a href="<?= url('/mes-donnees') ?>">Mes données</a><a href="<?= url('/cookies') ?>">Cookies</a><button class="footer-cookie-control" type="button" data-cookie-manage>Gérer les cookies</button></nav></div>
+    <div class="footer-column"><h2>Explorer</h2><nav role="navigation" aria-label="Explorer AtypikHouse"><a href="<?= url('/hebergements') ?>">Hébergements</a><a href="<?= url('/concept') ?>">Le concept</a><a href="<?= url('/devenir-hote') ?>">Devenir hôte</a><a href="<?= url('/contact') ?>">Contact</a></nav></div>
+    <div class="footer-column"><h2>Suivez-nous</h2><nav role="navigation" aria-label="Réseaux sociaux AtypikHouse"><a href="https://www.instagram.com/atypikhouse__off/" target="_blank" rel="noopener noreferrer" aria-label="Suivre AtypikHouse sur Instagram">@atypikhouse__off</a></nav></div>
+    <div class="footer-column"><h2>Informations</h2><nav role="navigation" aria-label="Liens légaux"><a href="<?= url('/mentions-legales') ?>">Mentions légales</a><a href="<?= url('/cgu') ?>">CGU</a><a href="<?= url('/cgv') ?>">CGV</a><a href="<?= url('/politique-confidentialite') ?>">Confidentialité</a><a href="<?= url('/mes-donnees') ?>">Mes données</a><a href="<?= url('/cookies') ?>">Cookies</a><button class="footer-cookie-control" type="button" data-cookie-manage>Gérer les cookies</button></nav></div>
 </footer>
 <div class="cookie-banner" data-cookie-banner>
     <p><strong>Gestion des cookies</strong><br>Nous utilisons uniquement des cookies de session et, si vous acceptez, des emplacements prêts pour GA4/GTM sans identifiant réel par défaut.</p>

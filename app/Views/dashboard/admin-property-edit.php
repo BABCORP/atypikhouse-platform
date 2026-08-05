@@ -1,6 +1,6 @@
 <?php require __DIR__ . '/_nav.php'; ?>
 <section class="section narrow">
-    <form class="panel" method="post">
+    <form role="form" class="panel" method="post">
         <?= csrf_field() ?>
         <p class="eyebrow">Administration logement</p>
         <h1>Modifier <?= e($property['title']) ?></h1>

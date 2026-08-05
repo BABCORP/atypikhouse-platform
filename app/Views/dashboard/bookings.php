@@ -7,7 +7,7 @@
         </div>
     </div>
     <?php if (($scope ?? '') === 'owner'): ?>
-        <form class="filters panel" method="get">
+        <form role="form" class="filters panel" method="get">
             <label>Logement
                 <select name="property_id">
                     <option value="">Tous les logements</option>
@@ -29,7 +29,7 @@
             <button class="button compact" type="submit">Filtrer</button>
         </form>
     <?php elseif (($scope ?? '') === 'admin'): ?>
-        <form class="filters panel" method="get">
+        <form role="form" class="filters panel" method="get">
             <label>Statut
                 <select name="status">
                     <option value="">Tous les statuts</option>

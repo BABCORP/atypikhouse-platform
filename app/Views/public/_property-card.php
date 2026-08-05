@@ -8,11 +8,11 @@ if (!is_string($favoriteRedirect) || !str_starts_with($favoriteRedirect, '/') ||
     $favoriteRedirect = '/hebergements';
 }
 ?>
-<article class="card property-card">
+<article role="article" class="card property-card">
     <div class="card-media">
         <img loading="lazy" src="<?= image_url($property['main_image'] ?? null) ?>" alt="<?= e($property['title']) ?>">
         <span class="eco-badge">Éco-lodge</span>
-        <form class="favorite-form" method="post" action="<?= url('/favoris/' . $property['id'] . '/toggle') ?>">
+        <form role="form" class="favorite-form" method="post" action="<?= url('/favoris/' . $property['id'] . '/toggle') ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="redirect" value="<?= e($favoriteRedirect) ?>">
             <button class="favorite-button<?= $isFavorite ? ' is-favorite' : '' ?>" type="submit" aria-label="<?= $isFavorite ? 'Retirer ce logement des favoris' : 'Ajouter ce logement aux favoris' ?>">

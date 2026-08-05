@@ -30,7 +30,7 @@ $fields = [
         <a class="button ghost" href="<?= url('/admin/logements/modifications') ?>">Retour</a>
     </div>
 
-    <article class="panel">
+    <article role="article" class="panel">
         <h2>Comparaison des informations</h2>
         <div class="table-wrap"><table>
             <caption>Anciennes et nouvelles valeurs proposées</caption>
@@ -53,18 +53,18 @@ $fields = [
     </article>
 
     <div class="dashboard-grid two">
-        <article class="panel">
+        <article role="article" class="panel">
             <h2>Équipements actuels</h2>
             <div class="pill-list amenity-list"><?php foreach (($currentAmenities ?? []) as $amenity): ?><span><?= e($amenity) ?></span><?php endforeach; ?></div>
         </article>
-        <article class="panel">
+        <article role="article" class="panel">
             <h2>Équipements proposés</h2>
             <div class="pill-list amenity-list"><?php foreach (($proposed['amenities'] ?? []) as $amenity): ?><span><?= e($amenity) ?></span><?php endforeach; ?></div>
         </article>
     </div>
 
     <div class="dashboard-grid two">
-        <article class="panel">
+        <article role="article" class="panel">
             <h2>Images actuelles</h2>
             <?php foreach (($currentImages ?? []) as $image): ?>
                 <figure>
@@ -73,7 +73,7 @@ $fields = [
                 </figure>
             <?php endforeach; ?>
         </article>
-        <article class="panel">
+        <article role="article" class="panel">
             <h2>Images proposées</h2>
             <?php if (!empty($proposed['main_image']['path'])): ?>
                 <figure>
@@ -93,14 +93,14 @@ $fields = [
         </article>
     </div>
 
-    <article class="panel">
+    <article role="article" class="panel">
         <h2>Décision administrateur</h2>
         <div class="actions-row">
-            <form method="post" action="<?= url('/admin/logements/modifications/' . $request['id'] . '/approuver') ?>">
+            <form role="form" method="post" action="<?= url('/admin/logements/modifications/' . $request['id'] . '/approuver') ?>">
                 <?= csrf_field() ?>
                 <button class="button" type="submit">Approuver et publier</button>
             </form>
-            <form method="post" action="<?= url('/admin/logements/modifications/' . $request['id'] . '/refuser') ?>" data-confirm="Refuser cette demande de modification ?">
+            <form role="form" method="post" action="<?= url('/admin/logements/modifications/' . $request['id'] . '/refuser') ?>" data-confirm="Refuser cette demande de modification ?">
                 <?= csrf_field() ?>
                 <label>Motif de refus
                     <textarea name="rejection_reason" maxlength="500" placeholder="Ex. les photos ne sont pas assez cohérentes avec le logement."></textarea>

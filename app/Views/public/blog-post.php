@@ -1,4 +1,4 @@
-<article class="section article">
+<article role="article" class="section article">
     <p class="eyebrow">Blog AtypikHouse</p>
     <h1><?= e($post['title']) ?></h1>
     <p class="lead"><?= e($post['excerpt']) ?></p>

@@ -1,5 +1,5 @@
 <section class="section form-layout narrow">
-    <form class="panel" method="post">
+    <form role="form" class="panel" method="post">
         <h1>Se connecter</h1>
         <?= csrf_field() ?>
         <label>Email<input required type="email" name="email" autocomplete="email" value="<?= old('email') ?>"></label>

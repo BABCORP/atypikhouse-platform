@@ -1,7 +1,7 @@
 <?php require __DIR__ . '/_nav.php'; ?>
 <section class="section">
     <div class="section-heading"><div><p class="eyebrow">Back-office</p><h1>Gestion des logements</h1></div></div>
-    <form class="filters panel" method="get">
+    <form role="form" class="filters panel" method="get">
         <label>Recherche<input name="search" value="<?= e(input('search', '')) ?>" placeholder="Titre du logement"></label>
         <label>Propriétaire<input name="owner" value="<?= e(input('owner', '')) ?>" placeholder="Email ou nom"></label>
         <label>Localisation<input name="location" value="<?= e(input('location', '')) ?>" placeholder="Ville ou région"></label>
@@ -46,18 +46,18 @@
                     <?php if ($property['status'] !== 'deleted'): ?>
                         <?php if ($property['status'] !== 'paused'): ?><a class="button compact ghost" href="<?= url('/admin/logements/' . $property['id'] . '/modifier') ?>">Modifier</a><?php endif; ?>
                         <?php if (in_array($property['status'], ['pending', 'rejected', 'draft'], true)): ?>
-                            <form class="inline-form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/approuver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Publier</button></form>
+                            <form role="form" class="inline-form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/approuver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Publier</button></form>
                         <?php endif; ?>
                         <?php if ($property['status'] === 'pending'): ?>
-                            <form class="inline-form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/refuser') ?>" data-confirm="Refuser ce logement ?"><?= csrf_field() ?><button class="button ghost compact" type="submit">Refuser</button></form>
+                            <form role="form" class="inline-form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/refuser') ?>" data-confirm="Refuser ce logement ?"><?= csrf_field() ?><button class="button ghost compact" type="submit">Refuser</button></form>
                         <?php endif; ?>
                         <?php if ($property['status'] === 'published'): ?>
-                            <form class="inline-form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/mettre-en-pause') ?>" data-confirm="Mettre ce logement en pause ? Les réservations existantes seront conservées."><?= csrf_field() ?><button class="button ghost compact" type="submit">Mettre en pause</button></form>
+                            <form role="form" class="inline-form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/mettre-en-pause') ?>" data-confirm="Mettre ce logement en pause ? Les réservations existantes seront conservées."><?= csrf_field() ?><button class="button ghost compact" type="submit">Mettre en pause</button></form>
                         <?php endif; ?>
                         <?php if ($property['status'] === 'paused'): ?>
-                            <form class="inline-form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/reactiver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Réactiver</button></form>
+                            <form role="form" class="inline-form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/reactiver') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Réactiver</button></form>
                         <?php endif; ?>
-                        <form class="inline-form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/supprimer') ?>" data-confirm="Confirmer la suppression de ce logement ? Il ne sera plus visible publiquement, mais son historique sera conservé."><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
+                        <form role="form" class="inline-form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/supprimer') ?>" data-confirm="Confirmer la suppression de ce logement ? Il ne sera plus visible publiquement, mais son historique sera conservé."><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
                     <?php endif; ?>
                 </td>
             </tr>

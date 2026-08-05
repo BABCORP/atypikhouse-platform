@@ -9,7 +9,7 @@
         <a class="button ghost" href="<?= url('/admin/reservations') ?>">Retour</a>
     </div>
     <div class="dashboard-grid two">
-        <article class="panel">
+        <article role="article" class="panel">
             <h2>Séjour</h2>
             <dl class="detail-list">
                 <dt>Logement</dt><dd><a href="<?= url('/hebergements/' . $booking['slug']) ?>"><?= e($booking['title']) ?></a></dd>
@@ -20,7 +20,7 @@
                 <dt>Voyageurs</dt><dd><?= (int) $booking['guests_count'] ?></dd>
             </dl>
         </article>
-        <article class="panel">
+        <article role="article" class="panel">
             <h2>Locataire et paiement</h2>
             <dl class="detail-list">
                 <dt>Locataire</dt><dd><?= e($booking['tenant_first_name'] . ' ' . $booking['tenant_last_name']) ?></dd>
@@ -35,7 +35,7 @@
             </dl>
         </article>
     </div>
-    <article class="panel availability-calendar-panel">
+    <article role="article" class="panel availability-calendar-panel">
         <div class="calendar-toolbar">
             <button class="button ghost compact" type="button" data-calendar-prev>Mois précédent</button>
             <h2 data-calendar-title>Calendrier du logement</h2>
@@ -50,7 +50,7 @@
         <div class="availability-calendar" data-availability-calendar data-calendar-payload="<?= e(json_encode($calendarData ?? [], JSON_UNESCAPED_UNICODE)) ?>" aria-live="polite"></div>
         <p class="notice">Vue administrateur : les dates bloquées proviennent des réservations en attente de validation, en attente de paiement, confirmées ou terminées.</p>
     </article>
-    <form class="panel inline-admin-form" method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/statut') ?>">
+    <form role="form" class="panel inline-admin-form" method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/statut') ?>">
         <?= csrf_field() ?>
         <label>Statut
             <select name="status">
@@ -64,11 +64,11 @@
     </form>
     <div class="actions-row">
         <?php if ($booking['status'] === 'pending_admin'): ?>
-            <form method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/confirmer') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Valider et demander le paiement</button></form>
+            <form role="form" method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/confirmer') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Valider et demander le paiement</button></form>
         <?php endif; ?>
         <?php if ($booking['status'] === 'confirmed' && $booking['payment_status'] === 'test_paid'): ?>
-            <form method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/terminer') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Marquer terminée</button></form>
+            <form role="form" method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/terminer') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Marquer terminée</button></form>
         <?php endif; ?>
-        <form method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/annuler') ?>" data-confirm="Annuler cette réservation ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Annuler</button></form>
+        <form role="form" method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/annuler') ?>" data-confirm="Annuler cette réservation ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Annuler</button></form>
     </div>
 </section>

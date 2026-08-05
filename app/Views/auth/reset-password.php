@@ -1,5 +1,5 @@
 <section class="section narrow">
-    <form class="panel" method="post" data-track="form_submit">
+    <form role="form" class="panel" method="post" data-track="form_submit">
         <?= csrf_field() ?>
         <p class="eyebrow">Sécurité du compte</p>
         <h1>Créer un nouveau mot de passe</h1>

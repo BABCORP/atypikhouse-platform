@@ -32,16 +32,16 @@
         'simulated_revenue' => 'revenus de démonstration',
     ]; ?>
     <div class="stats">
-        <?php foreach ($stats as $label => $value): ?><article><strong><?= is_numeric($value) && str_contains($label, 'revenue') ? money($value) : e((string)$value) ?></strong><span><?= e($statLabels[$label] ?? $label) ?></span></article><?php endforeach; ?>
+        <?php foreach ($stats as $label => $value): ?><article role="article"><strong><?= is_numeric($value) && str_contains($label, 'revenue') ? money($value) : e((string)$value) ?></strong><span><?= e($statLabels[$label] ?? $label) ?></span></article><?php endforeach; ?>
     </div>
     <?php if (!empty($mailDiagnostics)): ?>
-        <article class="panel">
+        <article role="article" class="panel">
             <div class="section-heading">
                 <div>
                     <p class="eyebrow">Configuration email</p>
                     <h2>SMTP Render</h2>
                 </div>
-                <form class="inline-form" method="post" action="<?= url('/admin/outils/test-email') ?>">
+                <form role="form" class="inline-form" method="post" action="<?= url('/admin/outils/test-email') ?>">
                     <?= csrf_field() ?>
                     <label class="sr-only" for="test_recipient">Adresse email de test</label>
                     <input id="test_recipient" type="email" name="test_recipient" placeholder="email utilisateur à tester">
@@ -61,7 +61,7 @@
                     'admin_email_defined' => 'Admin email défini',
                     'brevo_api_key_defined' => 'BREVO_API_KEY définie',
                 ] as $key => $label): ?>
-                    <article><strong><?= !empty($mailDiagnostics[$key]) ? 'Oui' : 'Non' ?></strong><span><?= e($label) ?></span></article>
+                    <article role="article"><strong><?= !empty($mailDiagnostics[$key]) ? 'Oui' : 'Non' ?></strong><span><?= e($label) ?></span></article>
                 <?php endforeach; ?>
             </div>
             <dl class="detail-list">
@@ -112,12 +112,12 @@
     <div class="dashboard-columns">
         <div>
             <h2>Avis à modérer</h2>
-            <?php foreach ($reviews as $review): ?><article class="panel"><strong><?= e($review['title']) ?></strong><p><?= (int) $review['rating'] ?>/5 - <?= e($review['comment']) ?></p></article><?php endforeach; ?>
+            <?php foreach ($reviews as $review): ?><article role="article" class="panel"><strong><?= e($review['title']) ?></strong><p><?= (int) $review['rating'] ?>/5 - <?= e($review['comment']) ?></p></article><?php endforeach; ?>
             <?php if (!$reviews): ?><p>Aucun avis en attente.</p><?php endif; ?>
         </div>
         <div>
             <h2>Derniers messages</h2>
-            <?php foreach ($messages as $message): ?><article class="panel"><strong><?= e($message['subject']) ?></strong><p><?= e($message['name']) ?> - <?= status_label($message['status']) ?></p><a class="button compact ghost" href="<?= url('/admin/messages/' . $message['id']) ?>">Ouvrir</a></article><?php endforeach; ?>
+            <?php foreach ($messages as $message): ?><article role="article" class="panel"><strong><?= e($message['subject']) ?></strong><p><?= e($message['name']) ?> - <?= status_label($message['status']) ?></p><a class="button compact ghost" href="<?= url('/admin/messages/' . $message['id']) ?>">Ouvrir</a></article><?php endforeach; ?>
         </div>
     </div>
     <h2>Derniers logs d’audit</h2>

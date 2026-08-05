@@ -7,7 +7,7 @@
             <p>Définissez des plages disponibles ou indisponibles, avec prix spécifique optionnel pour la réservation de démonstration.</p>
         </div>
     </div>
-    <form class="panel availability-property-switch" method="get">
+    <form role="form" class="panel availability-property-switch" method="get">
         <label>Logement affiché dans le calendrier
             <select name="property_id" onchange="this.form.submit()">
                 <?php foreach ($properties as $property): ?>
@@ -18,7 +18,7 @@
         <noscript><button class="button compact" type="submit">Afficher</button></noscript>
     </form>
     <div class="dashboard-grid two">
-        <form class="panel" method="post">
+        <form role="form" class="panel" method="post">
             <?= csrf_field() ?>
             <label>Logement
                 <select name="property_id" required>

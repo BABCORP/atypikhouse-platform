@@ -12,7 +12,7 @@
             <?php foreach ($properties as $property): require dirname(__DIR__) . '/public/_property-card.php'; endforeach; ?>
         </div>
     <?php else: ?>
-        <article class="panel empty-state">
+        <article role="article" class="panel empty-state">
             <h2>Aucun favori pour le moment</h2>
             <p>Ajoutez un logement avec le cœur pour le retrouver ici pendant votre navigation.</p>
             <a class="button" href="<?= url('/hebergements') ?>">Découvrir les hébergements</a>

@@ -12,7 +12,7 @@
         </div>
     </div>
     <div class="dashboard-grid two">
-        <article class="panel">
+        <article role="article" class="panel">
             <h2>Informations</h2>
             <dl class="detail-list">
                 <dt>Propriétaire</dt><dd><?= e(($property['company_name'] ?: $property['owner_first_name'] . ' ' . $property['owner_last_name']) . ' · ' . $property['owner_email']) ?></dd>
@@ -24,32 +24,32 @@
                 <dt>Mis à jour le</dt><dd><?= e($property['updated_at']) ?></dd>
             </dl>
         </article>
-        <article class="panel">
+        <article role="article" class="panel">
             <h2>Actions admin</h2>
             <?php if (($bookingCount ?? 0) > 0): ?>
                 <p class="notice">Attention : ce logement possède <?= (int) $bookingCount ?> réservation(s) existante(s). La pause ou la suppression logique conserve l’historique admin.</p>
             <?php endif; ?>
             <div class="actions-row">
                 <?php if (in_array($property['status'], ['pending', 'rejected', 'draft'], true)): ?>
-                    <form method="post" action="<?= url('/admin/logements/' . $property['id'] . '/approuver') ?>"><?= csrf_field() ?><button class="button" type="submit">Approuver et publier</button></form>
+                    <form role="form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/approuver') ?>"><?= csrf_field() ?><button class="button" type="submit">Approuver et publier</button></form>
                 <?php endif; ?>
                 <?php if ($property['status'] === 'pending'): ?>
-                    <form method="post" action="<?= url('/admin/logements/' . $property['id'] . '/refuser') ?>" data-confirm="Refuser ce logement ?"><?= csrf_field() ?><button class="button ghost" type="submit">Refuser</button></form>
+                    <form role="form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/refuser') ?>" data-confirm="Refuser ce logement ?"><?= csrf_field() ?><button class="button ghost" type="submit">Refuser</button></form>
                 <?php endif; ?>
                 <?php if ($property['status'] === 'published'): ?>
-                    <form method="post" action="<?= url('/admin/logements/' . $property['id'] . '/mettre-en-pause') ?>" data-confirm="Mettre ce logement en pause ? Les réservations existantes seront conservées."><?= csrf_field() ?><button class="button ghost" type="submit">Mettre en pause</button></form>
+                    <form role="form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/mettre-en-pause') ?>" data-confirm="Mettre ce logement en pause ? Les réservations existantes seront conservées."><?= csrf_field() ?><button class="button ghost" type="submit">Mettre en pause</button></form>
                 <?php endif; ?>
                 <?php if ($property['status'] === 'paused'): ?>
-                    <form method="post" action="<?= url('/admin/logements/' . $property['id'] . '/reactiver') ?>"><?= csrf_field() ?><button class="button" type="submit">Réactiver</button></form>
+                    <form role="form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/reactiver') ?>"><?= csrf_field() ?><button class="button" type="submit">Réactiver</button></form>
                 <?php endif; ?>
                 <?php if ($property['status'] !== 'deleted'): ?>
-                    <form method="post" action="<?= url('/admin/logements/' . $property['id'] . '/supprimer') ?>" data-confirm="Confirmer la suppression de ce logement ? Il ne sera plus visible publiquement, mais son historique sera conservé."><?= csrf_field() ?><button class="button danger" type="submit">Supprimer</button></form>
+                    <form role="form" method="post" action="<?= url('/admin/logements/' . $property['id'] . '/supprimer') ?>" data-confirm="Confirmer la suppression de ce logement ? Il ne sera plus visible publiquement, mais son historique sera conservé."><?= csrf_field() ?><button class="button danger" type="submit">Supprimer</button></form>
                 <?php endif; ?>
             </div>
             <?php if ($property['status'] === 'published'): ?><a class="button ghost compact" href="<?= url('/hebergements/' . $property['slug']) ?>">Voir la fiche publique</a><?php endif; ?>
         </article>
     </div>
-    <article class="panel">
+    <article role="article" class="panel">
         <h2>Description</h2>
         <p><strong><?= e($property['short_description']) ?></strong></p>
         <p><?= nl2br(e($property['long_description'])) ?></p>

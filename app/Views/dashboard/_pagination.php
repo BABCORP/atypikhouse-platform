@@ -1,5 +1,5 @@
 <?php if (!empty($pagination) && ($pagination['last_page'] ?? 1) > 1): ?>
-    <nav class="pagination" aria-label="Pagination">
+    <nav role="navigation" class="pagination" aria-label="Pagination">
         <?php if ($pagination['has_previous']): ?>
             <a class="button ghost compact" href="<?= pagination_url((int) $pagination['page'] - 1) ?>">Précédent</a>
         <?php else: ?>

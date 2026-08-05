@@ -5,7 +5,7 @@
             <h1>Trouvez votre séjour insolite</h1>
             <p>Filtrez les hébergements selon vos envies et trouvez le lieu idéal pour une parenthèse nature, authentique et dépaysante.</p>
         </div>
-        <form class="catalogue-search search-card" method="get" data-track="search_submit">
+        <form role="search" aria-label="Recherche dans le catalogue des hébergements" class="catalogue-search search-card" method="get" data-track="search_submit">
             <div class="search-form__grid">
                 <label>Destination<input list="destinations-list" name="destination" value="<?= e($filters['location']) ?>" placeholder="Ex. Pierrefonds, Gérardmer, Amiens…"></label>
                 <datalist id="destinations-list">

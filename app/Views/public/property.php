@@ -16,7 +16,7 @@ if (!is_string($favoriteRedirect) || !str_starts_with($favoriteRedirect, '/') ||
             <p class="eyebrow"><?= e($property['city']) ?> · <?= e($property['region']) ?></p>
             <div class="property-title-row">
                 <h1><?= e($property['title']) ?></h1>
-                <form class="favorite-form favorite-form--detail" method="post" action="<?= url('/favoris/' . $property['id'] . '/toggle') ?>">
+                <form role="form" class="favorite-form favorite-form--detail" method="post" action="<?= url('/favoris/' . $property['id'] . '/toggle') ?>">
                     <?= csrf_field() ?>
                     <input type="hidden" name="redirect" value="<?= e($favoriteRedirect) ?>">
                     <button class="favorite-button<?= $isFavorite ? ' is-favorite' : '' ?>" type="submit" aria-label="<?= $isFavorite ? 'Retirer ce logement des favoris' : 'Ajouter ce logement aux favoris' ?>">
@@ -31,7 +31,7 @@ if (!is_string($favoriteRedirect) || !str_starts_with($favoriteRedirect, '/') ||
             <p class="lead"><?= e($property['short_description']) ?></p>
         </header>
         <div class="property-detail-layout">
-            <article class="property-main-content">
+            <article role="article" class="property-main-content">
                 <div class="property-hero-image property-gallery">
                     <?php foreach ($images as $image): ?>
                         <img loading="lazy" src="<?= image_url($image['image_path']) ?>" alt="<?= e($image['alt_text']) ?>">
@@ -95,7 +95,7 @@ if (!is_string($favoriteRedirect) || !str_starts_with($favoriteRedirect, '/') ||
                         <a class="button ghost full" href="<?= url('/hebergements') ?>">Voir les hébergements</a>
                     </div>
                 <?php else: ?>
-                    <form method="post" action="<?= url('/reservation/' . $property['id']) ?>" data-track="booking_start">
+                    <form role="form" method="post" action="<?= url('/reservation/' . $property['id']) ?>" data-track="booking_start">
                         <?= csrf_field() ?>
                         <label>Arrivée<input required name="start_date" type="date"></label>
                         <label>Départ<input required name="end_date" type="date"></label>

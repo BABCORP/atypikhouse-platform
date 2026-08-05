@@ -1,7 +1,7 @@
 <?php require __DIR__ . '/_nav.php'; ?>
 <section class="section">
     <div class="section-heading"><div><p class="eyebrow">Traçabilité</p><h1>Journaux d’audit</h1></div></div>
-    <form class="filters panel" method="get">
+    <form role="form" class="filters panel" method="get">
         <label>Action<input name="action" value="<?= e(input('action', '')) ?>" placeholder="login, booking, rgpd"></label>
         <label>Email utilisateur<input name="email" value="<?= e(input('email', '')) ?>" placeholder="admin@..."></label>
         <label>Du<input type="date" name="start_date" value="<?= e(input('start_date', '')) ?>"></label>

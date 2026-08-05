@@ -1,6 +1,6 @@
 <?php require __DIR__ . '/_nav.php'; ?>
 <section class="section narrow">
-    <form class="panel" method="post">
+    <form role="form" class="panel" method="post">
         <?= csrf_field() ?>
         <p class="eyebrow">Administration</p>
         <h1>Modifier <?= e($editUser['first_name'] . ' ' . $editUser['last_name']) ?></h1>

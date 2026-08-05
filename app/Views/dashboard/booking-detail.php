@@ -17,7 +17,7 @@
         <p class="notice">Votre demande a été validée par l’administrateur. Le paiement fictif doit maintenant être effectué pour confirmer la réservation.</p>
         <p><a class="button" href="<?= url('/paiement/' . $booking['id']) ?>">Poursuivre vers le paiement fictif</a></p>
     <?php endif; ?>
-    <article class="panel invoice-print" id="facture-fictive">
+    <article role="article" class="panel invoice-print" id="facture-fictive">
         <div class="section-heading">
             <div>
                 <p class="eyebrow">Reçu fictif</p>
@@ -40,7 +40,7 @@
         </dl>
     </article>
     <?php if ($canReview): ?>
-        <form class="panel" method="post" action="<?= url('/avis/' . $booking['id']) ?>" id="deposer-avis">
+        <form role="form" class="panel" method="post" action="<?= url('/avis/' . $booking['id']) ?>" id="deposer-avis">
             <?= csrf_field() ?><h2>Déposer un avis</h2>
             <p class="notice">Votre séjour est terminé. Vous pouvez partager votre expérience ; l’avis sera publié après modération.</p>
             <label>Note<select name="rating" required><option value="5">5/5</option><option value="4">4/5</option><option value="3">3/5</option><option value="2">2/5</option><option value="1">1/5</option></select></label>

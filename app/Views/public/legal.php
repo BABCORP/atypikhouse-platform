@@ -3,7 +3,7 @@ $page = $page ?? '';
 $demoNotice = config('academic_disclaimer');
 ?>
 
-<article class="legal-page">
+<article role="article" class="legal-page">
     <div class="legal-container">
         <h1><?= e($heading) ?></h1>
         <p class="legal-disclaimer"><?= e($demoNotice) ?></p>

@@ -4,7 +4,7 @@
         <div><p class="eyebrow">Éditorial</p><h1>Gestion du blog</h1></div>
     </div>
     <div class="dashboard-grid two">
-        <form class="panel" method="post">
+        <form role="form" class="panel" method="post">
             <?= csrf_field() ?>
             <h2>Créer un article</h2>
             <label>Titre<input required name="title"></label>
@@ -18,7 +18,7 @@
         </form>
         <div class="blog-admin-list">
             <?php foreach ($posts as $post): ?>
-                <article class="panel">
+                <article role="article" class="panel">
                     <p class="eyebrow"><?= e($post['author_email'] ?? 'AtypikHouse') ?></p>
                     <h2><?= e($post['title']) ?></h2>
                     <p><span class="badge <?= e($post['status']) ?>"><?= status_label($post['status']) ?></span> · <?= e($post['created_at']) ?></p>
@@ -26,11 +26,11 @@
                     <div class="actions-row">
                         <a class="button ghost compact" href="<?= url('/admin/blog/' . $post['id'] . '/modifier') ?>">Modifier</a>
                         <?php if ($post['status'] === 'published'): ?>
-                            <form class="inline-form" method="post" action="<?= url('/admin/blog/' . $post['id'] . '/depublier') ?>"><?= csrf_field() ?><button class="button ghost compact" type="submit">Dépublier</button></form>
+                            <form role="form" class="inline-form" method="post" action="<?= url('/admin/blog/' . $post['id'] . '/depublier') ?>"><?= csrf_field() ?><button class="button ghost compact" type="submit">Dépublier</button></form>
                         <?php else: ?>
-                            <form class="inline-form" method="post" action="<?= url('/admin/blog/' . $post['id'] . '/publier') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Publier</button></form>
+                            <form role="form" class="inline-form" method="post" action="<?= url('/admin/blog/' . $post['id'] . '/publier') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Publier</button></form>
                         <?php endif; ?>
-                        <form class="inline-form" method="post" action="<?= url('/admin/blog/' . $post['id'] . '/supprimer') ?>" data-confirm="Supprimer définitivement cet article de blog ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
+                        <form role="form" class="inline-form" method="post" action="<?= url('/admin/blog/' . $post['id'] . '/supprimer') ?>" data-confirm="Supprimer définitivement cet article de blog ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
                     </div>
                 </article>
             <?php endforeach; ?>

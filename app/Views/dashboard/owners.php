@@ -1,7 +1,7 @@
 <?php require __DIR__ . '/_nav.php'; ?>
 <section class="section">
     <div class="section-heading"><div><p class="eyebrow">Back-office</p><h1>Profils propriétaires</h1></div></div>
-    <form class="filters panel" method="get">
+    <form role="form" class="filters panel" method="get">
         <label>Recherche<input name="search" value="<?= e(input('search', '')) ?>" placeholder="Email, nom ou société"></label>
         <label>Validation
             <select name="status">
@@ -25,7 +25,7 @@
                 <td><span class="badge <?= e($owner['user_status']) ?>"><?= status_label($owner['user_status']) ?></span></td>
                 <td><?= (int) $owner['properties_count'] ?> total · <?= (int) $owner['published_properties'] ?> publiés · <?= (int) $owner['pending_properties'] ?> attente</td>
                 <td><span class="badge <?= e($owner['verification_status']) ?>"><?= status_label($owner['verification_status']) ?></span></td>
-                <td><form class="inline-form" method="post" action="<?= url('/admin/proprietaires/' . $owner['id'] . '/statut') ?>"><?= csrf_field() ?><select name="status"><?php foreach (['approved', 'pending', 'rejected'] as $status): ?><option value="<?= $status ?>" <?= $owner['verification_status'] === $status ? 'selected' : '' ?>><?= status_label($status) ?></option><?php endforeach; ?></select><button class="button compact" type="submit">Modérer</button></form></td>
+                <td><form role="form" class="inline-form" method="post" action="<?= url('/admin/proprietaires/' . $owner['id'] . '/statut') ?>"><?= csrf_field() ?><select name="status"><?php foreach (['approved', 'pending', 'rejected'] as $status): ?><option value="<?= $status ?>" <?= $owner['verification_status'] === $status ? 'selected' : '' ?>><?= status_label($status) ?></option><?php endforeach; ?></select><button class="button compact" type="submit">Modérer</button></form></td>
             </tr>
         <?php endforeach; ?>
         </tbody>
