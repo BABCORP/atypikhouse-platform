@@ -348,7 +348,7 @@ function request_origin(): string
         ? 'https'
         : 'http';
 
-    return $host !== '' ? $scheme . '://' . $host : ($isPlaceholder ? 'https://atypikhouse-platform.onrender.com' : $configured);
+    return $host !== '' ? $scheme . '://' . $host : ($isPlaceholder ? 'https://atypikhouse-dsp-ddm-o24a-g4.onrender.com' : $configured);
 }
 
 function pagination_meta(int $total, int $page, int $perPage = 20): array

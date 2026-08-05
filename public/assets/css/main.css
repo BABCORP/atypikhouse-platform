@@ -31,6 +31,42 @@ img { max-width: 100%; display: block; }
 :focus-visible { outline: 3px solid var(--clay); outline-offset: 3px; }
 .skip-link { position: absolute; left: -999px; top: 1rem; background: white; padding: .75rem; z-index: 10; }
 .skip-link:focus { left: 1rem; }
+.breadcrumb {
+  padding: .72rem clamp(1rem, 6vw, 6rem);
+  background: rgba(241, 232, 220, .58);
+  border-bottom: 1px solid var(--line);
+  font-size: .9rem;
+}
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+.breadcrumb li {
+  display: inline-flex;
+  align-items: center;
+  color: var(--muted);
+}
+.breadcrumb li + li::before {
+  content: "/";
+  margin-right: .35rem;
+  color: rgba(86, 103, 93, .72);
+}
+.breadcrumb a {
+  color: var(--forest);
+  font-weight: 700;
+  text-decoration: none;
+}
+.breadcrumb a:hover,
+.breadcrumb a:focus-visible {
+  color: var(--clay);
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
 
 .site-header, .site-footer {
   display: flex;

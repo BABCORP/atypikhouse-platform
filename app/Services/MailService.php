@@ -580,7 +580,7 @@ final class MailService
                 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https' ? 'https' : 'http';
                 $base = $scheme . '://' . $host;
             } else {
-                $base = 'https://atypikhouse-platform.onrender.com';
+                $base = 'https://atypikhouse-dsp-ddm-o24a-g4.onrender.com';
             }
         }
 

@@ -30,9 +30,12 @@ final class PublicController extends Controller
     public function concept(): void
     {
         $this->view('public/concept', [
-            'title' => 'Le concept AtypikHouse',
-            'metaDescription' => 'Découvrez le concept AtypikHouse : une marketplace fictive dédiée aux hébergements insolites, au séjour nature et au tourisme responsable.',
+            'title' => 'Le concept AtypikHouse - Séjours insolites et tourisme responsable',
+            'metaDescription' => 'Découvrez le concept AtypikHouse : une marketplace fictive dédiée aux cabanes, tiny houses et séjours nature responsables, avec validation des hôtes.',
             'canonical' => url('/concept'),
+            'breadcrumbs' => [
+                ['label' => 'Le concept', 'url' => null],
+            ],
         ]);
     }
 
@@ -60,9 +63,12 @@ final class PublicController extends Controller
             'sort' => trim((string) input('sort', 'newest')),
         ];
         $this->view('public/catalogue', [
-            'title' => 'Hébergements insolites en France',
-            'metaDescription' => 'Catalogue fictif d’hébergements insolites en France : cabanes, yourtes, tiny houses, dômes et séjours nature responsables.',
+            'title' => 'Hébergements insolites en France - Cabanes, dômes et tiny houses',
+            'metaDescription' => 'Comparez les hébergements insolites AtypikHouse : cabanes dans les arbres, tiny houses, dômes et séjours nature publiés après validation.',
             'canonical' => url('/hebergements'),
+            'breadcrumbs' => [
+                ['label' => 'Hébergements', 'url' => null],
+            ],
             'properties' => $propertyModel->published($filters),
             'filters' => $filters,
             'destinations' => $propertyModel->availableDestinations(),
@@ -87,8 +93,12 @@ final class PublicController extends Controller
         audit($_SESSION['user_id'] ?? null, 'property_view', 'property', (int) $property['id']);
         $this->view('public/property', [
             'title' => $property['title'] . ' - AtypikHouse',
-            'metaDescription' => $property['short_description'],
+            'metaDescription' => trim($property['short_description'] . ' Séjour insolite à ' . $property['city'] . ', publié après validation AtypikHouse.'),
             'canonical' => url('/hebergements/' . $property['slug']),
+            'breadcrumbs' => [
+                ['label' => 'Hébergements', 'url' => '/hebergements'],
+                ['label' => $property['title'], 'url' => null],
+            ],
             'ogImage' => image_url($images[0]['image_path'] ?? null),
             'jsonLd' => [
                 '@context' => 'https://schema.org',
@@ -128,9 +138,12 @@ final class PublicController extends Controller
     public function blog(): void
     {
         $this->view('public/blog', [
-            'title' => 'Blog AtypikHouse',
-            'metaDescription' => 'Conseils et inspirations fictives pour préparer un week-end insolite proche de Paris ou un séjour nature responsable.',
+            'title' => 'Blog AtypikHouse - Conseils pour séjours insolites',
+            'metaDescription' => 'Explorez les conseils AtypikHouse pour préparer un week-end insolite, choisir un hébergement nature et comprendre le tourisme responsable.',
             'canonical' => url('/blog'),
+            'breadcrumbs' => [
+                ['label' => 'Blog', 'url' => null],
+            ],
             'posts' => (new BlogPost())->published(),
         ]);
     }
@@ -146,6 +159,10 @@ final class PublicController extends Controller
             'title' => $post['title'] . ' - Blog AtypikHouse',
             'metaDescription' => $post['excerpt'],
             'canonical' => url('/blog/' . $post['slug']),
+            'breadcrumbs' => [
+                ['label' => 'Blog', 'url' => '/blog'],
+                ['label' => $post['title'], 'url' => null],
+            ],
             'jsonLd' => [
                 '@context' => 'https://schema.org',
                 '@type' => 'BlogPosting',

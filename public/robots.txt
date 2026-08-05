@@ -1,4 +1,11 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /proprietaire/
+Disallow: /locataire/
+Disallow: /paiement/
+Disallow: /reservation/
+Disallow: /favoris/
+Disallow: /deconnexion
 
-Sitemap: http://127.0.0.1:8010/sitemap.xml
+Sitemap: https://atypikhouse-dsp-ddm-o24a-g4.onrender.com/sitemap.xml

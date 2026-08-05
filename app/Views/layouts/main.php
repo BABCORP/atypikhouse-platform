@@ -6,6 +6,40 @@ $isActivePath = static function (string $path) use ($currentPath): bool {
 };
 $navLinkClass = static fn (string $path): string => 'nav-link' . ($isActivePath($path) ? ' is-active' : '');
 $ariaCurrent = static fn (string $path): string => $isActivePath($path) ? ' aria-current="page"' : '';
+$canonicalUrl = isset($canonical) && is_string($canonical) && str_starts_with($canonical, '/')
+    ? app_url($canonical)
+    : ($canonical ?? current_url());
+$breadcrumbs = $breadcrumbs ?? [];
+if (!$breadcrumbs && $currentPath !== '/') {
+    $breadcrumbLabels = [
+        'concept' => 'Le concept',
+        'hebergements' => 'Hébergements',
+        'blog' => 'Blog',
+        'faq' => 'FAQ',
+        'devenir-hote' => 'Devenir hôte',
+        'contact' => 'Contact',
+        'connexion' => 'Connexion',
+        'inscription' => 'Inscription',
+        'mot-de-passe-oublie' => 'Mot de passe oublié',
+        'mentions-legales' => 'Mentions légales',
+        'cgu' => 'CGU',
+        'cgv' => 'CGV',
+        'politique-confidentialite' => 'Politique de confidentialité',
+        'cookies' => 'Cookies',
+        'plan-du-site' => 'Plan du site',
+        'mes-donnees' => 'Mes données',
+    ];
+    $segments = array_values(array_filter(explode('/', trim($currentPath, '/'))));
+    $path = '';
+    foreach ($segments as $index => $segment) {
+        $path .= '/' . $segment;
+        $label = $breadcrumbLabels[$segment] ?? ucfirst(str_replace('-', ' ', $segment));
+        $breadcrumbs[] = [
+            'label' => $label,
+            'url' => $index === array_key_last($segments) ? null : $path,
+        ];
+    }
+}
 ?>
 <!doctype html>
 <html lang="fr">
@@ -14,12 +48,13 @@ $ariaCurrent = static fn (string $path): string => $isActivePath($path) ? ' aria
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($title ?? config('name')) ?></title>
     <meta name="description" content="<?= e($metaDescription ?? 'AtypikHouse, marketplace fictive étudiante pour réserver des hébergements insolites et responsables.') ?>">
-    <link rel="canonical" href="<?= e($canonical ?? current_url()) ?>">
+    <link rel="canonical" href="<?= e($canonicalUrl) ?>">
     <meta property="og:title" content="<?= e($title ?? config('name')) ?>">
     <meta property="og:description" content="<?= e($metaDescription ?? 'Projet étudiant fictif AtypikHouse.') ?>">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="<?= e($canonical ?? current_url()) ?>">
+    <meta property="og:url" content="<?= e($canonicalUrl) ?>">
     <meta property="og:image" content="<?= e($ogImage ?? asset('img/properties/hero-atypikhouse.svg')) ?>">
+    <link rel="icon" href="<?= url('/favicon.svg') ?>" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -33,6 +68,21 @@ $ariaCurrent = static fn (string $path): string => $isActivePath($path) ? ' aria
     </script>
     <?php if (!empty($jsonLd)): ?>
         <script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
+    <?php endif; ?>
+    <?php if (!empty($breadcrumbs)): ?>
+        <?php
+        $breadcrumbJsonLd = [
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => array_map(static fn (array $item, int $index): array => [
+                '@type' => 'ListItem',
+                'position' => $index + 1,
+                'name' => $item['label'],
+                'item' => $item['url'] ? app_url($item['url']) : current_url(),
+            ], $breadcrumbs, array_keys($breadcrumbs)),
+        ];
+        ?>
+        <script type="application/ld+json"><?= json_encode($breadcrumbJsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
     <?php endif; ?>
     <?php if (captcha_is_configured()): ?>
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -63,6 +113,23 @@ $ariaCurrent = static fn (string $path): string => $isActivePath($path) ? ' aria
 <?php if ($message = flash('success')): ?><p class="flash success" role="status"><?= e($message) ?></p><?php endif; ?>
 <?php if ($message = flash('warning')): ?><p class="flash warning" role="status"><?= e($message) ?></p><?php endif; ?>
 <?php if ($message = flash('error')): ?><p class="flash error" role="alert"><?= e($message) ?></p><?php endif; ?>
+
+<?php if (!empty($breadcrumbs)): ?>
+    <nav class="breadcrumb" role="navigation" aria-label="Fil d’Ariane">
+        <ol>
+            <li><a href="<?= url('/') ?>">Accueil</a></li>
+            <?php foreach ($breadcrumbs as $item): ?>
+                <li>
+                    <?php if (!empty($item['url'])): ?>
+                        <a href="<?= url($item['url']) ?>"><?= e($item['label']) ?></a>
+                    <?php else: ?>
+                        <span aria-current="page"><?= e($item['label']) ?></span>
+                    <?php endif; ?>
+                </li>
+            <?php endforeach; ?>
+        </ol>
+    </nav>
+<?php endif; ?>
 
 <main id="contenu" role="main">
     <?= $content ?>
