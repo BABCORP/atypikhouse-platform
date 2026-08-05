@@ -366,8 +366,8 @@ final class OwnerController extends Controller
     private function ensureApprovedOwner(array $user): void
     {
         $profile = (new User())->ownerProfile((int) $user['id']);
-        if ($user['status'] !== 'active' || !$profile) {
-            flash('error', 'Votre compte propriétaire doit être actif pour proposer un logement.');
+        if ($user['status'] !== 'active' || !$profile || $profile['verification_status'] !== 'approved') {
+            flash('error', 'Votre compte propriétaire doit être validé par l’administrateur avant de proposer un logement.');
             $this->redirect('/proprietaire/logements');
         }
     }

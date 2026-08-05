@@ -13,7 +13,7 @@ ALTER TABLE bookings
   MODIFY payment_status ENUM('not_paid', 'test_paid', 'test_failed', 'refunded') NOT NULL DEFAULT 'not_paid';
 
 ALTER TABLE owner_profiles
-  MODIFY verification_status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'approved';
+  MODIFY verification_status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending';
 
 ALTER TABLE reviews
   MODIFY status ENUM('pending', 'published', 'rejected') NOT NULL DEFAULT 'published';
@@ -98,15 +98,12 @@ SET op.verification_status = 'approved',
     op.updated_at = NOW()
 WHERE u.email = 'proprietaire@atypikhouse.fr';
 
--- Workflow direct demandé pour la soutenance : les comptes, logements,
+-- Workflow direct demandé pour la soutenance : les locataires, logements,
 -- réservations et avis ne restent plus bloqués en attente d'un administrateur.
+-- Les comptes propriétaires restent soumis à validation administrateur.
 UPDATE users
 SET status = 'active', updated_at = NOW()
-WHERE role IN ('tenant', 'owner') AND status = 'pending';
-
-UPDATE owner_profiles
-SET verification_status = 'approved', updated_at = NOW()
-WHERE verification_status = 'pending';
+WHERE role = 'tenant' AND status = 'pending';
 
 UPDATE properties
 SET status = 'published', updated_at = NOW()

@@ -42,7 +42,7 @@ CREATE TABLE owner_profiles (
   postal_code VARCHAR(20) NULL,
   country VARCHAR(80) NOT NULL DEFAULT 'France',
   description TEXT NULL,
-  verification_status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'approved',
+  verification_status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   CONSTRAINT fk_owner_profiles_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

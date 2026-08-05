@@ -89,15 +89,16 @@ final class MailService
             'Votre compte AtypikHouse est en cours d’examen',
             '<p>Bonjour ' . e($firstName) . ',</p>'
             . '<p>Votre compte AtypikHouse a bien été créé.</p>'
-            . '<p>Votre accès est actif. Vous pouvez vous connecter dès maintenant.</p>'
+            . '<p>Votre profil propriétaire est en attente de validation par l’administrateur.</p>'
+            . '<p>Vous recevrez un nouvel email dès que votre compte aura été approuvé.</p>'
             . '<p>À bientôt,<br>L’équipe AtypikHouse</p>'
             . '<p><strong>Projet étudiant fictif.</strong> Aucun achat, paiement ou réservation réelle ne peut être effectué.</p>',
             null,
             'account_pending_user'
         );
         $this->sendInternalNotification(
-            'Nouveau compte créé sur AtypikHouse',
-            'Un nouveau compte vient d’être créé sur la plateforme.',
+            'Nouveau compte propriétaire à valider',
+            'Un nouveau compte propriétaire vient d’être créé et attend une validation administrateur.',
             'account_pending_admin',
             [
                 'Prénom' => $firstName,

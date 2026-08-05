@@ -47,7 +47,7 @@ final class User extends Model
 
     public function createOwnerProfile(int $userId, array $data): void
     {
-        $stmt = $this->db->prepare('INSERT INTO owner_profiles (user_id, company_name, address, city, postal_code, country, description, verification_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, "approved", NOW(), NOW())');
+        $stmt = $this->db->prepare('INSERT INTO owner_profiles (user_id, company_name, address, city, postal_code, country, description, verification_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, "pending", NOW(), NOW())');
         $stmt->execute([
             $userId,
             trim($data['company_name'] ?? ''),
