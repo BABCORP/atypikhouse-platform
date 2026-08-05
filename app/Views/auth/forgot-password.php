@@ -5,7 +5,7 @@
         <h1>Mot de passe oublié</h1>
         <p>Indiquez votre email. Le lien de réinitialisation est disponible dans la page et peut aussi être envoyé par email si le SMTP Brevo est activé.</p>
         <label>Email
-            <input required type="email" name="email" autocomplete="email">
+            <input required type="email" name="email" autocomplete="email" placeholder="vous@exemple.fr">
         </label>
         <button class="button full" type="submit">Générer le lien de réinitialisation</button>
         <p><a href="<?= url('/connexion') ?>">Retour à la connexion</a></p>

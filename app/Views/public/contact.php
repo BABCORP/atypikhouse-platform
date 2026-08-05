@@ -5,11 +5,12 @@
         <h2>Envoyez-nous un message</h2>
         <?= csrf_field() ?>
         <div class="form-grid">
-        <label>Nom complet<input required name="name" value="<?= old('name') ?>"></label>
-        <label>Adresse email<input required type="email" name="email" value="<?= old('email') ?>"></label>
+        <label>Nom complet<input required name="name" placeholder="Ex. Bianca Bumb" value="<?= old('name') ?>"></label>
+        <label>Adresse email<input required type="email" name="email" placeholder="vous@exemple.fr" value="<?= old('email') ?>"></label>
         </div>
-        <label>Sujet<input required name="subject" value="<?= old('subject') ?>"></label>
-        <label>Votre message<textarea required name="message"><?= old('message') ?></textarea></label>
+        <label>Sujet<input required name="subject" placeholder="Ex. Question sur une réservation" value="<?= old('subject') ?>"></label>
+        <label>Votre message<textarea required name="message" placeholder="Décrivez votre demande en quelques lignes."><?= old('message') ?></textarea></label>
+        <?= captcha_field('contact') ?>
         <label class="consent"><input required type="checkbox" name="privacy_consent" value="1"> J’accepte que mes données soient utilisées pour être recontacté dans le cadre de cette démonstration académique.</label>
         <button class="button" type="submit">Envoyer le message</button>
     </form>

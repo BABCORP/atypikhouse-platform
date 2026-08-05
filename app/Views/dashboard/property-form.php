@@ -43,29 +43,29 @@ $customAmenities = array_values(array_diff($selectedAmenities, $amenityOptions))
             <legend>Localisation et environnement</legend>
             <label>Adresse ou lieu fictif<input name="address" placeholder="Chemin du bois, accès par parking privé" value="<?= e($property['address'] ?? '') ?>"></label>
             <div class="form-grid">
-                <label>Ville<input required name="city" value="<?= e($property['city'] ?? '') ?>"></label>
-                <label>Code postal<input name="postal_code" value="<?= e($property['postal_code'] ?? '') ?>"></label>
-                <label>Région<input required name="region" value="<?= e($property['region'] ?? '') ?>"></label>
-                <label>Pays<input name="country" value="<?= e($property['country'] ?? 'France') ?>"></label>
+                <label>Ville<input required name="city" placeholder="Ex. Pierrefonds" value="<?= e($property['city'] ?? '') ?>"></label>
+                <label>Code postal<input name="postal_code" placeholder="Ex. 60350" value="<?= e($property['postal_code'] ?? '') ?>"></label>
+                <label>Région<input required name="region" placeholder="Ex. Hauts-de-France" value="<?= e($property['region'] ?? '') ?>"></label>
+                <label>Pays<input name="country" placeholder="Ex. France" value="<?= e($property['country'] ?? 'France') ?>"></label>
             </div>
         </fieldset>
 
         <fieldset class="form-section">
             <legend>Capacité et confort</legend>
             <div class="form-grid">
-                <label>Voyageurs<input required type="number" name="capacity" min="1" value="<?= e($property['capacity'] ?? '2') ?>"></label>
-                <label>Chambres<input type="number" name="bedrooms" min="0" value="<?= e($property['bedrooms'] ?? '1') ?>"></label>
-                <label>Lits<input type="number" name="beds" min="1" value="<?= e($property['beds'] ?? '1') ?>"></label>
-                <label>Salles de bain<input type="number" name="bathrooms" min="0" value="<?= e($property['bathrooms'] ?? '1') ?>"></label>
+                <label>Voyageurs<input required type="number" name="capacity" min="1" placeholder="Ex. 2" value="<?= e($property['capacity'] ?? '2') ?>"></label>
+                <label>Chambres<input type="number" name="bedrooms" min="0" placeholder="Ex. 1" value="<?= e($property['bedrooms'] ?? '1') ?>"></label>
+                <label>Lits<input type="number" name="beds" min="1" placeholder="Ex. 1" value="<?= e($property['beds'] ?? '1') ?>"></label>
+                <label>Salles de bain<input type="number" name="bathrooms" min="0" placeholder="Ex. 1" value="<?= e($property['bathrooms'] ?? '1') ?>"></label>
             </div>
         </fieldset>
 
         <fieldset class="form-section">
             <legend>Tarification</legend>
             <div class="form-grid">
-                <label>Prix par nuit<input required type="number" min="1" step="0.01" name="price_per_night" value="<?= e($property['price_per_night'] ?? '120') ?>"></label>
-                <label>Frais de ménage<input type="number" min="0" step="0.01" name="cleaning_fee" value="<?= e($property['cleaning_fee'] ?? '25') ?>"></label>
-                <label>Eco-score<input type="number" min="1" max="5" name="eco_score" value="<?= e($property['eco_score'] ?? '4') ?>"></label>
+                <label>Prix par nuit<input required type="number" min="1" step="0.01" name="price_per_night" placeholder="Ex. 120" value="<?= e($property['price_per_night'] ?? '120') ?>"></label>
+                <label>Frais de ménage<input type="number" min="0" step="0.01" name="cleaning_fee" placeholder="Ex. 25" value="<?= e($property['cleaning_fee'] ?? '25') ?>"></label>
+                <label>Eco-score<input type="number" min="1" max="5" name="eco_score" placeholder="Ex. 4" value="<?= e($property['eco_score'] ?? '4') ?>"></label>
             </div>
         </fieldset>
 
@@ -128,7 +128,7 @@ $customAmenities = array_values(array_diff($selectedAmenities, $amenityOptions))
                         <?php if (!$requiresValidation): ?>
                             <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/alt') ?>">
                                 <?= csrf_field() ?>
-                                <label>Texte alternatif<input name="alt_text" value="<?= e($image['alt_text']) ?>" required></label>
+                                <label>Texte alternatif<input name="alt_text" placeholder="Ex. Cabane en bois avec terrasse" value="<?= e($image['alt_text']) ?>" required></label>
                                 <button class="button compact" type="submit">Mettre à jour</button>
                             </form>
                             <div class="actions-row">
@@ -150,7 +150,7 @@ $customAmenities = array_values(array_diff($selectedAmenities, $amenityOptions))
                         <?php if (!$requiresValidation): ?>
                             <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/alt') ?>">
                                 <?= csrf_field() ?>
-                                <label>Texte alternatif<input name="alt_text" value="<?= e($image['alt_text']) ?>" required></label>
+                                <label>Texte alternatif<input name="alt_text" placeholder="Ex. Vue depuis la terrasse" value="<?= e($image['alt_text']) ?>" required></label>
                                 <button class="button compact" type="submit">Mettre à jour</button>
                             </form>
                             <div class="actions-row">

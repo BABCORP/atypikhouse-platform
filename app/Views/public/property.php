@@ -99,7 +99,7 @@ if (!is_string($favoriteRedirect) || !str_starts_with($favoriteRedirect, '/') ||
                         <?= csrf_field() ?>
                         <label>Arrivée<input required name="start_date" type="date"></label>
                         <label>Départ<input required name="end_date" type="date"></label>
-                        <label>Voyageurs<input required name="guests_count" type="number" min="1" max="<?= (int) $property['capacity'] ?>" value="2"></label>
+                        <label>Voyageurs<input required name="guests_count" type="number" min="1" max="<?= (int) $property['capacity'] ?>" placeholder="Ex. 2" value="2"></label>
                         <button class="button full" type="submit">Réserver ce séjour</button>
                     </form>
                 <?php endif; ?>

@@ -12,8 +12,8 @@
     </aside>
     <form role="form" class="panel contact-form" method="post" data-track="form_submit">
         <?= csrf_field() ?>
-        <label>Nom complet<input required name="name" value="<?= old('name') ?>"></label>
-        <label>Email<input required type="email" name="email" value="<?= old('email') ?>"></label>
+        <label>Nom complet<input required name="name" placeholder="Ex. Bianca Bumb" value="<?= old('name') ?>"></label>
+        <label>Email<input required type="email" name="email" placeholder="vous@exemple.fr" value="<?= old('email') ?>"></label>
         <label>Type de demande
             <select required name="request_type">
                 <option value="access">Accès à mes données</option>
@@ -22,7 +22,7 @@
                 <option value="opposition">Opposition</option>
             </select>
         </label>
-        <label>Message<textarea required name="message"><?= old('message') ?></textarea></label>
+        <label>Message<textarea required name="message" placeholder="Décrivez précisément votre demande concernant vos données."><?= old('message') ?></textarea></label>
         <label class="consent"><input required type="checkbox" name="privacy_consent" value="1"> J’accepte que cette demande soit stockée dans le cadre de la démonstration académique.</label>
         <button class="button full" type="submit">Envoyer la demande</button>
     </form>

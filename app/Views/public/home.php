@@ -15,7 +15,7 @@
         </datalist>
         <label>Arrivée<input name="start_date" type="date"></label>
         <label>Départ<input name="end_date" type="date"></label>
-        <label>Voyageurs<input name="capacity" type="number" min="1" value="2"></label>
+        <label>Voyageurs<input name="capacity" type="number" min="1" placeholder="Ex. 2" value="2"></label>
         <button class="button" type="submit">Rechercher</button>
     </form>
 </section>

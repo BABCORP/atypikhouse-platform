@@ -179,6 +179,11 @@ final class PublicController extends Controller
     public function sendContact(): void
     {
         verify_csrf();
+        if (!verify_captcha('contact')) {
+            remember_old($_POST);
+            flash('error', 'La vérification de sécurité est incorrecte. Merci de réessayer.');
+            $this->redirect('/contact');
+        }
         $required = ['name', 'email', 'subject', 'message'];
         foreach ($required as $field) {
             if (trim((string) input($field, '')) === '') {

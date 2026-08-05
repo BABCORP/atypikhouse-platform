@@ -72,6 +72,42 @@ function verify_csrf(): void
     }
 }
 
+function captcha_challenge(string $key = 'default'): array
+{
+    $sessionKey = '_captcha_' . $key;
+    if (empty($_SESSION[$sessionKey]) || !is_array($_SESSION[$sessionKey])) {
+        $a = random_int(2, 9);
+        $b = random_int(1, 9);
+        $_SESSION[$sessionKey] = [
+            'question' => $a . ' + ' . $b,
+            'answer' => (string) ($a + $b),
+        ];
+    }
+
+    return $_SESSION[$sessionKey];
+}
+
+function captcha_field(string $key = 'default'): string
+{
+    $challenge = captcha_challenge($key);
+    $question = e((string) $challenge['question']);
+
+    return '<label>Question de sécurité'
+        . '<input required type="number" inputmode="numeric" autocomplete="off" name="captcha_answer" placeholder="Résultat de ' . $question . '" aria-describedby="captcha-help">'
+        . '</label>'
+        . '<p class="form-help" id="captcha-help">Pour limiter les envois automatiques, indiquez le résultat de l’addition : ' . $question . '.</p>';
+}
+
+function verify_captcha(string $key = 'default'): bool
+{
+    $sessionKey = '_captcha_' . $key;
+    $expected = $_SESSION[$sessionKey]['answer'] ?? null;
+    $answer = trim((string) input('captcha_answer', ''));
+    unset($_SESSION[$sessionKey]);
+
+    return $expected !== null && $answer !== '' && hash_equals((string) $expected, $answer);
+}
+
 function flash(string $key, ?string $message = null): ?string
 {
     if ($message !== null) {
