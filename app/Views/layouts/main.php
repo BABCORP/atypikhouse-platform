@@ -58,7 +58,7 @@ if (!$breadcrumbs && $currentPath !== '/') {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?= asset('css/main.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/main.css') ?>?v=20260805-newsletter">
     <script>
         window.dataLayer = window.dataLayer || [];
         window.ATYPIK_ANALYTICS = {
