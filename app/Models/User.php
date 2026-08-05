@@ -31,7 +31,7 @@ final class User extends Model
     {
         $status = in_array($data['status'] ?? '', ['active', 'pending', 'rejected', 'suspended'], true)
             ? $data['status']
-            : 'pending';
+            : 'active';
         $stmt = $this->db->prepare('INSERT INTO users (first_name, last_name, email, password_hash, phone, role, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())');
         $stmt->execute([
             trim($data['first_name']),
@@ -47,7 +47,7 @@ final class User extends Model
 
     public function createOwnerProfile(int $userId, array $data): void
     {
-        $stmt = $this->db->prepare('INSERT INTO owner_profiles (user_id, company_name, address, city, postal_code, country, description, verification_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, "pending", NOW(), NOW())');
+        $stmt = $this->db->prepare('INSERT INTO owner_profiles (user_id, company_name, address, city, postal_code, country, description, verification_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, "approved", NOW(), NOW())');
         $stmt->execute([
             $userId,
             trim($data['company_name'] ?? ''),

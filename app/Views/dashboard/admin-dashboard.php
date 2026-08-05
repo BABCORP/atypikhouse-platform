@@ -6,16 +6,16 @@
         'owners' => 'propriétaires',
         'tenants' => 'locataires',
         'admins' => 'administrateurs',
-        'pending_users' => 'comptes à valider',
+        'pending_users' => 'comptes en attente',
         'suspended_users' => 'comptes suspendus',
         'published_properties' => 'logements publiés',
-        'pending_properties' => 'logements à valider',
-        'pending_property_changes' => 'modifications à valider',
+        'pending_properties' => 'logements en attente',
+        'pending_property_changes' => 'anciennes modifications en attente',
         'rejected_properties' => 'logements refusés',
         'paused_properties' => 'logements en pause',
         'deleted_properties' => 'logements supprimés',
         'bookings' => 'réservations',
-        'pending_bookings' => 'réservations à valider',
+        'pending_bookings' => 'anciennes réservations en attente',
         'pending_payment_bookings' => 'réservations en attente de paiement',
         'confirmed_bookings' => 'réservations confirmées',
         'cancelled_bookings' => 'réservations annulées',
@@ -23,7 +23,7 @@
         'pending_payments' => 'paiements en attente',
         'paid_payments' => 'paiements fictifs validés',
         'failed_payments' => 'paiements fictifs échoués',
-        'pending_reviews' => 'avis à modérer',
+        'pending_reviews' => 'anciens avis en attente',
         'published_reviews' => 'avis publiés',
         'rejected_reviews' => 'avis refusés',
         'unread_messages' => 'messages non traités',
@@ -75,10 +75,10 @@
             <p class="notice">Les valeurs sensibles ne sont jamais affichées. Seule leur présence est vérifiée.</p>
         </article>
     <?php endif; ?>
-    <h2>Logements en attente de validation</h2>
+    <h2>Logements à surveiller</h2>
     <?php $properties = $properties ?? []; $scope = 'admin'; require __DIR__ . '/_property-table.php'; ?>
     <?php if (!$properties): ?><p>Aucun logement en attente.</p><?php endif; ?>
-    <h2>Modifications de logements à valider</h2>
+    <h2>Anciennes modifications en attente</h2>
     <?php if (!empty($propertyChanges)): ?>
         <div class="table-wrap"><table>
             <caption>Demandes de modification propriétaires</caption>
@@ -97,13 +97,13 @@
     <?php else: ?><p>Aucune modification en attente.</p><?php endif; ?>
     <div class="actions-row">
         <a class="button compact" href="<?= url('/admin/utilisateurs') ?>">Gérer les utilisateurs</a>
-        <a class="button compact" href="<?= url('/admin/utilisateurs?status=pending') ?>">Comptes à valider</a>
-        <a class="button compact" href="<?= url('/admin/logements?status=pending') ?>">Valider les logements</a>
-        <a class="button compact" href="<?= url('/admin/logements/modifications') ?>">Voir les modifications à valider</a>
-        <a class="button compact ghost" href="<?= url('/admin/reservations?status=pending_admin') ?>">Réservations à valider</a>
+        <a class="button compact" href="<?= url('/admin/utilisateurs?status=pending') ?>">Comptes en attente</a>
+        <a class="button compact" href="<?= url('/admin/logements') ?>">Suivre les logements</a>
+        <a class="button compact" href="<?= url('/admin/logements/modifications') ?>">Voir les anciennes modifications</a>
+        <a class="button compact ghost" href="<?= url('/admin/reservations') ?>">Suivre les réservations</a>
         <a class="button compact ghost" href="<?= url('/admin/reservations?status=pending_payment') ?>">Réservations en attente de paiement</a>
         <a class="button compact ghost" href="<?= url('/admin/reservations?payment_status=not_paid') ?>">Paiements en attente</a>
-        <a class="button compact ghost" href="<?= url('/admin/avis?status=pending') ?>">Modérer les avis</a>
+        <a class="button compact ghost" href="<?= url('/admin/avis') ?>">Voir les avis</a>
         <a class="button compact ghost" href="<?= url('/admin/messages') ?>">Voir les messages</a>
         <a class="button compact ghost" href="<?= url('/admin/logs') ?>">Voir les logs</a>
     </div>
@@ -111,7 +111,7 @@
     <?php $scope = 'admin'; require __DIR__ . '/_booking-table.php'; ?>
     <div class="dashboard-columns">
         <div>
-            <h2>Avis à modérer</h2>
+            <h2>Derniers avis</h2>
             <?php foreach ($reviews as $review): ?><article role="article" class="panel"><strong><?= e($review['title']) ?></strong><p><?= (int) $review['rating'] ?>/5 - <?= e($review['comment']) ?></p></article><?php endforeach; ?>
             <?php if (!$reviews): ?><p>Aucun avis en attente.</p><?php endif; ?>
         </div>

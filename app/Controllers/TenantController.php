@@ -44,7 +44,12 @@ final class TenantController extends Controller
     public function reviews(): void
     {
         $user = Auth::requireRole('tenant');
-        $this->view('dashboard/reviews', ['title' => 'Mes avis', 'reviews' => (new Review())->forTenant((int) $user['id'])]);
+        $bookingModel = new Booking();
+        $this->view('dashboard/reviews', [
+            'title' => 'Mes avis',
+            'bookings' => $bookingModel->tenantBookings((int) $user['id']),
+            'reviews' => (new Review())->forTenant((int) $user['id']),
+        ]);
     }
 
     public function favorites(): void

@@ -1,7 +1,6 @@
 <?php require __DIR__ . '/_nav.php'; ?>
 <?php $isEdit = !empty($property); ?>
 <?php
-$requiresValidation = $isEdit && in_array($property['status'] ?? '', ['published', 'paused'], true);
 $selectedAmenities = $amenities ?? [];
 $amenityOptions = [
     'Terrasse',
@@ -26,10 +25,7 @@ $customAmenities = array_values(array_diff($selectedAmenities, $amenityOptions))
         <?= csrf_field() ?>
         <p class="eyebrow">Soumission hôte</p>
         <h1><?= e($title) ?></h1>
-        <p class="notice"><?= $requiresValidation ? 'Les modifications envoyées seront vérifiées par l’équipe AtypikHouse avant publication. La fiche publique actuelle reste inchangée jusque-là.' : 'Votre logement sera soumis à validation par l’équipe AtypikHouse avant publication.' ?></p>
-        <?php if (!empty($pendingChange)): ?>
-            <p class="notice">Une demande de modification est déjà en cours de validation. Un nouvel envoi remplacera cette demande en attente.</p>
-        <?php endif; ?>
+        <p class="notice"><?= $isEdit ? 'Les modifications enregistrées seront appliquées directement sur votre logement.' : 'Votre logement sera publié directement dans le catalogue après enregistrement.' ?></p>
 
         <fieldset class="form-section">
             <legend>Informations principales</legend>
@@ -106,7 +102,7 @@ $customAmenities = array_values(array_diff($selectedAmenities, $amenityOptions))
             <p class="notice">Si aucune image principale n’est importée, un visuel de remplacement accessible est utilisé.</p>
         </fieldset>
 
-        <button class="button" type="submit"><?= $requiresValidation ? 'Soumettre les modifications' : 'Enregistrer' ?></button>
+        <button class="button" type="submit"><?= $isEdit ? 'Enregistrer les modifications' : 'Publier le logement' ?></button>
     </form>
     <?php if ($isEdit): ?>
         <?php
@@ -116,28 +112,23 @@ $customAmenities = array_values(array_diff($selectedAmenities, $amenityOptions))
         <aside class="panel gallery-manager" aria-labelledby="gallery-title">
             <h2 id="gallery-title">Galerie du logement</h2>
             <p class="notice">Chaque image doit avoir un texte alternatif clair pour l’accessibilité et le SEO.</p>
-            <?php if ($requiresValidation): ?>
-                <p class="notice">Pour un logement publié ou en pause, remplacez l’image principale ou ajoutez des images via le formulaire : ces changements seront soumis à validation admin.</p>
-            <?php endif; ?>
             <h3>Image principale actuelle</h3>
             <div class="owner-gallery-grid">
                 <?php foreach ($mainImages as $image): ?>
                     <article role="article" class="owner-image-card">
                         <img src="<?= image_url($image['image_path']) ?>" alt="<?= e($image['alt_text']) ?>" loading="lazy">
                         <span class="badge <?= (int) $image['is_main'] === 1 ? 'published' : '' ?>"><?= (int) $image['is_main'] === 1 ? 'Image principale' : 'Image secondaire' ?></span>
-                        <?php if (!$requiresValidation): ?>
-                            <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/alt') ?>">
-                                <?= csrf_field() ?>
-                                <label>Texte alternatif<input name="alt_text" placeholder="Ex. Cabane en bois avec terrasse" value="<?= e($image['alt_text']) ?>" required></label>
-                                <button class="button compact" type="submit">Mettre à jour</button>
-                            </form>
-                            <div class="actions-row">
-                                <?php if ((int) $image['is_main'] !== 1): ?>
-                                    <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/principale') ?>"><?= csrf_field() ?><button class="button ghost compact" type="submit">Définir principale</button></form>
-                                <?php endif; ?>
-                                <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/supprimer') ?>" data-confirm="Supprimer cette image du logement ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
-                            </div>
-                        <?php endif; ?>
+                        <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/alt') ?>">
+                            <?= csrf_field() ?>
+                            <label>Texte alternatif<input name="alt_text" placeholder="Ex. Cabane en bois avec terrasse" value="<?= e($image['alt_text']) ?>" required></label>
+                            <button class="button compact" type="submit">Mettre à jour</button>
+                        </form>
+                        <div class="actions-row">
+                            <?php if ((int) $image['is_main'] !== 1): ?>
+                                <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/principale') ?>"><?= csrf_field() ?><button class="button ghost compact" type="submit">Définir principale</button></form>
+                            <?php endif; ?>
+                            <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/supprimer') ?>" data-confirm="Supprimer cette image du logement ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
+                        </div>
                     </article>
                 <?php endforeach; ?>
             </div>
@@ -147,17 +138,15 @@ $customAmenities = array_values(array_diff($selectedAmenities, $amenityOptions))
                     <article role="article" class="owner-image-card">
                         <img src="<?= image_url($image['image_path']) ?>" alt="<?= e($image['alt_text']) ?>" loading="lazy">
                         <span class="badge muted">Image secondaire</span>
-                        <?php if (!$requiresValidation): ?>
-                            <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/alt') ?>">
-                                <?= csrf_field() ?>
-                                <label>Texte alternatif<input name="alt_text" placeholder="Ex. Vue depuis la terrasse" value="<?= e($image['alt_text']) ?>" required></label>
-                                <button class="button compact" type="submit">Mettre à jour</button>
-                            </form>
-                            <div class="actions-row">
-                                <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/principale') ?>"><?= csrf_field() ?><button class="button ghost compact" type="submit">Définir principale</button></form>
-                                <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/supprimer') ?>" data-confirm="Supprimer cette image du logement ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
-                            </div>
-                        <?php endif; ?>
+                        <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/alt') ?>">
+                            <?= csrf_field() ?>
+                            <label>Texte alternatif<input name="alt_text" placeholder="Ex. Vue depuis la terrasse" value="<?= e($image['alt_text']) ?>" required></label>
+                            <button class="button compact" type="submit">Mettre à jour</button>
+                        </form>
+                        <div class="actions-row">
+                            <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/principale') ?>"><?= csrf_field() ?><button class="button ghost compact" type="submit">Définir principale</button></form>
+                            <form role="form" method="post" action="<?= url('/proprietaire/logements/' . $property['id'] . '/images/' . $image['id'] . '/supprimer') ?>" data-confirm="Supprimer cette image du logement ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
+                        </div>
                     </article>
                 <?php endforeach; ?>
                 <?php if (!$secondaryImages): ?><p class="empty-state">Aucune image secondaire pour le moment.</p><?php endif; ?>

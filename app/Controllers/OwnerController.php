@@ -6,7 +6,6 @@ use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Booking;
 use App\Models\Property;
-use App\Models\PropertyChangeRequest;
 use App\Models\User;
 use App\Helpers\Upload;
 use App\Services\MailService;
@@ -50,18 +49,15 @@ final class OwnerController extends Controller
             $this->redirect('/proprietaire/logements/ajouter');
         }
         $id = (new Property())->create((int) $user['id'], $_POST, $image, $secondaryImages);
-        audit((int) $user['id'], 'property_submitted', 'property', $id);
-        $emailSent = (new MailService())->sendPropertySubmittedNotification(
+        audit((int) $user['id'], 'property_published_by_owner', 'property', $id);
+        $emailSent = (new MailService())->sendPropertyApprovedNotification(
             (string) $user['email'],
             trim((string) input('title')),
             (string) $user['first_name'],
-            [
-                'city' => trim((string) input('city')),
-                'price_per_night' => (float) input('price_per_night'),
-            ]
+            slugify((string) input('title'))
         );
-        audit((int) $user['id'], $emailSent ? 'email_property_submitted_sent' : 'email_property_submitted_failed', 'property', $id);
-        flash('success', 'Votre logement a été soumis à validation. Il sera publié après vérification par l’administrateur.');
+        audit((int) $user['id'], $emailSent ? 'email_property_published_sent' : 'email_property_published_failed', 'property', $id);
+        flash('success', 'Votre logement a été publié. Il est visible dans le catalogue.');
         $this->redirect('/proprietaire/logements');
     }
 
@@ -78,13 +74,11 @@ final class OwnerController extends Controller
             $this->redirect('/proprietaire/logements');
         }
         $model = new Property();
-        $pendingChange = (new PropertyChangeRequest())->pendingForProperty($id);
         $this->view('dashboard/property-form', [
             'title' => 'Modifier un logement',
             'property' => $property,
             'images' => $model->images($id),
             'amenities' => $model->amenities($id),
-            'pendingChange' => $pendingChange,
         ]);
     }
 
@@ -106,24 +100,12 @@ final class OwnerController extends Controller
             flash('error', $exception->getMessage());
             $this->redirect('/proprietaire/logements/' . $id . '/modifier');
         }
-        if (in_array($property['status'], ['published', 'paused'], true)) {
-            $requestId = (new PropertyChangeRequest())->createOrReplace($id, (int) $user['id'], $this->proposedPropertyData($_POST, $image, $secondaryImages));
-            audit((int) $user['id'], 'property_change_requested', 'property_change_request', $requestId);
-            $emailSent = (new MailService())->sendPropertyChangeSubmittedNotification(
-                (string) $user['email'],
-                (string) $user['first_name'],
-                (string) $property['title']
-            );
-            audit((int) $user['id'], $emailSent ? 'email_property_change_submitted_sent' : 'email_property_change_submitted_failed', 'property_change_request', $requestId);
-            flash('success', 'Vos modifications ont été soumises à validation. Elles seront visibles après approbation par l’administrateur.');
-            $this->redirect('/proprietaire/logements');
-        }
         (new Property())->update($id, (int) $user['id'], $_POST, $image, $secondaryImages);
         audit((int) $user['id'], 'property_update', 'property', $id);
         if ($image || $secondaryImages) {
             audit((int) $user['id'], 'property_image_add', 'property', $id);
         }
-        flash('success', 'Logement mis à jour.');
+        flash('success', 'Logement mis à jour. Les modifications sont visibles dans le catalogue.');
         $this->redirect('/proprietaire/logements');
     }
 
@@ -131,11 +113,6 @@ final class OwnerController extends Controller
     {
         $user = Auth::requireRole('owner');
         verify_csrf();
-        $property = (new Property())->findOwned($propertyId, (int) $user['id']);
-        if ($property && in_array($property['status'], ['published', 'paused'], true)) {
-            flash('error', 'Pour un logement publié, les changements d’images doivent être soumis via le formulaire de modification.');
-            $this->redirect('/proprietaire/logements/' . $propertyId . '/modifier');
-        }
         if (!(new Property())->updateImageAlt($propertyId, $imageId, (int) $user['id'], (string) input('alt_text', ''))) {
             http_response_code(403);
             exit('Accès refusé.');
@@ -149,11 +126,6 @@ final class OwnerController extends Controller
     {
         $user = Auth::requireRole('owner');
         verify_csrf();
-        $property = (new Property())->findOwned($propertyId, (int) $user['id']);
-        if ($property && in_array($property['status'], ['published', 'paused'], true)) {
-            flash('error', 'Pour un logement publié, les changements d’images doivent être soumis via le formulaire de modification.');
-            $this->redirect('/proprietaire/logements/' . $propertyId . '/modifier');
-        }
         if (!(new Property())->setMainImage($propertyId, $imageId, (int) $user['id'])) {
             http_response_code(403);
             exit('Accès refusé.');
@@ -167,11 +139,6 @@ final class OwnerController extends Controller
     {
         $user = Auth::requireRole('owner');
         verify_csrf();
-        $property = (new Property())->findOwned($propertyId, (int) $user['id']);
-        if ($property && in_array($property['status'], ['published', 'paused'], true)) {
-            flash('error', 'Pour un logement publié, les changements d’images doivent être soumis via le formulaire de modification.');
-            $this->redirect('/proprietaire/logements/' . $propertyId . '/modifier');
-        }
         if (!(new Property())->deleteImage($propertyId, $imageId, (int) $user['id'])) {
             http_response_code(403);
             exit('Accès refusé.');
@@ -187,7 +154,7 @@ final class OwnerController extends Controller
         verify_csrf();
         (new Property())->submit($id, (int) $user['id']);
         audit((int) $user['id'], 'property_submit', 'property', $id);
-        flash('success', 'Logement soumis à validation.');
+        flash('success', 'Logement publié dans le catalogue.');
         $this->redirect('/proprietaire/logements');
     }
 
@@ -399,8 +366,8 @@ final class OwnerController extends Controller
     private function ensureApprovedOwner(array $user): void
     {
         $profile = (new User())->ownerProfile((int) $user['id']);
-        if ($user['status'] !== 'active' || !$profile || $profile['verification_status'] !== 'approved') {
-            flash('error', 'Votre compte propriétaire doit être validé par l’administrateur avant de proposer un logement.');
+        if ($user['status'] !== 'active' || !$profile) {
+            flash('error', 'Votre compte propriétaire doit être actif pour proposer un logement.');
             $this->redirect('/proprietaire/logements');
         }
     }

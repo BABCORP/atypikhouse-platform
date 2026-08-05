@@ -31,7 +31,7 @@
     </div>
 </section>
 <section class="section catalogue-results">
-    <div class="results-heading"><h2><?= count($properties) ?> logement(s) trouvé(s)</h2><p>Hébergements publiés après validation</p></div>
+    <div class="results-heading"><h2><?= count($properties) ?> logement(s) trouvé(s)</h2><p>Hébergements disponibles dans le catalogue</p></div>
     <div class="grid cards">
         <?php foreach ($properties as $property): require __DIR__ . '/_property-card.php'; endforeach; ?>
         <?php if (!$properties): ?><p>Aucun logement publié ne correspond à votre recherche.</p><?php endif; ?>

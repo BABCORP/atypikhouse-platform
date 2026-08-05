@@ -48,7 +48,7 @@ final class Review extends Model
 
     public function create(array $booking, int $rating, string $comment): void
     {
-        $stmt = $this->db->prepare('INSERT INTO reviews (booking_id, property_id, tenant_id, rating, comment, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, "pending", NOW(), NOW())');
+        $stmt = $this->db->prepare('INSERT INTO reviews (booking_id, property_id, tenant_id, rating, comment, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, "published", NOW(), NOW())');
         $stmt->execute([$booking['id'], $booking['property_id'], $booking['tenant_id'], $rating, trim($comment)]);
     }
 

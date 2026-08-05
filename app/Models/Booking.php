@@ -30,7 +30,7 @@ final class Booking extends Model
             throw new \InvalidArgumentException('La date de départ doit être postérieure à la date d’arrivée.');
         }
 
-        $stmt = $this->db->prepare('INSERT INTO bookings (property_id, tenant_id, start_date, end_date, nights, guests_count, subtotal, cleaning_fee, total_price, status, payment_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, "pending_admin", "not_paid", NOW(), NOW())');
+        $stmt = $this->db->prepare('INSERT INTO bookings (property_id, tenant_id, start_date, end_date, nights, guests_count, subtotal, cleaning_fee, total_price, status, payment_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, "pending_payment", "not_paid", NOW(), NOW())');
         $stmt->execute([
             $property['id'],
             $tenantId,

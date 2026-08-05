@@ -151,7 +151,7 @@ final class Property extends Model
     public function create(int $ownerId, array $data, ?string $uploadedImage = null, array $secondaryImages = []): int
     {
         $slug = slugify($data['title']);
-        $stmt = $this->db->prepare('INSERT INTO properties (owner_id, title, slug, type, short_description, long_description, address, city, postal_code, region, country, latitude, longitude, capacity, bedrooms, beds, bathrooms, price_per_night, cleaning_fee, eco_score, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, "pending", NOW(), NOW())');
+        $stmt = $this->db->prepare('INSERT INTO properties (owner_id, title, slug, type, short_description, long_description, address, city, postal_code, region, country, latitude, longitude, capacity, bedrooms, beds, bathrooms, price_per_night, cleaning_fee, eco_score, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, "published", NOW(), NOW())');
         $stmt->execute([
             $ownerId,
             trim($data['title']),
@@ -183,7 +183,7 @@ final class Property extends Model
 
     public function update(int $id, int $ownerId, array $data, ?string $uploadedImage = null, array $secondaryImages = []): void
     {
-        $stmt = $this->db->prepare('UPDATE properties SET title = ?, slug = ?, type = ?, short_description = ?, long_description = ?, address = ?, city = ?, postal_code = ?, region = ?, country = ?, capacity = ?, bedrooms = ?, beds = ?, bathrooms = ?, price_per_night = ?, cleaning_fee = ?, eco_score = ?, updated_at = NOW() WHERE id = ? AND owner_id = ? AND status IN ("draft", "rejected", "pending")');
+        $stmt = $this->db->prepare('UPDATE properties SET title = ?, slug = ?, type = ?, short_description = ?, long_description = ?, address = ?, city = ?, postal_code = ?, region = ?, country = ?, capacity = ?, bedrooms = ?, beds = ?, bathrooms = ?, price_per_night = ?, cleaning_fee = ?, eco_score = ?, updated_at = NOW() WHERE id = ? AND owner_id = ? AND status IN ("draft", "rejected", "pending", "published", "paused")');
         $stmt->execute([
             trim($data['title']),
             slugify($data['title']),
@@ -260,7 +260,7 @@ final class Property extends Model
 
     public function submit(int $id, int $ownerId): void
     {
-        $stmt = $this->db->prepare('UPDATE properties SET status = "pending", updated_at = NOW() WHERE id = ? AND owner_id = ? AND status IN ("draft", "rejected")');
+        $stmt = $this->db->prepare('UPDATE properties SET status = "published", updated_at = NOW() WHERE id = ? AND owner_id = ? AND status IN ("draft", "rejected", "pending")');
         $stmt->execute([$id, $ownerId]);
     }
 

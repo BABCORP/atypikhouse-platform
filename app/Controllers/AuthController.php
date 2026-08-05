@@ -153,7 +153,7 @@ final class AuthController extends Controller
             remember_old($_POST);
             $this->redirect('/inscription');
         }
-        $status = $role === 'tenant' ? 'active' : 'pending';
+        $status = 'active';
         $id = $model->create([...$_POST, 'role' => $role, 'status' => $status]);
         if ($role === 'owner') {
             $model->createOwnerProfile($id, $_POST);
@@ -161,27 +161,15 @@ final class AuthController extends Controller
         $mailService = new MailService();
         $email = strtolower(trim((string) input('email')));
         $firstName = trim((string) input('first_name'));
-        if ($role === 'tenant') {
-            audit($id, 'user_registered_active', 'user', $id);
-            $emailSent = $mailService->sendTenantWelcomeNotification($email, $firstName);
-            audit($id, $emailSent ? 'email_account_welcome_sent' : 'email_account_welcome_failed', 'user', $id);
-            flash(
-                $emailSent ? 'success' : 'warning',
-                $emailSent
-                    ? 'Votre compte locataire a bien été créé. Vous pouvez vous connecter dès maintenant. Un email de bienvenue vous a été envoyé.'
-                    : 'Votre compte locataire a bien été créé. Vous pouvez vous connecter dès maintenant. L’email de bienvenue n’a pas pu être envoyé pour le moment.'
-            );
-        } else {
-            audit($id, 'user_registered_pending', 'user', $id);
-            $emailSent = $mailService->sendAccountPendingNotification($email, $firstName, $role);
-            audit($id, $emailSent ? 'email_account_pending_sent' : 'email_account_pending_failed', 'user', $id);
-            flash(
-                $emailSent ? 'success' : 'warning',
-                $emailSent
-                    ? 'Votre compte propriétaire a bien été créé. Il est en attente de validation par l’administrateur. Un email de confirmation vous a été envoyé.'
-                    : 'Votre compte propriétaire a bien été créé et est en attente de validation. L’email de notification n’a pas pu être envoyé pour le moment.'
-            );
-        }
+        audit($id, 'user_registered_active', 'user', $id);
+        $emailSent = $mailService->sendTenantWelcomeNotification($email, $firstName);
+        audit($id, $emailSent ? 'email_account_welcome_sent' : 'email_account_welcome_failed', 'user', $id);
+        flash(
+            $emailSent ? 'success' : 'warning',
+            $emailSent
+                ? 'Votre compte a bien été créé. Vous pouvez vous connecter dès maintenant. Un email de bienvenue vous a été envoyé.'
+                : 'Votre compte a bien été créé. Vous pouvez vous connecter dès maintenant. L’email de bienvenue n’a pas pu être envoyé pour le moment.'
+        );
         clear_old();
         $this->redirect('/connexion');
     }

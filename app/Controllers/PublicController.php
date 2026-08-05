@@ -31,7 +31,7 @@ final class PublicController extends Controller
     {
         $this->view('public/concept', [
             'title' => 'Le concept AtypikHouse - Séjours insolites et tourisme responsable',
-            'metaDescription' => 'Découvrez le concept AtypikHouse : une marketplace fictive dédiée aux cabanes, tiny houses et séjours nature responsables, avec validation des hôtes.',
+            'metaDescription' => 'Découvrez le concept AtypikHouse : une marketplace fictive dédiée aux cabanes, tiny houses et séjours nature responsables.',
             'canonical' => url('/concept'),
             'breadcrumbs' => [
                 ['label' => 'Le concept', 'url' => null],
@@ -64,7 +64,7 @@ final class PublicController extends Controller
         ];
         $this->view('public/catalogue', [
             'title' => 'Hébergements insolites en France - Cabanes, dômes et tiny houses',
-            'metaDescription' => 'Comparez les hébergements insolites AtypikHouse : cabanes dans les arbres, tiny houses, dômes et séjours nature publiés après validation.',
+            'metaDescription' => 'Comparez les hébergements insolites AtypikHouse : cabanes dans les arbres, tiny houses, dômes et séjours nature.',
             'canonical' => url('/hebergements'),
             'breadcrumbs' => [
                 ['label' => 'Hébergements', 'url' => null],
@@ -93,7 +93,7 @@ final class PublicController extends Controller
         audit($_SESSION['user_id'] ?? null, 'property_view', 'property', (int) $property['id']);
         $this->view('public/property', [
             'title' => $property['title'] . ' - AtypikHouse',
-            'metaDescription' => trim($property['short_description'] . ' Séjour insolite à ' . $property['city'] . ', publié après validation AtypikHouse.'),
+            'metaDescription' => trim($property['short_description'] . ' Séjour insolite à ' . $property['city'] . ' avec AtypikHouse.'),
             'canonical' => url('/hebergements/' . $property['slug']),
             'breadcrumbs' => [
                 ['label' => 'Hébergements', 'url' => '/hebergements'],

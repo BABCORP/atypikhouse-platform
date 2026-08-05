@@ -12,9 +12,10 @@
     </dl>
     <p class="notice"><?= e(config('academic_disclaimer')) ?></p>
     <?php if ($booking['status'] === 'pending_admin'): ?>
-        <p class="notice">Cette réservation attend la validation de l’administrateur avant le paiement fictif.</p>
+        <p class="notice">Cette réservation peut maintenant être poursuivie vers le paiement fictif.</p>
+        <p><a class="button" href="<?= url('/paiement/' . $booking['id']) ?>">Poursuivre vers le paiement fictif</a></p>
     <?php elseif ($booking['status'] === 'pending_payment' && in_array($booking['payment_status'], ['not_paid', 'test_failed'], true)): ?>
-        <p class="notice">Votre demande a été validée par l’administrateur. Le paiement fictif doit maintenant être effectué pour confirmer la réservation.</p>
+        <p class="notice">Le paiement fictif doit être effectué pour confirmer la réservation.</p>
         <p><a class="button" href="<?= url('/paiement/' . $booking['id']) ?>">Poursuivre vers le paiement fictif</a></p>
     <?php endif; ?>
     <article role="article" class="panel invoice-print" id="facture-fictive">
@@ -42,7 +43,7 @@
     <?php if ($canReview): ?>
         <form role="form" class="panel" method="post" action="<?= url('/avis/' . $booking['id']) ?>" id="deposer-avis">
             <?= csrf_field() ?><h2>Déposer un avis</h2>
-            <p class="notice">Votre séjour est terminé. Vous pouvez partager votre expérience ; l’avis sera publié après modération.</p>
+            <p class="notice">Votre séjour est terminé. Vous pouvez partager votre expérience ; l’avis sera publié immédiatement.</p>
             <label>Note<select name="rating" required><option value="5">5/5</option><option value="4">4/5</option><option value="3">3/5</option><option value="2">2/5</option><option value="1">1/5</option></select></label>
             <label>Commentaire<textarea required name="comment" maxlength="1200" placeholder="Décrivez votre séjour, l’accueil, le logement et l’expérience vécue."></textarea></label>
             <button class="button" type="submit" data-track="review_submit">Envoyer l’avis</button>
@@ -50,7 +51,7 @@
     <?php elseif (!empty($booking['review_id'])): ?>
         <div class="panel" id="deposer-avis">
             <h2>Avis déjà transmis</h2>
-            <p>Votre avis est actuellement au statut : <span class="badge <?= e($booking['review_status']) ?>"><?= status_label($booking['review_status']) ?></span>.</p>
+            <p>Votre avis est publié sur la fiche logement.</p>
         </div>
     <?php elseif (in_array($booking['status'], ['confirmed', 'completed'], true) && $booking['payment_status'] === 'test_paid' && $booking['end_date'] > date('Y-m-d')): ?>
         <div class="panel" id="deposer-avis">

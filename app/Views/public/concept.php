@@ -22,7 +22,7 @@
         </div>
         <div class="concept-copy">
             <p>AtypikHouse n’est pas une simple vitrine. Le projet montre comment une marketplace peut guider des voyageurs vers des hébergements atypiques, tout en donnant aux propriétaires un espace clair pour présenter leurs logements, gérer leurs disponibilités et suivre leurs réservations.</p>
-            <p>L’univers repose sur la nature, l’évasion, l’authenticité et la simplicité. Chaque parcours a été pensé pour rester compréhensible en démonstration : chercher un séjour, consulter une fiche, simuler une réservation, puis publier un avis modéré.</p>
+            <p>L’univers repose sur la nature, l’évasion, l’authenticité et la simplicité. Chaque parcours a été pensé pour rester compréhensible en démonstration : chercher un séjour, consulter une fiche, simuler une réservation, puis publier un avis après le séjour.</p>
             <p class="concept-note">L’idée n’est pas de vendre plus vite, mais de rendre le parcours plus lisible, plus rassurant et plus proche de l’imaginaire du séjour nature.</p>
         </div>
     </section>
@@ -36,7 +36,7 @@
         <article role="article" class="concept-audience-card concept-audience-card--host">
             <span class="concept-icon" aria-hidden="true">02</span>
             <h2>Pour les hôtes</h2>
-            <p>Un espace propriétaire pour ajouter un logement, gérer les images, ouvrir ou fermer des disponibilités, suivre les réservations et soumettre les annonces à validation.</p>
+            <p>Un espace propriétaire pour ajouter un logement, gérer les images, ouvrir ou fermer des disponibilités, suivre les réservations et mettre à jour les annonces.</p>
         </article>
     </section>
 
@@ -68,7 +68,7 @@
             <article role="article" class="concept-card concept-card--trust">
                 <span class="concept-card__mark" aria-hidden="true">C</span>
                 <h3>Confiance</h3>
-                <p>Des logements validés, des avis modérés et une séparation claire des rôles.</p>
+                <p>Des espaces séparés, des statuts lisibles et une gestion claire des rôles.</p>
             </article>
             <article role="article" class="concept-card concept-card--simple">
                 <span class="concept-card__mark" aria-hidden="true">S</span>
@@ -92,7 +92,7 @@
             <article role="article"><span>1</span><h3>Rechercher</h3><p>Filtrer les logements par destination, type, capacité, prix ou dates.</p></article>
             <article role="article"><span>2</span><h3>Comparer</h3><p>Consulter les photos, équipements, avis publiés et disponibilités.</p></article>
             <article role="article"><span>3</span><h3>Réserver</h3><p>Créer une réservation fictive avec paiement fictif de démonstration, sans carte bancaire réelle.</p></article>
-            <article role="article"><span>4</span><h3>Partager</h3><p>Laisser un avis après un séjour terminé, avec modération administrateur.</p></article>
+            <article role="article"><span>4</span><h3>Partager</h3><p>Laisser un avis depuis son espace locataire après un séjour terminé.</p></article>
         </div>
     </section>
 

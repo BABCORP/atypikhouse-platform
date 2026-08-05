@@ -9,8 +9,14 @@ ALTER TABLE properties
   MODIFY status ENUM('draft', 'pending', 'published', 'rejected', 'archived', 'paused', 'deleted') NOT NULL DEFAULT 'draft';
 
 ALTER TABLE bookings
-  MODIFY status ENUM('pending_admin', 'pending_payment', 'confirmed', 'cancelled', 'completed') NOT NULL DEFAULT 'pending_admin',
+  MODIFY status ENUM('pending_admin', 'pending_payment', 'confirmed', 'cancelled', 'completed') NOT NULL DEFAULT 'pending_payment',
   MODIFY payment_status ENUM('not_paid', 'test_paid', 'test_failed', 'refunded') NOT NULL DEFAULT 'not_paid';
+
+ALTER TABLE owner_profiles
+  MODIFY verification_status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'approved';
+
+ALTER TABLE reviews
+  MODIFY status ENUM('pending', 'published', 'rejected') NOT NULL DEFAULT 'published';
 
 ALTER TABLE payments
   MODIFY status ENUM('test_pending', 'test_success', 'test_failed', 'test_refunded') NOT NULL;
@@ -91,6 +97,28 @@ JOIN users u ON u.id = op.user_id
 SET op.verification_status = 'approved',
     op.updated_at = NOW()
 WHERE u.email = 'proprietaire@atypikhouse.fr';
+
+-- Workflow direct demandé pour la soutenance : les comptes, logements,
+-- réservations et avis ne restent plus bloqués en attente d'un administrateur.
+UPDATE users
+SET status = 'active', updated_at = NOW()
+WHERE role IN ('tenant', 'owner') AND status = 'pending';
+
+UPDATE owner_profiles
+SET verification_status = 'approved', updated_at = NOW()
+WHERE verification_status = 'pending';
+
+UPDATE properties
+SET status = 'published', updated_at = NOW()
+WHERE status = 'pending';
+
+UPDATE bookings
+SET status = 'pending_payment', updated_at = NOW()
+WHERE status = 'pending_admin';
+
+UPDATE reviews
+SET status = 'published', updated_at = NOW()
+WHERE status = 'pending';
 
 -- Corrige les réservations historiques si un ancien déploiement avait stocké seulement prix/nuit + ménage.
 -- La date de départ est exclue du nombre de nuits : 2026-09-05 -> 2026-09-09 = 4 nuits.

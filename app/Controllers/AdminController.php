@@ -518,7 +518,7 @@ final class AdminController extends Controller
             $this->redirect('/admin/reservations/' . $id);
         }
         if ($status === 'pending_payment' && $booking['status'] !== 'pending_admin') {
-            flash('error', 'Seule une réservation en attente de validation peut être envoyée au paiement fictif.');
+            flash('error', 'Cette réservation est déjà dans un parcours de suivi actif.');
             $this->redirect('/admin/reservations/' . $id);
         }
         if ($status === 'completed' && ($booking['status'] !== 'confirmed' || $booking['payment_status'] !== 'test_paid')) {
@@ -821,7 +821,7 @@ final class AdminController extends Controller
             exit('Réservation introuvable.');
         }
         if ($status === 'pending_payment' && $booking['status'] !== 'pending_admin') {
-            flash('error', 'Seule une réservation en attente de validation peut être envoyée au paiement fictif.');
+            flash('error', 'Cette réservation est déjà dans un parcours de suivi actif.');
             $this->redirect('/admin/reservations/' . $id);
         }
         if ($status === 'completed' && ($booking['status'] !== 'confirmed' || $booking['payment_status'] !== 'test_paid')) {

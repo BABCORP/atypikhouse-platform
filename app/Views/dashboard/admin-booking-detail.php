@@ -48,7 +48,7 @@
             <span><i class="legend-dot booked"></i>Réservé</span>
         </div>
         <div class="availability-calendar" data-availability-calendar data-calendar-payload="<?= e(json_encode($calendarData ?? [], JSON_UNESCAPED_UNICODE)) ?>" aria-live="polite"></div>
-        <p class="notice">Vue administrateur : les dates bloquées proviennent des réservations en attente de validation, en attente de paiement, confirmées ou terminées.</p>
+        <p class="notice">Vue administrateur : les dates bloquées proviennent des réservations en attente de paiement, confirmées ou terminées.</p>
     </article>
     <form role="form" class="panel inline-admin-form" method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/statut') ?>">
         <?= csrf_field() ?>
@@ -64,7 +64,7 @@
     </form>
     <div class="actions-row">
         <?php if ($booking['status'] === 'pending_admin'): ?>
-            <form role="form" method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/confirmer') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Valider et demander le paiement</button></form>
+            <form role="form" method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/confirmer') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Passer au paiement fictif</button></form>
         <?php endif; ?>
         <?php if ($booking['status'] === 'confirmed' && $booking['payment_status'] === 'test_paid'): ?>
             <form role="form" method="post" action="<?= url('/admin/reservations/' . $booking['id'] . '/terminer') ?>"><?= csrf_field() ?><button class="button compact" type="submit">Marquer terminée</button></form>

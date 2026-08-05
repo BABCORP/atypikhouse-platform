@@ -58,7 +58,7 @@ final class BookingController extends Controller
             $this->redirect('/hebergements/' . $property['slug']);
         }
         $bookingId = $bookingModel->create($property, (int) $user['id'], $_POST);
-        audit((int) $user['id'], 'booking_created_pending_admin', 'booking', $bookingId);
+        audit((int) $user['id'], 'booking_created_pending_payment', 'booking', $bookingId);
         $booking = $bookingModel->findForAdmin($bookingId) ?? [
             'tenant_email' => $user['email'],
             'tenant_first_name' => $user['first_name'],
@@ -69,8 +69,8 @@ final class BookingController extends Controller
         ];
         $emailSent = (new MailService())->sendBookingPendingNotification((string) $user['email'], (string) $property['title'], $booking);
         audit((int) $user['id'], $emailSent ? 'email_booking_created_sent' : 'email_booking_created_failed', 'booking', $bookingId);
-        flash('success', 'Votre demande de réservation a été transmise. Elle sera confirmée après validation par l’administrateur, puis paiement fictif.');
-        $this->redirect('/locataire/reservations/' . $bookingId);
+        flash('success', 'Votre réservation fictive a été créée. Vous pouvez poursuivre vers le paiement de démonstration.');
+        $this->redirect('/paiement/' . $bookingId);
     }
 
     public function payment(int $bookingId): void
@@ -82,8 +82,12 @@ final class BookingController extends Controller
             exit('Réservation introuvable.');
         }
         if ($booking['status'] === 'pending_admin') {
-            flash('error', 'Cette réservation attend la validation de l’administrateur avant paiement fictif.');
-            $this->redirect('/locataire/reservations/' . $bookingId);
+            (new Booking())->validateForPayment($bookingId);
+            $booking = (new Booking())->findForTenant($bookingId, (int) $user['id']);
+            if (!$booking) {
+                http_response_code(404);
+                exit('Réservation introuvable.');
+            }
         }
         if ($booking['status'] !== 'pending_payment' || $booking['payment_status'] === 'test_paid') {
             flash('error', 'Cette réservation ne peut pas être payée à ce stade.');
@@ -102,8 +106,12 @@ final class BookingController extends Controller
             exit('Réservation introuvable.');
         }
         if ($booking['status'] === 'pending_admin') {
-            flash('error', 'Cette réservation attend la validation de l’administrateur avant paiement fictif.');
-            $this->redirect('/locataire/reservations/' . $bookingId);
+            (new Booking())->validateForPayment($bookingId);
+            $booking = (new Booking())->findForTenant($bookingId, (int) $user['id']);
+            if (!$booking) {
+                http_response_code(404);
+                exit('Réservation introuvable.');
+            }
         }
         if ($booking['status'] !== 'pending_payment' || $booking['payment_status'] === 'test_paid') {
             flash('error', 'Cette réservation ne peut pas être payée à ce stade.');
@@ -145,7 +153,7 @@ final class BookingController extends Controller
         }
         (new Review())->create($booking, $rating, $comment);
         audit((int) $user['id'], 'review_submit', 'review');
-        flash('success', 'Votre avis est en attente de modération.');
+        flash('success', 'Votre avis a été publié.');
         $this->redirect('/locataire/avis');
     }
 

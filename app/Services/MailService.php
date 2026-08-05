@@ -89,16 +89,15 @@ final class MailService
             'Votre compte AtypikHouse est en cours d’examen',
             '<p>Bonjour ' . e($firstName) . ',</p>'
             . '<p>Votre compte AtypikHouse a bien été créé.</p>'
-            . '<p>Pour garantir la sécurité et la qualité de la plateforme, il est actuellement en cours d’examen par un administrateur.</p>'
-            . '<p>Vous recevrez un nouvel email dès que votre compte aura été validé ou refusé.</p>'
+            . '<p>Votre accès est actif. Vous pouvez vous connecter dès maintenant.</p>'
             . '<p>À bientôt,<br>L’équipe AtypikHouse</p>'
             . '<p><strong>Projet étudiant fictif.</strong> Aucun achat, paiement ou réservation réelle ne peut être effectué.</p>',
             null,
             'account_pending_user'
         );
         $this->sendInternalNotification(
-            'Nouveau compte à valider sur AtypikHouse',
-            'Un nouveau compte vient d’être créé et attend une validation administrateur.',
+            'Nouveau compte créé sur AtypikHouse',
+            'Un nouveau compte vient d’être créé sur la plateforme.',
             'account_pending_admin',
             [
                 'Prénom' => $firstName,
@@ -118,8 +117,8 @@ final class MailService
             $to,
             'Bienvenue sur AtypikHouse',
             '<p>Bonjour ' . e($this->firstName($firstName)) . ',</p>'
-            . '<p>Votre compte locataire AtypikHouse a bien été créé.</p>'
-            . '<p>Vous pouvez vous connecter dès maintenant pour explorer les logements, ajouter des favoris et préparer une réservation fictive.</p>'
+            . '<p>Votre compte AtypikHouse a bien été créé.</p>'
+            . '<p>Vous pouvez vous connecter dès maintenant pour accéder à votre espace et utiliser les fonctionnalités de démonstration.</p>'
             . $this->emailButton('Se connecter à mon espace', $loginUrl)
             . '<p style="font-size:14px;line-height:1.6;color:#6B7280;">Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br><a href="' . e($loginUrl) . '" style="color:#2F5D50;">' . e($loginUrl) . '</a></p>'
             . '<p>À bientôt,<br>L’équipe AtypikHouse</p>'
@@ -220,18 +219,16 @@ final class MailService
     {
         $ownerSent = $this->send(
             $ownerEmail,
-            'Votre logement a été soumis à validation',
+            'Votre logement AtypikHouse est publié',
             '<p>Bonjour ' . e($ownerFirstName !== '' ? $ownerFirstName : 'propriétaire') . ',</p>'
-            . '<p>Votre logement "' . e($propertyTitle) . '" a bien été soumis à l’équipe AtypikHouse.</p>'
-            . '<p>Il sera examiné par un administrateur avant sa publication.</p>'
-            . '<p>Vous recevrez un email dès qu’une décision aura été prise.</p>'
+            . '<p>Votre logement "' . e($propertyTitle) . '" est maintenant enregistré et visible dans le catalogue AtypikHouse.</p>'
             . '<p>L’équipe AtypikHouse</p>',
             null,
             'property_submitted_owner'
         );
         $this->sendInternalNotification(
-            'Nouveau logement à valider',
-            'Un propriétaire a soumis un logement à validation.',
+            'Nouveau logement publié',
+            'Un propriétaire a publié un logement dans le catalogue.',
             'property_submitted_admin',
             [
                 'Logement' => $propertyTitle,
@@ -249,10 +246,9 @@ final class MailService
         $link = $slug !== '' ? $this->appUrl('/hebergements/' . $slug) : $this->appUrl('/hebergements');
         return $this->send(
             $ownerEmail,
-            'Votre logement AtypikHouse a été validé',
+            'Votre logement AtypikHouse est publié',
             '<p>Bonjour ' . e($ownerFirstName !== '' ? $ownerFirstName : 'propriétaire') . ',</p>'
-            . '<p>Votre logement "' . e($propertyTitle) . '" a été validé par l’administrateur.</p>'
-            . '<p>Il est maintenant visible sur la plateforme AtypikHouse.</p>'
+            . '<p>Votre logement "' . e($propertyTitle) . '" est maintenant visible sur la plateforme AtypikHouse.</p>'
             . $this->emailButton('Voir mon logement', $link)
             . '<p>L’équipe AtypikHouse</p>',
             null,
@@ -337,24 +333,24 @@ final class MailService
         $priceLines = $this->bookingPriceLines($booking);
         $tenantSent = $this->send(
             $tenantEmail,
-            'Votre demande de réservation a bien été reçue',
+            'Votre réservation fictive a bien été créée',
             '<p>Bonjour ' . e((string) ($booking['tenant_first_name'] ?? '')) . ',</p>'
-            . '<p>Votre demande de réservation pour "' . e($propertyTitle) . '" a bien été enregistrée.</p>'
-            . '<p>Elle est maintenant en attente de validation par l’administrateur.</p>'
+            . '<p>Votre réservation pour "' . e($propertyTitle) . '" a bien été enregistrée.</p>'
+            . '<p>Vous pouvez poursuivre vers le paiement fictif de démonstration depuis votre espace locataire.</p>'
             . '<ul>'
             . '<li><strong>Logement :</strong> ' . e($propertyTitle) . '</li>'
             . '<li><strong>Dates :</strong> ' . e($dates) . '</li>'
             . '<li><strong>Nombre de voyageurs :</strong> ' . e((string) ($booking['guests_count'] ?? '')) . '</li>'
             . $priceLines
-            . '<li><strong>Statut :</strong> En attente de validation</li>'
+            . '<li><strong>Statut :</strong> En attente de paiement fictif</li>'
             . '</ul>'
             . '<p>L’équipe AtypikHouse</p>',
             null,
             'booking_pending_tenant'
         );
         $this->sendInternalNotification(
-            'Nouvelle réservation à valider',
-            'Une nouvelle demande de réservation attend une validation administrateur.',
+            'Nouvelle réservation créée',
+            'Une nouvelle réservation fictive a été créée et attend le paiement de démonstration.',
             'booking_pending_admin',
             [
                 'Locataire' => $tenantEmail,
