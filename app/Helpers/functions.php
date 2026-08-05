@@ -72,40 +72,75 @@ function verify_csrf(): void
     }
 }
 
-function captcha_challenge(string $key = 'default'): array
+function captcha_is_enabled(): bool
 {
-    $sessionKey = '_captcha_' . $key;
-    if (empty($_SESSION[$sessionKey]) || !is_array($_SESSION[$sessionKey])) {
-        $a = random_int(2, 9);
-        $b = random_int(1, 9);
-        $_SESSION[$sessionKey] = [
-            'question' => $a . ' + ' . $b,
-            'answer' => (string) ($a + $b),
-        ];
+    return (bool) config('turnstile_enabled') && (string) config('turnstile_site_key') !== '' && (string) config('turnstile_secret_key') !== '';
+}
+
+function captcha_field(string $action = 'contact'): string
+{
+    if (!captcha_is_enabled()) {
+        return '<p class="form-help">Protection anti-spam prête à être activée avec Cloudflare Turnstile.</p>';
     }
 
-    return $_SESSION[$sessionKey];
+    return '<div class="captcha-field" aria-label="Vérification anti-spam">'
+        . '<div class="cf-turnstile" data-sitekey="' . e((string) config('turnstile_site_key')) . '" data-action="' . e($action) . '"></div>'
+        . '<noscript><p class="form-help">Activez JavaScript pour compléter la vérification anti-spam.</p></noscript>'
+        . '</div>';
 }
 
-function captcha_field(string $key = 'default'): string
+function verify_captcha(string $action = 'contact'): bool
 {
-    $challenge = captcha_challenge($key);
-    $question = e((string) $challenge['question']);
+    if (!captcha_is_enabled()) {
+        return (string) config('env') !== 'production';
+    }
 
-    return '<label>Question de sécurité'
-        . '<input required type="number" inputmode="numeric" autocomplete="off" name="captcha_answer" placeholder="Résultat de ' . $question . '" aria-describedby="captcha-help">'
-        . '</label>'
-        . '<p class="form-help" id="captcha-help">Pour limiter les envois automatiques, indiquez le résultat de l’addition : ' . $question . '.</p>';
-}
+    $token = trim((string) ($_POST['cf-turnstile-response'] ?? ''));
+    if ($token === '' || strlen($token) > 2048) {
+        return false;
+    }
 
-function verify_captcha(string $key = 'default'): bool
-{
-    $sessionKey = '_captcha_' . $key;
-    $expected = $_SESSION[$sessionKey]['answer'] ?? null;
-    $answer = trim((string) input('captcha_answer', ''));
-    unset($_SESSION[$sessionKey]);
+    $payload = http_build_query([
+        'secret' => (string) config('turnstile_secret_key'),
+        'response' => $token,
+        'remoteip' => $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '',
+    ]);
 
-    return $expected !== null && $answer !== '' && hash_equals((string) $expected, $answer);
+    $response = null;
+    if (function_exists('curl_init')) {
+        $curl = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
+        curl_setopt_array($curl, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $payload,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 5,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded'],
+        ]);
+        $response = curl_exec($curl);
+        curl_close($curl);
+    } else {
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => "Content-Type: application/x-www-form-urlencoded\r\n",
+                'content' => $payload,
+                'timeout' => 5,
+            ],
+        ]);
+        $response = @file_get_contents('https://challenges.cloudflare.com/turnstile/v0/siteverify', false, $context);
+    }
+
+    $result = is_string($response) ? json_decode($response, true) : null;
+    if (!is_array($result) || ($result['success'] ?? false) !== true) {
+        error_log('[AtypikHouse captcha] Turnstile validation failed');
+        return false;
+    }
+
+    if (isset($result['action']) && $result['action'] !== $action) {
+        return false;
+    }
+
+    return true;
 }
 
 function flash(string $key, ?string $message = null): ?string

@@ -325,6 +325,8 @@ fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 1rem 0; }
 .upload-block { border: 1px solid var(--line); border-radius: 10px; padding: 1rem; background: #fff; margin-top: 1rem; }
 .upload-block h2 { font-size: 1.05rem; margin-bottom: .25rem; }
 .form-help { margin: 0 0 .85rem; color: var(--muted); }
+.captcha-field { margin: .35rem 0 1rem; }
+.captcha-field .cf-turnstile { min-height: 65px; }
 .table-thumb { width: 76px; height: 54px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); background: var(--ivory); }
 .table-wrap tr.is-changed td { background: rgba(203, 97, 41, .08); }
 .table-wrap tr.is-changed td:first-child { color: var(--terracotta); font-weight: 800; }
