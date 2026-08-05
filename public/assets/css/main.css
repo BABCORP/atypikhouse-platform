@@ -3,7 +3,7 @@
   --forest-2: #25543b;
   --moss: #607a58;
   --sand: #f1e8dc;
-  --clay: #ca6129;
+  --clay: #8F452C;
   --cream: #fdfaf5;
   --ink: #16251c;
   --muted: #56675d;
@@ -93,7 +93,7 @@ img { max-width: 100%; display: block; }
 .main-nav .nav-link:hover,
 .main-nav .nav-link.is-active {
   color: var(--clay);
-  background: rgba(202, 97, 41, .1);
+  background: rgba(143, 69, 44, .12);
 }
 .main-nav .nav-link:hover::after,
 .main-nav .nav-link.is-active::after,
