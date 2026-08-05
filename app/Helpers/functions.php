@@ -74,13 +74,20 @@ function verify_csrf(): void
 
 function captcha_is_enabled(): bool
 {
-    return (bool) config('turnstile_enabled') && (string) config('turnstile_site_key') !== '' && (string) config('turnstile_secret_key') !== '';
+    return (bool) config('turnstile_enabled');
+}
+
+function captcha_is_configured(): bool
+{
+    return captcha_is_enabled() && (string) config('turnstile_site_key') !== '' && (string) config('turnstile_secret_key') !== '';
 }
 
 function captcha_field(string $action = 'contact'): string
 {
-    if (!captcha_is_enabled()) {
-        return '<p class="form-help">Protection anti-spam prête à être activée avec Cloudflare Turnstile.</p>';
+    if (!captcha_is_configured()) {
+        return captcha_is_enabled()
+            ? '<p class="form-help">Protection anti-spam temporairement indisponible.</p>'
+            : '<p class="form-help">Protection anti-spam prête à être activée avec Cloudflare Turnstile.</p>';
     }
 
     return '<div class="captcha-field" aria-label="Vérification anti-spam">'
@@ -91,8 +98,11 @@ function captcha_field(string $action = 'contact'): string
 
 function verify_captcha(string $action = 'contact'): bool
 {
-    if (!captcha_is_enabled()) {
-        return (string) config('env') !== 'production';
+    if (!captcha_is_configured()) {
+        if (captcha_is_enabled()) {
+            error_log('[AtypikHouse captcha] Turnstile enabled but missing site key or secret key');
+        }
+        return true;
     }
 
     $token = trim((string) ($_POST['cf-turnstile-response'] ?? ''));

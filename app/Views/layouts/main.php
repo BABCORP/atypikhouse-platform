@@ -34,7 +34,7 @@ $ariaCurrent = static fn (string $path): string => $isActivePath($path) ? ' aria
     <?php if (!empty($jsonLd)): ?>
         <script type="application/ld+json"><?= json_encode($jsonLd, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
     <?php endif; ?>
-    <?php if (captcha_is_enabled()): ?>
+    <?php if (captcha_is_configured()): ?>
         <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <?php endif; ?>
 </head>
