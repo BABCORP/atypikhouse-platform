@@ -237,6 +237,15 @@ final class PublicController extends Controller
         ]);
     }
 
+    public function siteMap(): void
+    {
+        $this->view('public/site-map', [
+            'title' => 'Plan du site - AtypikHouse',
+            'metaDescription' => 'Plan du site AtypikHouse pour accéder aux principales pages publiques, espaces utilisateurs et informations légales.',
+            'canonical' => url('/plan-du-site'),
+        ]);
+    }
+
     public function sendPrivacyRequest(): void
     {
         verify_csrf();
