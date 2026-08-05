@@ -11,7 +11,10 @@ final class AuthController extends Controller
 {
     public function login(): void
     {
-        $this->view('auth/login', ['title' => 'Connexion']);
+        $this->view('auth/login', [
+            'title' => 'Connexion',
+            'captchaRequired' => $this->loginCaptchaRequired(),
+        ]);
     }
 
     public function authenticate(): void
@@ -24,6 +27,11 @@ final class AuthController extends Controller
             $this->redirect('/connexion');
         }
         $email = strtolower(trim((string) input('email')));
+        if (count($attempts) >= 3 && !verify_captcha('login')) {
+            flash('error', 'La vérification anti-spam est incorrecte. Merci de réessayer.');
+            remember_old(['email' => $email]);
+            $this->redirect('/connexion');
+        }
         $password = trim((string) input('password'));
         $userModel = new User();
         $user = $userModel->findByEmail($email);
@@ -117,6 +125,11 @@ final class AuthController extends Controller
     {
         verify_csrf();
         $role = input('role') === 'owner' ? 'owner' : 'tenant';
+        if (!verify_captcha('register')) {
+            flash('error', 'La vérification anti-spam est incorrecte. Merci de réessayer.');
+            remember_old($_POST);
+            $this->redirect('/inscription?role=' . $role);
+        }
         foreach (['first_name', 'last_name', 'email', 'password'] as $field) {
             if (trim((string) input($field, '')) === '') {
                 flash('error', 'Merci de remplir tous les champs obligatoires.');
@@ -196,6 +209,15 @@ final class AuthController extends Controller
         }
 
         return false;
+    }
+
+    private function loginCaptchaRequired(): bool
+    {
+        $attempts = $_SESSION['login_attempts'] ?? [];
+        $attempts = array_values(array_filter($attempts, fn (int $timestamp): bool => $timestamp > time() - 300));
+        $_SESSION['login_attempts'] = $attempts;
+
+        return count($attempts) >= 3;
     }
 
     private function logLoginFailure(string $email, ?array $user): void

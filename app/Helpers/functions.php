@@ -82,12 +82,33 @@ function captcha_is_configured(): bool
     return captcha_is_enabled() && (string) config('turnstile_site_key') !== '' && (string) config('turnstile_secret_key') !== '';
 }
 
+function captcha_math_challenge(string $action = 'default'): array
+{
+    $sessionKey = '_captcha_math_' . $action;
+    if (empty($_SESSION[$sessionKey]) || !is_array($_SESSION[$sessionKey])) {
+        $a = random_int(2, 9);
+        $b = random_int(1, 9);
+        $_SESSION[$sessionKey] = [
+            'question' => $a . ' + ' . $b,
+            'answer' => (string) ($a + $b),
+        ];
+    }
+
+    return $_SESSION[$sessionKey];
+}
+
 function captcha_field(string $action = 'contact'): string
 {
     if (!captcha_is_configured()) {
-        return captcha_is_enabled()
-            ? '<p class="form-help">Protection anti-spam temporairement indisponible.</p>'
-            : '<p class="form-help">Protection anti-spam prête à être activée avec Cloudflare Turnstile.</p>';
+        $challenge = captcha_math_challenge($action);
+        $question = e((string) $challenge['question']);
+
+        return '<div class="captcha-field" aria-label="Vérification anti-spam">'
+            . '<label>Captcha anti-spam'
+            . '<input required type="number" inputmode="numeric" autocomplete="off" name="captcha_answer" placeholder="Combien font ' . $question . ' ?" aria-describedby="captcha-help-' . e($action) . '">'
+            . '</label>'
+            . '<p class="form-help" id="captcha-help-' . e($action) . '">Pour confirmer que vous n’êtes pas un robot, répondez à cette question : combien font ' . $question . ' ?</p>'
+            . '</div>';
     }
 
     return '<div class="captcha-field" aria-label="Vérification anti-spam">'
@@ -99,10 +120,12 @@ function captcha_field(string $action = 'contact'): string
 function verify_captcha(string $action = 'contact'): bool
 {
     if (!captcha_is_configured()) {
-        if (captcha_is_enabled()) {
-            error_log('[AtypikHouse captcha] Turnstile enabled but missing site key or secret key');
-        }
-        return true;
+        $sessionKey = '_captcha_math_' . $action;
+        $expected = $_SESSION[$sessionKey]['answer'] ?? null;
+        $answer = trim((string) input('captcha_answer', ''));
+        unset($_SESSION[$sessionKey]);
+
+        return $expected !== null && $answer !== '' && hash_equals((string) $expected, $answer);
     }
 
     $token = trim((string) ($_POST['cf-turnstile-response'] ?? ''));

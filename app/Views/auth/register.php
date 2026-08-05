@@ -15,6 +15,7 @@
             <label>Code postal<input name="postal_code" placeholder="Ex. 60350" value="<?= old('postal_code') ?>"></label>
             <label>Description<textarea name="description" placeholder="Présentez votre activité, votre lieu et votre démarche d’accueil."><?= old('description') ?></textarea></label>
         </fieldset>
+        <?= captcha_field('register') ?>
         <button class="button full" type="submit">Créer un compte</button>
     </form>
 </section>
