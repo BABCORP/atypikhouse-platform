@@ -15,6 +15,11 @@
                     <?php if ($booking['status'] === 'pending_payment' && in_array($booking['payment_status'], ['not_paid', 'test_failed'], true)): ?>
                         <a class="button compact" href="<?= url('/paiement/' . $booking['id']) ?>">Payer</a>
                     <?php endif; ?>
+                    <?php if (!empty($booking['can_review'])): ?>
+                        <a class="button compact" href="<?= url('/locataire/reservations/' . $booking['id']) ?>#deposer-avis">Déposer un avis</a>
+                    <?php elseif (!empty($booking['review_id'])): ?>
+                        <a class="button compact ghost" href="<?= url('/locataire/avis') ?>">Avis transmis</a>
+                    <?php endif; ?>
                 <?php elseif (($scope ?? '') === 'admin'): ?>
                     <a class="button compact ghost" href="<?= url('/admin/reservations/' . $booking['id']) ?>">Détail</a>
                 <?php else: ?>

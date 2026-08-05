@@ -101,10 +101,20 @@ final class Booking extends Model
 
     public function findForTenant(int $id, int $tenantId): ?array
     {
-        $stmt = $this->db->prepare('SELECT b.*, p.title, p.slug, p.city, u.first_name AS tenant_first_name, u.last_name AS tenant_last_name, u.email AS tenant_email, pay.test_transaction_id
+        $stmt = $this->db->prepare('SELECT b.*, p.title, p.slug, p.city, u.first_name AS tenant_first_name, u.last_name AS tenant_last_name, u.email AS tenant_email, pay.test_transaction_id,
+                r.id AS review_id,
+                r.status AS review_status,
+                CASE
+                    WHEN b.status IN ("confirmed", "completed")
+                        AND b.payment_status = "test_paid"
+                        AND b.end_date <= CURDATE()
+                        AND r.id IS NULL
+                    THEN 1 ELSE 0
+                END AS can_review
             FROM bookings b
             JOIN properties p ON p.id = b.property_id
             JOIN users u ON u.id = b.tenant_id
+            LEFT JOIN reviews r ON r.booking_id = b.id
             LEFT JOIN payments pay ON pay.booking_id = b.id
             WHERE b.id = ? AND b.tenant_id = ?
             ORDER BY pay.created_at DESC
@@ -122,7 +132,21 @@ final class Booking extends Model
 
     public function tenantBookings(int $tenantId): array
     {
-        $stmt = $this->db->prepare('SELECT b.*, p.title, p.slug, p.city FROM bookings b JOIN properties p ON p.id = b.property_id WHERE b.tenant_id = ? ORDER BY b.start_date DESC');
+        $stmt = $this->db->prepare('SELECT b.*, p.title, p.slug, p.city,
+                r.id AS review_id,
+                r.status AS review_status,
+                CASE
+                    WHEN b.status IN ("confirmed", "completed")
+                        AND b.payment_status = "test_paid"
+                        AND b.end_date <= CURDATE()
+                        AND r.id IS NULL
+                    THEN 1 ELSE 0
+                END AS can_review
+            FROM bookings b
+            JOIN properties p ON p.id = b.property_id
+            LEFT JOIN reviews r ON r.booking_id = b.id
+            WHERE b.tenant_id = ?
+            ORDER BY b.start_date DESC');
         $stmt->execute([$tenantId]);
         return $stmt->fetchAll();
     }

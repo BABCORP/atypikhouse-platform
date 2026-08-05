@@ -129,14 +129,18 @@ final class BookingController extends Controller
         $user = $this->requireTenantForBooking();
         verify_csrf();
         $booking = (new Booking())->findForTenant($bookingId, (int) $user['id']);
-        if (!$booking || !(new Review())->canReview($bookingId, (int) $user['id'])) {
+        if (!$booking) {
+            flash('error', 'Réservation introuvable.');
+            $this->redirect('/locataire/reservations');
+        }
+        if (!(new Review())->canReview($bookingId, (int) $user['id'])) {
             flash('error', 'Vous ne pouvez pas déposer d’avis pour cette réservation.');
             $this->redirect('/locataire/reservations/' . $bookingId);
         }
         $rating = (int) input('rating');
         $comment = trim((string) input('comment'));
-        if ($rating < 1 || $rating > 5 || $comment === '') {
-            flash('error', 'Merci de fournir une note de 1 à 5 et un commentaire.');
+        if ($rating < 1 || $rating > 5 || $comment === '' || strlen($comment) > 1200) {
+            flash('error', 'Merci de fournir une note de 1 à 5 et un commentaire de 1 200 caractères maximum.');
             $this->redirect('/locataire/reservations/' . $bookingId);
         }
         (new Review())->create($booking, $rating, $comment);

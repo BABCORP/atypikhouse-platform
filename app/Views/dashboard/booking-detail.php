@@ -40,11 +40,22 @@
         </dl>
     </article>
     <?php if ($canReview): ?>
-        <form class="panel" method="post" action="<?= url('/avis/' . $booking['id']) ?>">
+        <form class="panel" method="post" action="<?= url('/avis/' . $booking['id']) ?>" id="deposer-avis">
             <?= csrf_field() ?><h2>Déposer un avis</h2>
-            <label>Note<select name="rating"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label>
-            <label>Commentaire<textarea required name="comment"></textarea></label>
+            <p class="notice">Votre séjour est terminé. Vous pouvez partager votre expérience ; l’avis sera publié après modération.</p>
+            <label>Note<select name="rating" required><option value="5">5/5</option><option value="4">4/5</option><option value="3">3/5</option><option value="2">2/5</option><option value="1">1/5</option></select></label>
+            <label>Commentaire<textarea required name="comment" maxlength="1200" placeholder="Décrivez votre séjour, l’accueil, le logement et l’expérience vécue."></textarea></label>
             <button class="button" type="submit" data-track="review_submit">Envoyer l’avis</button>
         </form>
+    <?php elseif (!empty($booking['review_id'])): ?>
+        <div class="panel" id="deposer-avis">
+            <h2>Avis déjà transmis</h2>
+            <p>Votre avis est actuellement au statut : <span class="badge <?= e($booking['review_status']) ?>"><?= status_label($booking['review_status']) ?></span>.</p>
+        </div>
+    <?php elseif (in_array($booking['status'], ['confirmed', 'completed'], true) && $booking['payment_status'] === 'test_paid' && $booking['end_date'] > date('Y-m-d')): ?>
+        <div class="panel" id="deposer-avis">
+            <h2>Avis après séjour</h2>
+            <p>Vous pourrez déposer un avis après la fin du séjour, à partir du <?= e($booking['end_date']) ?>.</p>
+        </div>
     <?php endif; ?>
 </section>

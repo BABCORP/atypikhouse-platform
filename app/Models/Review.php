@@ -33,7 +33,15 @@ final class Review extends Model
 
     public function canReview(int $bookingId, int $tenantId): bool
     {
-        $stmt = $this->db->prepare('SELECT COUNT(*) FROM bookings b LEFT JOIN reviews r ON r.booking_id = b.id WHERE b.id = ? AND b.tenant_id = ? AND b.status = "completed" AND r.id IS NULL');
+        $stmt = $this->db->prepare('SELECT COUNT(*)
+            FROM bookings b
+            LEFT JOIN reviews r ON r.booking_id = b.id
+            WHERE b.id = ?
+                AND b.tenant_id = ?
+                AND b.status IN ("confirmed", "completed")
+                AND b.payment_status = "test_paid"
+                AND b.end_date <= CURDATE()
+                AND r.id IS NULL');
         $stmt->execute([$bookingId, $tenantId]);
         return (int) $stmt->fetchColumn() === 1;
     }
