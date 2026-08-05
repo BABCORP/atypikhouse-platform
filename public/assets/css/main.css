@@ -1094,19 +1094,38 @@ th { background: var(--sand); }
   z-index: 20;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  max-width: 860px;
+  align-items: flex-start;
+  gap: 1.25rem;
+  max-width: 980px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 1.15rem;
   background: white;
   border: 1px solid var(--line);
   border-radius: 8px;
   box-shadow: 0 16px 42px rgba(24,60,42,.22);
 }
 .cookie-banner[hidden] { display: none; }
-.cookie-banner p { margin: 0; }
-.cookie-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.cookie-banner__content {
+  display: grid;
+  gap: .35rem;
+  max-width: 680px;
+}
+.cookie-banner__content strong {
+  color: var(--forest);
+  font-size: 1.05rem;
+}
+.cookie-banner p { margin: 0; color: var(--muted); }
+.cookie-banner__link {
+  color: var(--clay);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
+.cookie-banner__link:hover,
+.cookie-banner__link:focus-visible {
+  color: var(--forest);
+}
+.cookie-actions { display: flex; gap: .5rem; flex-wrap: wrap; justify-content: flex-end; }
 .cookie-manage-floating {
   position: fixed;
   right: 1rem;
