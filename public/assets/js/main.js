@@ -114,9 +114,15 @@ if (otherAmenitiesToggle && otherAmenitiesField) {
 const navToggle = document.querySelector(".nav-toggle");
 const mainNav = document.querySelector("#navigation-principale");
 if (navToggle && mainNav) {
+  const syncNavToggleLabel = (open) => {
+    navToggle.textContent = open ? "Fermer" : "Menu";
+    navToggle.setAttribute("aria-label", open ? "Fermer le menu principal" : "Ouvrir le menu principal");
+  };
+  syncNavToggleLabel(false);
   navToggle.addEventListener("click", () => {
     const open = mainNav.classList.toggle("is-open");
     navToggle.setAttribute("aria-expanded", String(open));
+    syncNavToggleLabel(open);
   });
 }
 

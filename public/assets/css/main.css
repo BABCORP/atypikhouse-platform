@@ -41,7 +41,21 @@ img { max-width: 100%; display: block; }
 }
 .site-header { position: sticky; top: 0; z-index: 5; min-height: 76px; background: rgba(253,250,245,.97); border-bottom: 1px solid var(--line); backdrop-filter: blur(10px); }
 .brand { font-family: "Lora", Georgia, serif; font-weight: 700; font-size: 2rem; color: var(--forest); text-decoration: none; line-height: 1; }
-.nav-toggle { display: none; background: transparent; color: var(--forest); border: 1px solid var(--line); }
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: .65rem 1rem;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--forest);
+  border: 1px solid var(--line);
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+.nav-toggle[aria-expanded="true"] { background: var(--forest); color: white; border-color: var(--forest); }
 .main-nav, .dashboard-nav { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem 1.2rem; }
 .main-nav a, .site-footer a, .dashboard-nav a { text-decoration: none; font-weight: 650; }
 .main-nav .nav-link,
@@ -1050,6 +1064,39 @@ th { background: var(--sand); }
   display: none;
 }
 
+@media (max-width: 1024px) {
+  .site-header {
+    flex-wrap: wrap;
+    min-height: 70px;
+    padding-top: .85rem;
+    padding-bottom: .85rem;
+  }
+  .brand { font-size: 1.85rem; }
+  .nav-toggle {
+    display: inline-flex;
+    margin-left: auto;
+  }
+  .main-nav {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: .35rem;
+    margin-top: .35rem;
+    padding-top: .9rem;
+    border-top: 1px solid var(--line);
+  }
+  .main-nav.is-open { display: flex; }
+  .main-nav .nav-link,
+  .main-nav .button,
+  .main-nav .link-button {
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
+  }
+  .main-nav form { width: 100%; }
+}
+
 @media (max-width: 900px) {
   .hero { min-height: 660px; padding-top: 3.5rem; }
   .hero h1 { font-size: 3rem; }
@@ -1081,7 +1128,6 @@ th { background: var(--sand); }
   .contact-details { border-radius: 8px 8px 0 0; }
   .contact-form { border-radius: 0 0 8px 8px; }
   .site-footer { flex-direction: column; gap: 2rem; }
-  .main-nav { width: 100%; }
   .booking-box { position: static; }
 }
 @media (max-width: 720px) {
@@ -1089,9 +1135,6 @@ th { background: var(--sand); }
   h2 { font-size: 1.65rem; }
   .site-header { min-height: 64px; padding-top: .95rem; padding-bottom: .95rem; }
   .brand { font-size: 1.65rem; }
-  .nav-toggle { display: inline-flex; position: absolute; right: 1rem; top: .75rem; }
-  .main-nav { display: none; flex-direction: column; align-items: stretch; padding-top: .5rem; }
-  .main-nav.is-open { display: flex; }
   .hero { min-height: 0; grid-template-rows: auto auto; align-content: start; padding: 2.5rem 1rem 1.1rem; gap: 1.25rem; background-position: 64% center; }
   .hero-content { align-self: start; }
   .hero h1 { font-size: 2.35rem; }
