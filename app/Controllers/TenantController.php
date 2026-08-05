@@ -86,4 +86,24 @@ final class TenantController extends Controller
         flash('success', 'Mot de passe mis à jour.');
         $this->redirect('/locataire/profil');
     }
+
+    public function deleteAccount(): void
+    {
+        $user = Auth::requireRole('tenant');
+        verify_csrf();
+        if (($user['role'] ?? '') !== 'tenant') {
+            http_response_code(403);
+            exit('Accès refusé.');
+        }
+        if (!password_verify((string) input('current_password'), $user['password_hash'])) {
+            flash('error', 'Mot de passe incorrect. Votre compte n’a pas été supprimé.');
+            $this->redirect('/locataire/profil');
+        }
+        (new User())->anonymizeAndSuspend((int) $user['id']);
+        audit((int) $user['id'], 'user_account_deleted', 'user', (int) $user['id']);
+        unset($_SESSION['user_id']);
+        session_regenerate_id(true);
+        flash('success', 'Votre compte a été supprimé. Les informations nécessaires à l’historique du projet sont conservées sous forme anonymisée.');
+        $this->redirect('/');
+    }
 }

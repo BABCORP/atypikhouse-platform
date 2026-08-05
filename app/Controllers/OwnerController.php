@@ -288,6 +288,40 @@ final class OwnerController extends Controller
         $this->redirect('/proprietaire/profil');
     }
 
+    public function updatePassword(): void
+    {
+        $user = Auth::requireRole('owner');
+        verify_csrf();
+        if (!password_verify((string) input('current_password'), $user['password_hash']) || strlen((string) input('password')) < 8 || input('password') !== input('password_confirmation')) {
+            flash('error', 'La modification du mot de passe a échoué. Vérifiez les informations saisies.');
+            $this->redirect('/proprietaire/profil');
+        }
+        (new User())->updatePassword((int) $user['id'], (string) input('password'));
+        audit((int) $user['id'], 'password_update', 'user', (int) $user['id']);
+        flash('success', 'Mot de passe mis à jour.');
+        $this->redirect('/proprietaire/profil');
+    }
+
+    public function deleteAccount(): void
+    {
+        $user = Auth::requireRole('owner');
+        verify_csrf();
+        if (($user['role'] ?? '') !== 'owner') {
+            http_response_code(403);
+            exit('Accès refusé.');
+        }
+        if (!password_verify((string) input('current_password'), $user['password_hash'])) {
+            flash('error', 'Mot de passe incorrect. Votre compte n’a pas été supprimé.');
+            $this->redirect('/proprietaire/profil');
+        }
+        (new User())->anonymizeAndSuspend((int) $user['id']);
+        audit((int) $user['id'], 'owner_account_deleted', 'user', (int) $user['id']);
+        unset($_SESSION['user_id']);
+        session_regenerate_id(true);
+        flash('success', 'Votre compte propriétaire a été supprimé. Vos logements ne sont plus visibles publiquement et l’historique reste conservé.');
+        $this->redirect('/');
+    }
+
     private function validateProperty(string $fallback): void
     {
         foreach (['title', 'type', 'city', 'region', 'capacity', 'price_per_night', 'short_description', 'long_description'] as $field) {

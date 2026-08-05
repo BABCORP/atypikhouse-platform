@@ -143,6 +143,34 @@ final class User extends Model
         $stmt->execute([password_hash(trim($password), PASSWORD_DEFAULT), $id]);
     }
 
+    public function anonymizeAndSuspend(int $id): void
+    {
+        $this->db->beginTransaction();
+        try {
+            $user = $this->find($id);
+            if (!$user) {
+                $this->db->rollBack();
+                return;
+            }
+
+            $anonymousEmail = 'compte-supprime-' . $id . '@atypikhouse.fr';
+            $this->db->prepare('DELETE FROM property_favorites WHERE user_id = ?')->execute([$id]);
+            $this->db->prepare('DELETE FROM password_resets WHERE user_id = ?')->execute([$id]);
+            $this->db->prepare('UPDATE owner_profiles SET company_name = "Compte propriétaire supprimé", address = "", city = "", postal_code = "", description = "", verification_status = "rejected", updated_at = NOW() WHERE user_id = ?')->execute([$id]);
+            $this->db->prepare('UPDATE properties SET status = "paused", updated_at = NOW() WHERE owner_id = ? AND status IN ("draft", "pending", "published", "rejected", "archived")')->execute([$id]);
+            $stmt = $this->db->prepare('UPDATE users SET first_name = "Compte", last_name = "supprimé", email = ?, phone = "", password_hash = ?, status = "suspended", updated_at = NOW() WHERE id = ?');
+            $stmt->execute([
+                $anonymousEmail,
+                password_hash(bin2hex(random_bytes(32)), PASSWORD_DEFAULT),
+                $id,
+            ]);
+            $this->db->commit();
+        } catch (\Throwable $exception) {
+            $this->db->rollBack();
+            throw $exception;
+        }
+    }
+
     public function createPasswordReset(int $userId, string $tokenHash): void
     {
         $this->db->prepare('DELETE FROM password_resets WHERE user_id = ?')->execute([$userId]);

@@ -54,6 +54,7 @@ $router->get('/locataire/avis', [TenantController::class, 'reviews']);
 $router->get('/locataire/profil', [TenantController::class, 'profile']);
 $router->post('/locataire/profil', [TenantController::class, 'updateProfile']);
 $router->post('/locataire/profil/mot-de-passe', [TenantController::class, 'updatePassword']);
+$router->post('/locataire/profil/supprimer', [TenantController::class, 'deleteAccount']);
 
 $router->get('/proprietaire/dashboard', [OwnerController::class, 'dashboard']);
 $router->get('/proprietaire/logements', [OwnerController::class, 'properties']);
@@ -71,6 +72,8 @@ $router->post('/proprietaire/disponibilites', [OwnerController::class, 'storeAva
 $router->get('/proprietaire/reservations', [OwnerController::class, 'reservations']);
 $router->get('/proprietaire/profil', [OwnerController::class, 'profile']);
 $router->post('/proprietaire/profil', [OwnerController::class, 'updateProfile']);
+$router->post('/proprietaire/profil/mot-de-passe', [OwnerController::class, 'updatePassword']);
+$router->post('/proprietaire/profil/supprimer', [OwnerController::class, 'deleteAccount']);
 
 $router->get('/admin/dashboard', [AdminController::class, 'dashboard']);
 $router->get('/admin/utilisateurs', [AdminController::class, 'users']);

@@ -258,6 +258,16 @@ button.danger:hover {
   border-radius: 8px;
   box-shadow: 0 14px 38px rgba(24,60,42,.1);
 }
+.danger-zone {
+  border-color: rgba(159,45,45,.38);
+  background: #fff8f7;
+}
+.danger-zone h2 {
+  color: var(--danger);
+}
+.danger-zone p {
+  color: var(--muted);
+}
 
 .legal-page {
   padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 5vw, 4rem);
