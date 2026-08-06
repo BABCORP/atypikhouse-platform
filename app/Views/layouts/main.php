@@ -58,7 +58,7 @@ if (!$breadcrumbs && $currentPath !== '/') {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?= asset('css/main.css') ?>?v=20260805-newsletter">
+    <link rel="stylesheet" href="<?= asset('css/main.css') ?>?v=20260806-footer">
     <script>
         window.dataLayer = window.dataLayer || [];
         window.ATYPIK_ANALYTICS = {
@@ -156,14 +156,47 @@ if (!$breadcrumbs && $currentPath !== '/') {
 </section>
 
 <footer class="site-footer">
-    <div class="footer-brand">
-        <strong>AtypikHouse</strong>
-        <p>Des séjours insolites et responsables pour renouer avec la nature.</p>
-        <p class="disclaimer"><?= e(config('academic_disclaimer')) ?></p>
+    <div class="site-footer__inner">
+        <div class="footer-brand">
+            <a class="footer-logo" href="<?= url('/') ?>">AtypikHouse</a>
+            <p>Des séjours insolites et responsables pour renouer avec la nature.</p>
+            <a class="footer-contact-link" href="<?= url('/contact') ?>">Contacter l’équipe</a>
+        </div>
+        <div class="footer-links">
+            <section class="footer-column" aria-labelledby="footer-explorer-title">
+                <h2 id="footer-explorer-title">Explorer</h2>
+                <nav role="navigation" aria-label="Explorer AtypikHouse">
+                    <a href="<?= url('/hebergements') ?>">Hébergements</a>
+                    <a href="<?= url('/concept') ?>">Le concept</a>
+                    <a href="<?= url('/devenir-hote') ?>">Devenir hôte</a>
+                    <a href="<?= url('/contact') ?>">Contact</a>
+                </nav>
+            </section>
+            <section class="footer-column" aria-labelledby="footer-social-title">
+                <h2 id="footer-social-title">Suivez-nous</h2>
+                <nav role="navigation" aria-label="Réseaux sociaux AtypikHouse">
+                    <a class="footer-social-link" href="https://www.instagram.com/atypikhouse__off/" target="_blank" rel="noopener noreferrer" aria-label="Suivre AtypikHouse sur Instagram">@atypikhouse__off</a>
+                </nav>
+            </section>
+            <section class="footer-column" aria-labelledby="footer-info-title">
+                <h2 id="footer-info-title">Informations</h2>
+                <nav role="navigation" aria-label="Liens légaux et accessibilité">
+                    <a href="<?= url('/plan-du-site') ?>">Plan du site</a>
+                    <a href="<?= url('/mentions-legales') ?>">Mentions légales</a>
+                    <a href="<?= url('/cgu') ?>">CGU</a>
+                    <a href="<?= url('/cgv') ?>">CGV</a>
+                    <a href="<?= url('/politique-confidentialite') ?>">Confidentialité</a>
+                    <a href="<?= url('/mes-donnees') ?>">Mes données</a>
+                    <a href="<?= url('/cookies') ?>">Cookies</a>
+                    <button class="footer-cookie-control" type="button" data-cookie-manage>Gérer les cookies</button>
+                </nav>
+            </section>
+        </div>
     </div>
-    <div class="footer-column"><h2>Explorer</h2><nav role="navigation" aria-label="Explorer AtypikHouse"><a href="<?= url('/hebergements') ?>">Hébergements</a><a href="<?= url('/concept') ?>">Le concept</a><a href="<?= url('/devenir-hote') ?>">Devenir hôte</a><a href="<?= url('/contact') ?>">Contact</a></nav></div>
-    <div class="footer-column"><h2>Suivez-nous</h2><nav role="navigation" aria-label="Réseaux sociaux AtypikHouse"><a href="https://www.instagram.com/atypikhouse__off/" target="_blank" rel="noopener noreferrer" aria-label="Suivre AtypikHouse sur Instagram">@atypikhouse__off</a></nav></div>
-    <div class="footer-column"><h2>Informations</h2><nav role="navigation" aria-label="Liens légaux et accessibilité"><a href="<?= url('/plan-du-site') ?>">Plan du site</a><a href="<?= url('/mentions-legales') ?>">Mentions légales</a><a href="<?= url('/cgu') ?>">CGU</a><a href="<?= url('/cgv') ?>">CGV</a><a href="<?= url('/politique-confidentialite') ?>">Confidentialité</a><a href="<?= url('/mes-donnees') ?>">Mes données</a><a href="<?= url('/cookies') ?>">Cookies</a><button class="footer-cookie-control" type="button" data-cookie-manage>Gérer les cookies</button></nav></div>
+    <div class="footer-bottom">
+        <p class="disclaimer"><?= e(config('academic_disclaimer')) ?></p>
+        <p>© <?= date('Y') ?> AtypikHouse</p>
+    </div>
 </footer>
 <div class="cookie-banner" data-cookie-banner role="dialog" aria-live="polite" aria-labelledby="cookie-banner-title" aria-describedby="cookie-banner-description">
     <div class="cookie-banner__content">
