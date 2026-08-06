@@ -1,45 +1,105 @@
 <?php require __DIR__ . '/_nav.php'; ?>
-<section class="section">
-    <h1>Administration AtypikHouse</h1>
-    <?php $statLabels = [
-        'users' => 'utilisateurs',
-        'owners' => 'propriétaires',
-        'tenants' => 'locataires',
-        'admins' => 'administrateurs',
-        'pending_users' => 'comptes en attente',
-        'suspended_users' => 'comptes suspendus',
-        'published_properties' => 'logements publiés',
-        'pending_properties' => 'logements en attente',
-        'pending_property_changes' => 'anciennes modifications en attente',
-        'rejected_properties' => 'logements refusés',
-        'paused_properties' => 'logements en pause',
-        'deleted_properties' => 'logements supprimés',
-        'bookings' => 'réservations',
-        'pending_bookings' => 'anciennes réservations en attente',
-        'pending_payment_bookings' => 'réservations en attente de paiement',
-        'confirmed_bookings' => 'réservations confirmées',
-        'cancelled_bookings' => 'réservations annulées',
-        'completed_bookings' => 'réservations terminées',
-        'pending_payments' => 'paiements en attente',
-        'paid_payments' => 'paiements fictifs validés',
-        'failed_payments' => 'paiements fictifs échoués',
-        'pending_reviews' => 'anciens avis en attente',
-        'published_reviews' => 'avis publiés',
-        'rejected_reviews' => 'avis refusés',
-        'unread_messages' => 'messages non traités',
-        'read_messages' => 'messages lus',
-        'processed_messages' => 'messages traités',
-        'simulated_revenue' => 'revenus de démonstration',
-    ]; ?>
-    <div class="stats">
-        <?php foreach ($stats as $label => $value): ?><article role="article"><strong><?= is_numeric($value) && str_contains($label, 'revenue') ? money($value) : e((string)$value) ?></strong><span><?= e($statLabels[$label] ?? $label) ?></span></article><?php endforeach; ?>
+<?php
+$stats = $stats ?? [];
+$alerts = [
+    [
+        'key' => 'pending_owners',
+        'title' => 'Propriétaires à valider',
+        'text' => 'compte(s) propriétaire attendent une validation.',
+        'url' => '/admin/proprietaires?status=pending',
+        'action' => 'Voir les propriétaires',
+        'tone' => 'warning',
+    ],
+    [
+        'key' => 'unread_messages',
+        'title' => 'Messages non traités',
+        'text' => 'message(s) client doivent être consultés.',
+        'url' => '/admin/messages',
+        'action' => 'Voir les messages',
+        'tone' => 'danger',
+    ],
+    [
+        'key' => 'pending_payments',
+        'title' => 'Paiements fictifs en attente',
+        'text' => 'réservation(s) attendent un paiement de démonstration.',
+        'url' => '/admin/reservations?payment_status=not_paid',
+        'action' => 'Suivre les paiements',
+        'tone' => 'info',
+    ],
+    [
+        'key' => 'pending_reviews',
+        'title' => 'Avis à surveiller',
+        'text' => 'avis restent dans l’ancien workflow de modération.',
+        'url' => '/admin/avis?status=pending',
+        'action' => 'Voir les avis',
+        'tone' => 'warning',
+    ],
+];
+$priorityAlerts = array_values(array_filter($alerts, static fn (array $alert): bool => (int) ($stats[$alert['key']] ?? 0) > 0));
+$statCards = [
+    'users' => ['label' => 'Utilisateurs', 'hint' => 'Tous rôles confondus'],
+    'tenants' => ['label' => 'Locataires', 'hint' => 'Comptes actifs ou suivis'],
+    'owners' => ['label' => 'Propriétaires', 'hint' => 'Hôtes inscrits'],
+    'pending_owners' => ['label' => 'Propriétaires en attente', 'hint' => 'Validation admin requise'],
+    'published_properties' => ['label' => 'Logements publiés', 'hint' => 'Visibles au catalogue'],
+    'paused_properties' => ['label' => 'Logements en pause', 'hint' => 'Invisibles publiquement'],
+    'bookings' => ['label' => 'Réservations', 'hint' => 'Total historique'],
+    'pending_payment_bookings' => ['label' => 'En attente de paiement', 'hint' => 'Paiement fictif à finaliser'],
+    'paid_payments' => ['label' => 'Paiements validés', 'hint' => 'Payés fictivement'],
+    'failed_payments' => ['label' => 'Paiements échoués', 'hint' => 'Scénarios de refus'],
+    'simulated_revenue' => ['label' => 'Total simulé', 'hint' => 'Aucun encaissement réel'],
+    'unread_messages' => ['label' => 'Messages non traités', 'hint' => 'À prendre en charge'],
+    'logs_today' => ['label' => 'Logs aujourd’hui', 'hint' => 'Activité sensible'],
+];
+?>
+<section class="section admin-dashboard">
+    <div class="section-heading admin-dashboard__hero">
+        <div>
+            <p class="eyebrow">Back-office</p>
+            <h1>Tableau de bord administrateur</h1>
+            <p class="muted">Vue d’ensemble des validations, réservations, paiements fictifs, messages et activités récentes.</p>
+        </div>
+        <a class="button compact ghost" href="<?= url('/admin/logs') ?>">Voir les logs</a>
     </div>
+
+    <div class="admin-alerts">
+        <?php foreach ($priorityAlerts as $alert): ?>
+            <article role="article" class="admin-alert admin-alert--<?= e($alert['tone']) ?>">
+                <span class="admin-alert__icon" aria-hidden="true">!</span>
+                <div>
+                    <strong><?= e((string) ($stats[$alert['key']] ?? 0)) ?> <?= e($alert['title']) ?></strong>
+                    <p><?= e((string) ($stats[$alert['key']] ?? 0)) ?> <?= e($alert['text']) ?></p>
+                </div>
+                <a class="button compact" href="<?= url($alert['url']) ?>"><?= e($alert['action']) ?></a>
+            </article>
+        <?php endforeach; ?>
+        <?php if (!$priorityAlerts): ?>
+            <article role="article" class="admin-alert admin-alert--success">
+                <span class="admin-alert__icon" aria-hidden="true">✓</span>
+                <div>
+                    <strong>Aucune action urgente pour le moment</strong>
+                    <p>Les validations et messages prioritaires sont sous contrôle.</p>
+                </div>
+            </article>
+        <?php endif; ?>
+    </div>
+
+    <div class="stats admin-stats">
+        <?php foreach ($statCards as $key => $meta): ?>
+            <article role="article">
+                <strong><?= $key === 'simulated_revenue' ? money((float) ($stats[$key] ?? 0)) : e((string) ($stats[$key] ?? 0)) ?></strong>
+                <span><?= e($meta['label']) ?></span>
+                <small><?= e($meta['hint']) ?></small>
+            </article>
+        <?php endforeach; ?>
+    </div>
+
     <?php if (!empty($mailDiagnostics)): ?>
-        <article role="article" class="panel">
+        <article role="article" class="panel admin-mail-panel">
             <div class="section-heading">
                 <div>
                     <p class="eyebrow">Configuration email</p>
-                    <h2>SMTP Render</h2>
+                    <h2>Brevo / SMTP Render</h2>
                 </div>
                 <form role="form" class="inline-form" method="post" action="<?= url('/admin/outils/test-email') ?>">
                     <?= csrf_field() ?>
@@ -51,83 +111,110 @@
             <div class="stats compact-stats">
                 <?php foreach ([
                     'smtp_enabled' => 'SMTP activé',
-                    'real_email_sending' => 'Envoi réel demandé',
+                    'real_email_sending' => 'Envoi réel',
                     'demo_mode' => 'Mode démo',
-                    'log_only' => 'Journalisation seule',
-                    'mail_host_defined' => 'MAIL_HOST défini',
-                    'mail_username_defined' => 'MAIL_USERNAME défini',
-                    'mail_password_defined' => 'MAIL_PASSWORD défini',
-                    'mail_from_defined' => 'Expéditeur défini',
-                    'admin_email_defined' => 'Admin email défini',
-                    'brevo_api_key_defined' => 'BREVO_API_KEY définie',
+                    'log_only' => 'Log uniquement',
+                    'brevo_api_key_defined' => 'API Brevo',
                 ] as $key => $label): ?>
                     <article role="article"><strong><?= !empty($mailDiagnostics[$key]) ? 'Oui' : 'Non' ?></strong><span><?= e($label) ?></span></article>
                 <?php endforeach; ?>
             </div>
-            <dl class="detail-list">
-                <dt>Serveur utilisé</dt>
-                <dd><?= e(($mailDiagnostics['smtp_host'] ?? '') . ':' . ($mailDiagnostics['smtp_port'] ?? '')) ?></dd>
-                <dt>Chiffrement</dt>
-                <dd><?= e((string) ($mailDiagnostics['smtp_encryption'] ?? '')) ?></dd>
-                <dt>Compte SMTP</dt>
-                <dd><?= e((string) ($mailDiagnostics['smtp_username'] ?? '')) ?></dd>
-            </dl>
             <p class="notice">Les valeurs sensibles ne sont jamais affichées. Seule leur présence est vérifiée.</p>
         </article>
     <?php endif; ?>
-    <h2>Logements à surveiller</h2>
-    <?php $properties = $properties ?? []; $scope = 'admin'; require __DIR__ . '/_property-table.php'; ?>
-    <?php if (!$properties): ?><p>Aucun logement en attente.</p><?php endif; ?>
-    <h2>Anciennes modifications en attente</h2>
-    <?php if (!empty($propertyChanges)): ?>
-        <div class="table-wrap"><table>
-            <caption>Demandes de modification propriétaires</caption>
-            <thead><tr><th>Logement</th><th>Propriétaire</th><th>Date</th><th>Action</th></tr></thead>
-            <tbody>
-            <?php foreach ($propertyChanges as $request): ?>
-                <tr>
-                    <td><?= e($request['title']) ?></td>
-                    <td><?= e($request['owner_email']) ?></td>
-                    <td><?= e($request['updated_at']) ?></td>
-                    <td><a class="button compact ghost" href="<?= url('/admin/logements/modifications/' . $request['id']) ?>">Comparer</a></td>
-                </tr>
+
+    <div class="actions-row admin-quick-links">
+        <a class="button compact" href="<?= url('/admin/proprietaires?status=pending') ?>">Propriétaires à valider</a>
+        <a class="button compact" href="<?= url('/admin/reservations?payment_status=not_paid') ?>">Paiements en attente</a>
+        <a class="button compact ghost" href="<?= url('/admin/logements') ?>">Gérer les logements</a>
+        <a class="button compact ghost" href="<?= url('/admin/reservations') ?>">Gérer les réservations</a>
+        <a class="button compact ghost" href="<?= url('/admin/messages') ?>">Messages</a>
+        <a class="button compact ghost" href="<?= url('/admin/avis') ?>">Avis</a>
+    </div>
+
+    <div class="dashboard-columns admin-dashboard__columns">
+        <article role="article" class="panel">
+            <h2>Propriétaires à valider</h2>
+            <div class="table-wrap"><table>
+                <caption>Comptes propriétaires en attente</caption>
+                <thead><tr><th>Nom</th><th>Email</th><th>Création</th><th>Action</th></tr></thead>
+                <tbody>
+                <?php foreach (($pendingOwners ?? []) as $owner): ?>
+                    <tr>
+                        <td><?= e(trim($owner['first_name'] . ' ' . $owner['last_name'])) ?></td>
+                        <td><?= e($owner['email']) ?></td>
+                        <td><?= e($owner['created_at']) ?></td>
+                        <td><a class="button compact ghost" href="<?= url('/admin/utilisateurs/' . $owner['user_id']) ?>">Voir</a></td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if (empty($pendingOwners)): ?><tr><td colspan="4" class="empty-state">Aucun propriétaire en attente.</td></tr><?php endif; ?>
+                </tbody>
+            </table></div>
+        </article>
+
+        <article role="article" class="panel">
+            <h2>Messages non traités</h2>
+            <?php foreach (($messages ?? []) as $message): ?>
+                <div class="admin-list-item">
+                    <div>
+                        <strong><?= e($message['subject']) ?></strong>
+                        <p><?= e($message['name']) ?> · <?= e($message['email']) ?></p>
+                    </div>
+                    <a class="button compact ghost" href="<?= url('/admin/messages/' . $message['id']) ?>">Traiter</a>
+                </div>
             <?php endforeach; ?>
-            </tbody>
-        </table></div>
-    <?php else: ?><p>Aucune modification en attente.</p><?php endif; ?>
-    <div class="actions-row">
-        <a class="button compact" href="<?= url('/admin/utilisateurs') ?>">Gérer les utilisateurs</a>
-        <a class="button compact" href="<?= url('/admin/utilisateurs?status=pending') ?>">Comptes en attente</a>
-        <a class="button compact" href="<?= url('/admin/logements') ?>">Suivre les logements</a>
-        <a class="button compact" href="<?= url('/admin/logements/modifications') ?>">Voir les anciennes modifications</a>
-        <a class="button compact ghost" href="<?= url('/admin/reservations') ?>">Suivre les réservations</a>
-        <a class="button compact ghost" href="<?= url('/admin/reservations?status=pending_payment') ?>">Réservations en attente de paiement</a>
-        <a class="button compact ghost" href="<?= url('/admin/reservations?payment_status=not_paid') ?>">Paiements en attente</a>
-        <a class="button compact ghost" href="<?= url('/admin/avis') ?>">Voir les avis</a>
-        <a class="button compact ghost" href="<?= url('/admin/messages') ?>">Voir les messages</a>
-        <a class="button compact ghost" href="<?= url('/admin/logs') ?>">Voir les logs</a>
+            <?php if (empty($messages)): ?><p class="empty-state">Aucun message non traité.</p><?php endif; ?>
+        </article>
     </div>
-    <h2>Dernières réservations</h2>
-    <?php $scope = 'admin'; require __DIR__ . '/_booking-table.php'; ?>
-    <div class="dashboard-columns">
-        <div>
-            <h2>Derniers avis</h2>
-            <?php foreach ($reviews as $review): ?><article role="article" class="panel"><strong><?= e($review['title']) ?></strong><p><?= (int) $review['rating'] ?>/5 - <?= e($review['comment']) ?></p></article><?php endforeach; ?>
-            <?php if (!$reviews): ?><p>Aucun avis en attente.</p><?php endif; ?>
-        </div>
-        <div>
-            <h2>Derniers messages</h2>
-            <?php foreach ($messages as $message): ?><article role="article" class="panel"><strong><?= e($message['subject']) ?></strong><p><?= e($message['name']) ?> - <?= status_label($message['status']) ?></p><a class="button compact ghost" href="<?= url('/admin/messages/' . $message['id']) ?>">Ouvrir</a></article><?php endforeach; ?>
-        </div>
+
+    <div class="dashboard-columns admin-dashboard__columns">
+        <article role="article" class="panel">
+            <h2>Réservations récentes</h2>
+            <?php $scope = 'admin'; require __DIR__ . '/_booking-table.php'; ?>
+        </article>
+
+        <article role="article" class="panel">
+            <h2>Paiements fictifs récents</h2>
+            <div class="table-wrap"><table>
+                <caption>Derniers paiements fictifs</caption>
+                <thead><tr><th>Réservation</th><th>Locataire</th><th>Montant</th><th>Statut</th><th>Référence</th></tr></thead>
+                <tbody>
+                <?php foreach (($payments ?? []) as $payment): ?>
+                    <tr>
+                        <td><a href="<?= url('/admin/reservations/' . $payment['booking_id']) ?>">#<?= (int) $payment['booking_id'] ?></a><br><small><?= e($payment['title']) ?></small></td>
+                        <td><?= e($payment['tenant_email']) ?></td>
+                        <td><?= money($payment['amount']) ?></td>
+                        <td><span class="badge <?= e($payment['status']) ?>"><?= status_label($payment['status']) ?></span></td>
+                        <td><?= e($payment['test_transaction_id']) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if (empty($payments)): ?><tr><td colspan="5" class="empty-state">Aucun paiement fictif enregistré.</td></tr><?php endif; ?>
+                </tbody>
+            </table></div>
+        </article>
     </div>
-    <h2>Derniers logs d’audit</h2>
-    <div class="table-wrap"><table>
-        <caption>Dernières actions sensibles</caption>
-        <thead><tr><th>Date</th><th>Utilisateur</th><th>Action</th><th>Entité</th></tr></thead>
-        <tbody>
-        <?php foreach (($logs ?? []) as $log): ?>
-            <tr><td><?= e($log['created_at']) ?></td><td><?= e($log['email'] ?? 'invité') ?></td><td><span class="badge muted"><?= e($log['action']) ?></span></td><td><?= e($log['entity_type'] . ' #' . $log['entity_id']) ?></td></tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table></div>
+
+    <div class="dashboard-columns admin-dashboard__columns">
+        <article role="article" class="panel">
+            <h2>Logements à surveiller</h2>
+            <?php $properties = $properties ?? []; $scope = 'admin'; require __DIR__ . '/_property-table.php'; ?>
+        </article>
+        <article role="article" class="panel">
+            <h2>Derniers logs d’audit</h2>
+            <div class="table-wrap"><table>
+                <caption>Dernières actions sensibles</caption>
+                <thead><tr><th>Date</th><th>Utilisateur</th><th>Action</th><th>Entité</th></tr></thead>
+                <tbody>
+                <?php foreach (($logs ?? []) as $log): ?>
+                    <tr>
+                        <td><?= e($log['created_at']) ?></td>
+                        <td><?= e($log['email'] ?? 'invité') ?></td>
+                        <td><span class="badge muted"><?= e($log['action']) ?></span></td>
+                        <td><?= e($log['entity_type'] . ' #' . $log['entity_id']) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table></div>
+        </article>
+    </div>
 </section>

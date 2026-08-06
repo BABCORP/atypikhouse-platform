@@ -10,9 +10,9 @@
             <td><?= money($property['price_per_night']) ?></td>
             <td>
                 <span class="badge <?= e($property['status']) ?>"><?= status_label($property['status']) ?></span>
-                <?php if (($property['pending_change_count'] ?? 0) > 0): ?>
-                    <span class="badge pending">Modification en attente</span>
-                <?php elseif (($property['latest_change_status'] ?? '') === 'rejected'): ?>
+                <?php if (($scope ?? '') === 'admin' && ($property['pending_change_count'] ?? 0) > 0): ?>
+                    <span class="badge pending">Ancienne modification en attente</span>
+                <?php elseif (($scope ?? '') === 'admin' && ($property['latest_change_status'] ?? '') === 'rejected'): ?>
                     <span class="badge rejected">Modification refusée</span>
                     <?php if (!empty($property['latest_change_reason'])): ?><small>Motif : <?= e($property['latest_change_reason']) ?></small><?php endif; ?>
                 <?php endif; ?>

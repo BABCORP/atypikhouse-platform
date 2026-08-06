@@ -64,6 +64,7 @@ final class OwnerController extends Controller
     public function editProperty(int $id): void
     {
         $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         $property = (new Property())->findOwned($id, (int) $user['id']);
         if (!$property) {
             http_response_code(404);
@@ -85,6 +86,7 @@ final class OwnerController extends Controller
     public function updateProperty(int $id): void
     {
         $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         verify_csrf();
         $property = (new Property())->findOwned($id, (int) $user['id']);
         if (!$property || $property['status'] === 'deleted') {
@@ -101,17 +103,23 @@ final class OwnerController extends Controller
             $this->redirect('/proprietaire/logements/' . $id . '/modifier');
         }
         (new Property())->update($id, (int) $user['id'], $_POST, $image, $secondaryImages);
-        audit((int) $user['id'], 'property_update', 'property', $id);
-        if ($image || $secondaryImages) {
-            audit((int) $user['id'], 'property_image_add', 'property', $id);
+        audit((int) $user['id'], 'property_updated_by_owner', 'property', $id);
+        if ((float) $property['price_per_night'] !== (float) input('price_per_night')) {
+            audit((int) $user['id'], 'property_price_updated_by_owner', 'property', $id);
         }
-        flash('success', 'Logement mis à jour. Les modifications sont visibles dans le catalogue.');
+        if ($image || $secondaryImages) {
+            audit((int) $user['id'], 'property_images_updated_by_owner', 'property', $id);
+        }
+        $emailSent = (new MailService())->sendPropertyUpdatedNotification((string) $user['email'], trim((string) input('title')), (string) $user['first_name']);
+        audit((int) $user['id'], $emailSent ? 'email_property_updated_sent' : 'email_property_updated_failed', 'property', $id);
+        flash('success', 'Votre logement a été modifié avec succès.');
         $this->redirect('/proprietaire/logements');
     }
 
     public function updateImageAlt(int $propertyId, int $imageId): void
     {
         $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         verify_csrf();
         if (!(new Property())->updateImageAlt($propertyId, $imageId, (int) $user['id'], (string) input('alt_text', ''))) {
             http_response_code(403);
@@ -125,6 +133,7 @@ final class OwnerController extends Controller
     public function setMainImage(int $propertyId, int $imageId): void
     {
         $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         verify_csrf();
         if (!(new Property())->setMainImage($propertyId, $imageId, (int) $user['id'])) {
             http_response_code(403);
@@ -138,6 +147,7 @@ final class OwnerController extends Controller
     public function deleteImage(int $propertyId, int $imageId): void
     {
         $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         verify_csrf();
         if (!(new Property())->deleteImage($propertyId, $imageId, (int) $user['id'])) {
             http_response_code(403);
@@ -151,6 +161,7 @@ final class OwnerController extends Controller
     public function submitProperty(int $id): void
     {
         $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         verify_csrf();
         (new Property())->submit($id, (int) $user['id']);
         audit((int) $user['id'], 'property_submit', 'property', $id);
@@ -161,6 +172,7 @@ final class OwnerController extends Controller
     public function deleteProperty(int $id): void
     {
         $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         verify_csrf();
         (new Property())->deleteDraft($id, (int) $user['id']);
         flash('success', 'Brouillon supprimé.');
@@ -170,6 +182,7 @@ final class OwnerController extends Controller
     public function availability(): void
     {
         $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         $model = new Property();
         $properties = $model->ownerProperties((int) $user['id']);
         $selectedId = (int) (input('property_id') ?: ($properties[0]['id'] ?? 0));
@@ -196,6 +209,7 @@ final class OwnerController extends Controller
     public function storeAvailability(): void
     {
         $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         verify_csrf();
         $start = (string) input('start_date', input('date', ''));
         $end = (string) input('end_date', $start);

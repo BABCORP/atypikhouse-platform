@@ -273,6 +273,20 @@ final class MailService
         );
     }
 
+    public function sendPropertyUpdatedNotification(string $ownerEmail, string $propertyTitle, string $ownerFirstName = ''): bool
+    {
+        return $this->send(
+            $ownerEmail,
+            'Votre logement AtypikHouse a été modifié',
+            '<p>Bonjour ' . e($ownerFirstName !== '' ? $ownerFirstName : 'propriétaire') . ',</p>'
+            . '<p>Les informations du logement "' . e($propertyTitle) . '" ont bien été mises à jour.</p>'
+            . '<p>Si le logement est publié, les changements sont visibles dans le catalogue. S’il est en pause, il restera invisible jusqu’à sa réactivation.</p>'
+            . '<p>L’équipe AtypikHouse</p>',
+            null,
+            'property_updated_owner'
+        );
+    }
+
     public function sendPropertyChangeSubmittedNotification(string $ownerEmail, string $ownerFirstName, string $propertyTitle): bool
     {
         $ownerSent = $this->send(

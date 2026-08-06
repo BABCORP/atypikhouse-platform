@@ -292,8 +292,12 @@ final class Booking extends Model
         if (!$booking || $booking['status'] !== 'pending_payment' || $booking['payment_status'] === 'test_paid') {
             return false;
         }
+        if ((float) $booking['total_price'] <= 0 || in_array($booking['status'], ['cancelled', 'completed'], true)) {
+            return false;
+        }
+
         $status = $success ? 'test_success' : 'test_failed';
-        $transaction = 'TEST-' . strtoupper(bin2hex(random_bytes(5)));
+        $transaction = 'AH-PAY-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
         $this->db->prepare('INSERT INTO payments (booking_id, provider, test_transaction_id, amount, status, created_at) VALUES (?, "simulation", ?, ?, ?, NOW())')
             ->execute([$bookingId, $transaction, $booking['total_price'], $status]);
 

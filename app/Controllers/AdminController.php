@@ -20,7 +20,15 @@ final class AdminController extends Controller
     public function dashboard(): void
     {
         Auth::requireRole('admin');
-        $logs = Database::connection()->query('SELECT al.*, u.email FROM audit_logs al LEFT JOIN users u ON u.id = al.user_id ORDER BY al.created_at DESC LIMIT 6')->fetchAll();
+        $db = Database::connection();
+        $logs = $db->query('SELECT al.*, u.email FROM audit_logs al LEFT JOIN users u ON u.id = al.user_id ORDER BY al.created_at DESC LIMIT 6')->fetchAll();
+        $payments = $db->query('SELECT pay.*, b.id AS booking_id, b.payment_status, b.status AS booking_status, b.total_price, p.title, u.email AS tenant_email
+            FROM payments pay
+            JOIN bookings b ON b.id = pay.booking_id
+            JOIN properties p ON p.id = b.property_id
+            JOIN users u ON u.id = b.tenant_id
+            ORDER BY pay.created_at DESC
+            LIMIT 5')->fetchAll();
         $this->view('dashboard/admin-dashboard', [
             'title' => 'Administration',
             'stats' => (new AdminStats())->dashboard(),
@@ -28,8 +36,10 @@ final class AdminController extends Controller
             'properties' => array_slice(array_filter((new Property())->allForAdmin(), fn (array $property): bool => $property['status'] === 'pending'), 0, 5),
             'propertyChanges' => array_slice((new PropertyChangeRequest())->allPending(), 0, 5),
             'bookings' => array_slice((new Booking())->all(), 0, 5),
+            'pendingOwners' => array_slice((new User())->ownerProfiles('pending'), 0, 5),
             'reviews' => array_slice(array_filter((new Review())->all(), fn (array $review): bool => $review['status'] === 'pending'), 0, 5),
-            'messages' => array_slice((new ContactMessage())->all(), 0, 5),
+            'messages' => array_slice(array_filter((new ContactMessage())->all(), fn (array $message): bool => $message['status'] === 'new'), 0, 5),
+            'payments' => $payments,
             'logs' => $logs,
         ]);
     }

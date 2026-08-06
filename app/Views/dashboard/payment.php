@@ -1,8 +1,9 @@
 <section class="section form-layout narrow">
-    <form role="form" class="panel" method="post" data-track="booking_confirm">
+    <form role="form" class="panel payment-demo-card" method="post" data-track="booking_confirm">
+        <p class="eyebrow">Simulation de paiement</p>
         <h1>Paiement fictif de démonstration</h1>
         <?= csrf_field() ?>
-        <p><strong><?= e(config('academic_disclaimer')) ?></strong></p>
+        <p class="muted">Aucune carte bancaire réelle n’est demandée. Cette étape sert uniquement à confirmer le parcours de réservation dans le cadre du projet.</p>
         <dl class="detail-list">
             <dt>Réservation</dt><dd>#<?= (int) $booking['id'] ?></dd>
             <dt>Logement</dt><dd><?= e($booking['title']) ?>, <?= e($booking['city']) ?></dd>
@@ -15,8 +16,8 @@
             <dt>Paiement</dt><dd><?= status_label($booking['payment_status']) ?></dd>
         </dl>
         <p class="notice">Paiement fictif de démonstration. Aucun montant réel ne sera débité.</p>
-        <p>Aucun numéro de carte réel n’est demandé. Choisissez simplement un scénario de démonstration.</p>
+        <p><strong><?= e(config('academic_disclaimer')) ?></strong></p>
         <button class="button full" name="scenario" value="success" type="submit" data-track="booking_payment_test_success">Valider le paiement fictif</button>
-        <button class="button secondary full" name="scenario" value="failure" type="submit" data-track="booking_payment_test_failure">Simuler un refus de paiement</button>
+        <button class="button ghost full" name="scenario" value="failure" type="submit" data-track="booking_payment_test_failure">Simuler un refus de paiement</button>
     </form>
 </section>

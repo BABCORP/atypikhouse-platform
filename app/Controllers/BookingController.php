@@ -93,6 +93,11 @@ final class BookingController extends Controller
             flash('error', 'Cette réservation ne peut pas être payée à ce stade.');
             $this->redirect('/locataire/reservations/' . $bookingId);
         }
+        if ((float) $booking['total_price'] <= 0) {
+            flash('error', 'Le montant de cette réservation est invalide. Merci de contacter l’équipe AtypikHouse.');
+            $this->redirect('/locataire/reservations/' . $bookingId);
+        }
+        audit((int) $user['id'], 'fake_payment_started', 'booking', $bookingId);
         $this->view('dashboard/payment', ['title' => 'Paiement fictif', 'booking' => $booking]);
     }
 
@@ -115,6 +120,10 @@ final class BookingController extends Controller
         }
         if ($booking['status'] !== 'pending_payment' || $booking['payment_status'] === 'test_paid') {
             flash('error', 'Cette réservation ne peut pas être payée à ce stade.');
+            $this->redirect('/locataire/reservations/' . $bookingId);
+        }
+        if ((float) $booking['total_price'] <= 0) {
+            flash('error', 'Le montant de cette réservation est invalide. Merci de contacter l’équipe AtypikHouse.');
             $this->redirect('/locataire/reservations/' . $bookingId);
         }
         $success = input('scenario') !== 'failure';
