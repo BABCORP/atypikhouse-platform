@@ -7,7 +7,7 @@ foreach ($reviews ?? [] as $review) {
 ?>
 <section class="section">
     <h1>Mes avis</h1>
-    <p class="notice">Retrouvez ici vos logements réservés. Un avis peut être déposé dès que le séjour fictif est terminé et payé.</p>
+    <p class="notice">Retrouvez ici vos logements réservés. Après un séjour terminé et payé fictivement, vous pouvez publier votre avis : il apparaît immédiatement sur la fiche logement.</p>
     <?php foreach (($bookings ?? []) as $booking): ?>
         <?php $review = $reviewsByBooking[(int) $booking['id']] ?? null; ?>
         <article role="article" class="panel review-booking-card">
@@ -28,7 +28,7 @@ foreach ($reviews ?? [] as $review) {
             <?php elseif ((int) ($booking['can_review'] ?? 0) === 1): ?>
                 <form role="form" method="post" action="<?= url('/avis/' . $booking['id']) ?>" class="review-inline-form">
                     <?= csrf_field() ?>
-                    <h3>Déposer un avis</h3>
+                    <h3>Partager mon expérience</h3>
                     <label>Note
                         <select name="rating" required>
                             <option value="5">5/5</option>
@@ -41,7 +41,7 @@ foreach ($reviews ?? [] as $review) {
                     <label>Commentaire
                         <textarea required name="comment" maxlength="1200" placeholder="Décrivez votre séjour, l’accueil, le logement et l’expérience vécue."></textarea>
                     </label>
-                    <button class="button compact" type="submit" data-track="review_submit">Publier l’avis</button>
+                    <button class="button compact" type="submit" data-track="review_submit">Publier mon avis</button>
                 </form>
             <?php elseif ($booking['payment_status'] !== 'test_paid'): ?>
                 <p class="empty-state">L’avis sera disponible après validation du paiement fictif.</p>

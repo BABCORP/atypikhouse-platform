@@ -1,6 +1,12 @@
 <?php require __DIR__ . '/_nav.php'; ?>
 <section class="section">
-    <div class="section-heading"><div><p class="eyebrow">Modération</p><h1>Avis voyageurs</h1></div></div>
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">Suivi</p>
+            <h1>Avis voyageurs</h1>
+            <p class="muted">Les nouveaux avis locataires sont publiés directement après un séjour terminé et payé fictivement. Cette page permet de les consulter et de supprimer un avis uniquement en cas d’abus.</p>
+        </div>
+    </div>
     <form role="form" class="filters panel" method="get">
         <label>Statut
             <select name="status">
@@ -29,7 +35,6 @@
                 <p><?= (int) $review['rating'] ?>/5 · <?= e($review['email']) ?> · <span class="badge <?= e($review['status']) ?>"><?= status_label($review['status']) ?></span></p>
                 <p><?= e($review['comment']) ?></p>
                 <div class="actions-row">
-                    <form role="form" class="inline-form" method="post" action="<?= url('/admin/avis/' . $review['id'] . '/statut') ?>"><?= csrf_field() ?><button class="button compact" name="status" value="published" type="submit">Publier</button><button class="button ghost compact" name="status" value="rejected" type="submit">Rejeter</button></form>
                     <form role="form" class="inline-form" method="post" action="<?= url('/admin/avis/' . $review['id'] . '/supprimer') ?>" data-confirm="Supprimer définitivement cet avis ?"><?= csrf_field() ?><button class="button danger compact" type="submit">Supprimer</button></form>
                 </div>
             </article>

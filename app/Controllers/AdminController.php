@@ -594,8 +594,8 @@ final class AdminController extends Controller
         verify_csrf();
         $status = (string) input('status');
         if (!in_array($status, ['published', 'rejected'], true)) {
-            http_response_code(422);
-            exit('Statut invalide.');
+            flash('error', 'Action avis invalide. Les avis locataires sont publiés directement après séjour terminé.');
+            $this->redirect('/admin/avis');
         }
         (new Review())->updateStatus($id, $status);
         audit((int) $admin['id'], $status === 'published' ? 'review_approved' : 'review_rejected', 'review', $id);

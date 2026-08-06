@@ -26,14 +26,6 @@ $alerts = [
         'action' => 'Suivre les paiements',
         'tone' => 'info',
     ],
-    [
-        'key' => 'pending_reviews',
-        'title' => 'Avis à surveiller',
-        'text' => 'avis restent dans l’ancien workflow de modération.',
-        'url' => '/admin/avis?status=pending',
-        'action' => 'Voir les avis',
-        'tone' => 'warning',
-    ],
 ];
 $priorityAlerts = array_values(array_filter($alerts, static fn (array $alert): bool => (int) ($stats[$alert['key']] ?? 0) > 0));
 $statCards = [

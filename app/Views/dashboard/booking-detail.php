@@ -46,7 +46,7 @@
             <p class="notice">Votre séjour est terminé. Vous pouvez partager votre expérience ; l’avis sera publié immédiatement.</p>
             <label>Note<select name="rating" required><option value="5">5/5</option><option value="4">4/5</option><option value="3">3/5</option><option value="2">2/5</option><option value="1">1/5</option></select></label>
             <label>Commentaire<textarea required name="comment" maxlength="1200" placeholder="Décrivez votre séjour, l’accueil, le logement et l’expérience vécue."></textarea></label>
-            <button class="button" type="submit" data-track="review_submit">Envoyer l’avis</button>
+            <button class="button" type="submit" data-track="review_submit">Publier mon avis</button>
         </form>
     <?php elseif (!empty($booking['review_id'])): ?>
         <div class="panel" id="deposer-avis">
