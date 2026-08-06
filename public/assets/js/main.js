@@ -24,6 +24,7 @@ document.addEventListener("submit", (event) => {
 document.addEventListener("submit", (event) => {
   const form = event.target;
   if (!(form instanceof HTMLFormElement) || event.defaultPrevented) return;
+  if (form.classList.contains("favorite-form")) return;
   const submitter = event.submitter instanceof HTMLButtonElement ? event.submitter : form.querySelector("button[type='submit']");
   if (!submitter || submitter.dataset.submitting === "true") return;
   submitter.dataset.submitting = "true";
