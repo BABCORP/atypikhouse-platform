@@ -9,7 +9,11 @@ foreach ($reviews ?? [] as $review) {
     <h1>Mes avis</h1>
     <p class="notice">Retrouvez ici vos logements réservés. Après un séjour terminé et payé fictivement, vous pouvez publier votre avis : il apparaît immédiatement sur la fiche logement.</p>
     <?php foreach (($bookings ?? []) as $booking): ?>
-        <?php $review = $reviewsByBooking[(int) $booking['id']] ?? null; ?>
+        <?php
+        $review = $reviewsByBooking[(int) $booking['id']] ?? null;
+        $hasStayEnded = (string) $booking['end_date'] <= date('Y-m-d');
+        $displayStatus = (!$hasStayEnded && $booking['status'] === 'completed') ? 'confirmed' : (string) $booking['status'];
+        ?>
         <article role="article" class="panel review-booking-card">
             <div class="section-heading">
                 <div>
@@ -17,7 +21,7 @@ foreach ($reviews ?? [] as $review) {
                     <h2><?= e($booking['title']) ?></h2>
                     <p><?= e($booking['city']) ?> · <?= e($booking['start_date']) ?> au <?= e($booking['end_date']) ?></p>
                 </div>
-                <span class="badge <?= e($booking['status']) ?>"><?= status_label($booking['status']) ?></span>
+                <span class="badge <?= e($displayStatus) ?>"><?= status_label($displayStatus) ?></span>
             </div>
 
             <?php if ($review): ?>
@@ -45,8 +49,8 @@ foreach ($reviews ?? [] as $review) {
                 </form>
             <?php elseif ($booking['payment_status'] !== 'test_paid'): ?>
                 <p class="empty-state">L’avis sera disponible après validation du paiement fictif.</p>
-            <?php elseif ($booking['end_date'] > date('Y-m-d')): ?>
-                <p class="empty-state">Vous pourrez déposer un avis après la fin du séjour, à partir du <?= e($booking['end_date']) ?>.</p>
+            <?php elseif (!$hasStayEnded): ?>
+                <p class="empty-state">Ce séjour est à venir. Vous pourrez publier un avis après la fin du séjour, à partir du <?= e($booking['end_date']) ?>.</p>
             <?php else: ?>
                 <p class="empty-state">Aucun avis disponible pour cette réservation pour le moment.</p>
             <?php endif; ?>
