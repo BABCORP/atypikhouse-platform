@@ -24,11 +24,11 @@
             <p class="form-help">Utilisez la carte test Stripe 4242 4242 4242 4242, une date future et n’importe quel CVC.</p>
         <?php else: ?>
             <p class="notice">Stripe test n’est pas encore configuré sur cet environnement. La simulation interne reste disponible pour la démonstration.</p>
+            <form role="form" class="stacked-actions" method="post" data-track="booking_confirm">
+                <?= csrf_field() ?>
+                <button class="button full" name="scenario" value="success" type="submit" data-track="booking_payment_test_success">Valider le paiement fictif</button>
+                <button class="button ghost full" name="scenario" value="failure" type="submit" data-track="booking_payment_test_failure">Simuler un refus de paiement</button>
+            </form>
         <?php endif; ?>
-        <form role="form" class="stacked-actions" method="post" data-track="booking_confirm">
-            <?= csrf_field() ?>
-            <button class="button full" name="scenario" value="success" type="submit" data-track="booking_payment_test_success">Valider le paiement fictif sans Stripe</button>
-            <button class="button ghost full" name="scenario" value="failure" type="submit" data-track="booking_payment_test_failure">Simuler un refus de paiement</button>
-        </form>
     </div>
 </section>
