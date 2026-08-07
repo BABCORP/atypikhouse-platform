@@ -42,6 +42,9 @@ $router->get('/media/properties/{filename}', [MediaController::class, 'propertyI
 
 $router->post('/reservation/{propertyId}', [BookingController::class, 'start']);
 $router->get('/paiement/{bookingId}', [BookingController::class, 'payment']);
+$router->post('/paiement/{bookingId}/stripe', [BookingController::class, 'startStripePayment']);
+$router->get('/paiement/{bookingId}/stripe/succes', [BookingController::class, 'stripeSuccess']);
+$router->get('/paiement/{bookingId}/stripe/annule', [BookingController::class, 'stripeCancel']);
 $router->post('/paiement/{bookingId}', [BookingController::class, 'simulatePayment']);
 $router->post('/avis/{bookingId}', [BookingController::class, 'review']);
 $router->post('/favoris/{propertyId}/toggle', [FavoriteController::class, 'toggle']);

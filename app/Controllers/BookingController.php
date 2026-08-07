@@ -8,6 +8,7 @@ use App\Models\Booking;
 use App\Models\Property;
 use App\Models\Review;
 use App\Services\MailService;
+use App\Services\StripeService;
 
 final class BookingController extends Controller
 {
@@ -98,7 +99,72 @@ final class BookingController extends Controller
             $this->redirect('/locataire/reservations/' . $bookingId);
         }
         audit((int) $user['id'], 'fake_payment_started', 'booking', $bookingId);
-        $this->view('dashboard/payment', ['title' => 'Paiement fictif', 'booking' => $booking]);
+        $this->view('dashboard/payment', [
+            'title' => 'Paiement fictif',
+            'booking' => $booking,
+            'stripeReady' => (new StripeService())->isReady(),
+        ]);
+    }
+
+    public function startStripePayment(int $bookingId): void
+    {
+        $user = $this->requireTenantForBooking();
+        verify_csrf();
+        $booking = (new Booking())->findForTenant($bookingId, (int) $user['id']);
+        if (!$booking || $booking['status'] !== 'pending_payment' || $booking['payment_status'] === 'test_paid') {
+            flash('error', 'Cette réservation ne peut pas être payée à ce stade.');
+            $this->redirect('/locataire/reservations/' . $bookingId);
+        }
+
+        $stripe = new StripeService();
+        $session = $stripe->createCheckoutSession($booking);
+        if (($session['success'] ?? false) !== true || empty($session['url'])) {
+            audit((int) $user['id'], 'stripe_checkout_failed', 'booking', $bookingId);
+            flash('error', 'Stripe test n’a pas pu être démarré. Vous pouvez utiliser la simulation de paiement.');
+            $this->redirect('/paiement/' . $bookingId);
+        }
+
+        audit((int) $user['id'], 'stripe_checkout_started', 'booking', $bookingId);
+        header('Location: ' . $session['url']);
+        exit;
+    }
+
+    public function stripeSuccess(int $bookingId): void
+    {
+        $user = $this->requireTenantForBooking();
+        $booking = (new Booking())->findForTenant($bookingId, (int) $user['id']);
+        if (!$booking) {
+            flash('error', 'Réservation introuvable.');
+            $this->redirect('/locataire/reservations');
+        }
+
+        $sessionId = trim((string) input('session_id', ''));
+        $session = (new StripeService())->retrieveCheckoutSession($sessionId);
+        $validSession = ($session['success'] ?? false) === true
+            && (string) ($session['client_reference_id'] ?? '') === (string) $bookingId
+            && (string) ($session['payment_status'] ?? '') === 'paid'
+            && (string) ($session['status'] ?? '') === 'complete';
+
+        if (!$validSession || !(new Booking())->confirmStripeTestPayment($bookingId, $sessionId)) {
+            audit((int) $user['id'], 'stripe_checkout_validation_failed', 'booking', $bookingId);
+            flash('error', 'Le paiement Stripe test n’a pas pu être confirmé. Vous pouvez réessayer.');
+            $this->redirect('/paiement/' . $bookingId);
+        }
+
+        audit((int) $user['id'], 'stripe_test_payment_succeeded', 'booking', $bookingId);
+        $bookingAfterPayment = (new Booking())->findForAdmin($bookingId);
+        if ($bookingAfterPayment) {
+            (new MailService())->sendFakePaymentConfirmedNotification($bookingAfterPayment);
+        }
+        flash('success', 'Paiement Stripe test validé. Votre réservation est maintenant confirmée.');
+        $this->redirect('/locataire/reservations/' . $bookingId);
+    }
+
+    public function stripeCancel(int $bookingId): void
+    {
+        $this->requireTenantForBooking();
+        flash('error', 'Paiement Stripe test annulé. Aucun montant réel n’a été débité.');
+        $this->redirect('/paiement/' . $bookingId);
     }
 
     public function simulatePayment(int $bookingId): void

@@ -13,6 +13,10 @@ return [
     'brevo_api_key' => getenv('BREVO_API_KEY') ?: '',
     'brevo_list_id' => getenv('BREVO_LIST_ID') ?: '',
     'brevo_enabled' => (getenv('BREVO_ENABLED') ?: 'false') === 'true',
+    'stripe_enabled' => (getenv('STRIPE_ENABLED') ?: 'false') === 'true',
+    'stripe_mode' => getenv('STRIPE_MODE') ?: 'test',
+    'stripe_public_key' => getenv('STRIPE_PUBLIC_KEY') ?: (getenv('STRIPE_PUBLISHABLE_KEY') ?: ''),
+    'stripe_secret_key' => getenv('STRIPE_SECRET_KEY') ?: '',
     'academic_disclaimer' => 'Projet étudiant fictif. Aucun achat, paiement ou réservation réelle ne peut être effectué. Les informations présentées sont utilisées dans le cadre d’une démonstration académique.',
     'upload_max_bytes' => 5 * 1024 * 1024,
 ];

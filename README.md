@@ -230,7 +230,7 @@ La suppression admin d’un logement est logique : le statut passe à `deleted`,
 
 Lorsqu’un propriétaire modifie un logement déjà publié ou mis en pause, la version publique n’est pas écrasée directement. Une demande est stockée dans `property_change_requests` avec les nouvelles valeurs proposées, puis l’administrateur compare, approuve ou refuse la modification depuis le back-office. Les images ajoutées dans une demande refusée peuvent rester stockées localement comme artefacts de démonstration.
 
-Limites assumées : pas de paiement réel, pas de passerelle Stripe, pas de campagne marketing Brevo active, pas de calendrier planning professionnel avec drag-and-drop, pas de système de suppression RGPD automatisé complet, pas de workflow avancé de notification après chaque action admin. Les emails transactionnels peuvent être envoyés via Brevo SMTP si Render est configuré.
+Limites assumées : pas de paiement réel, Stripe est utilisé uniquement en mode test, pas de campagne marketing Brevo active, pas de calendrier planning professionnel avec drag-and-drop, pas de système de suppression RGPD automatisé complet, pas de workflow avancé de notification après chaque action admin. Les emails transactionnels peuvent être envoyés via Brevo SMTP si Render est configuré.
 
 Les vérifications réalisées sur MAMP sont détaillées dans `docs/validation-report.md`.
 

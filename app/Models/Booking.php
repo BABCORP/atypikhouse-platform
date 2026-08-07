@@ -309,6 +309,26 @@ final class Booking extends Model
         return $success;
     }
 
+    public function confirmStripeTestPayment(int $bookingId, string $sessionId): bool
+    {
+        $booking = $this->find($bookingId);
+        if (!$booking) {
+            return false;
+        }
+        if ($booking['payment_status'] === 'test_paid') {
+            return true;
+        }
+        if ($booking['status'] !== 'pending_payment' || (float) $booking['total_price'] <= 0) {
+            return false;
+        }
+
+        $this->db->prepare('INSERT INTO payments (booking_id, provider, test_transaction_id, amount, status, created_at) VALUES (?, "stripe_test", ?, ?, "test_success", NOW())')
+            ->execute([$bookingId, $sessionId, $booking['total_price']]);
+        $this->db->prepare('UPDATE bookings SET status = "confirmed", payment_status = "test_paid", updated_at = NOW() WHERE id = ?')->execute([$bookingId]);
+
+        return true;
+    }
+
     public function updateStatus(int $id, string $status): void
     {
         $stmt = $this->db->prepare('UPDATE bookings SET status = ?, updated_at = NOW() WHERE id = ?');
