@@ -1268,6 +1268,13 @@ th { background: var(--sand); }
 .detail-list { display: grid; grid-template-columns: minmax(110px, .42fr) 1fr; gap: .6rem 1rem; }
 .detail-list dt { font-weight: 800; color: var(--forest); }
 .detail-list dd { margin: 0; }
+.transaction-reference {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  font-size: clamp(.86rem, 1.8vw, 1rem);
+  line-height: 1.45;
+}
 .owner-gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
 .owner-image-card { border: 1px solid var(--line); border-radius: 8px; padding: .85rem; background: var(--cream); }
 .owner-image-card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 8px; background: var(--sand); margin-bottom: .75rem; }
