@@ -1,0 +1,376 @@
+<?php
+
+use App\Core\Database;
+
+function env_value(string $key, mixed $default = null): mixed
+{
+    if (array_key_exists($key, $_ENV)) {
+        return $_ENV[$key];
+    }
+    $value = getenv($key);
+    return $value === false ? $default : $value;
+}
+
+function config(string $key, mixed $default = null): mixed
+{
+    static $config = null;
+    $config ??= require dirname(__DIR__, 2) . '/config/app.php';
+    return $config[$key] ?? $default;
+}
+
+function e(?string $value): string
+{
+    return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+function url(string $path = ''): string
+{
+    $path = '/' . ltrim($path, '/');
+    return $path === '//' ? '/' : $path;
+}
+
+function asset(string $path): string
+{
+    return url('assets/' . ltrim($path, '/'));
+}
+
+function image_url(?string $path): string
+{
+    $path = $path ?: 'assets/img/properties/default-placeholder.svg';
+    if (str_starts_with($path, 'media/')) {
+        return url($path);
+    }
+    return asset(str_replace('assets/', '', $path));
+}
+
+function redirect(string $path): never
+{
+    header('Location: ' . url($path));
+    exit;
+}
+
+function csrf_token(): string
+{
+    if (empty($_SESSION['_csrf'])) {
+        $_SESSION['_csrf'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['_csrf'];
+}
+
+function csrf_field(): string
+{
+    return '<input type="hidden" name="_csrf" value="' . e(csrf_token()) . '">';
+}
+
+function verify_csrf(): void
+{
+    $token = $_POST['_csrf'] ?? '';
+    $sessionToken = $_SESSION['_csrf'] ?? '';
+    if ($token === '' || $sessionToken === '' || !hash_equals($sessionToken, $token)) {
+        http_response_code(419);
+        exit('Jeton CSRF invalide.');
+    }
+}
+
+function captcha_is_enabled(): bool
+{
+    return (bool) config('turnstile_enabled');
+}
+
+function captcha_is_configured(): bool
+{
+    return captcha_is_enabled() && (string) config('turnstile_site_key') !== '' && (string) config('turnstile_secret_key') !== '';
+}
+
+function captcha_math_challenge(string $action = 'default'): array
+{
+    $sessionKey = '_captcha_math_' . $action;
+    if (empty($_SESSION[$sessionKey]) || !is_array($_SESSION[$sessionKey])) {
+        $a = random_int(2, 9);
+        $b = random_int(1, 9);
+        $_SESSION[$sessionKey] = [
+            'question' => $a . ' + ' . $b,
+            'answer' => (string) ($a + $b),
+        ];
+    }
+
+    return $_SESSION[$sessionKey];
+}
+
+function captcha_field(string $action = 'contact'): string
+{
+    if (!captcha_is_configured()) {
+        $challenge = captcha_math_challenge($action);
+        $question = e((string) $challenge['question']);
+
+        return '<div class="captcha-field" aria-label="Vérification anti-spam">'
+            . '<label>Captcha anti-spam'
+            . '<input required type="number" inputmode="numeric" autocomplete="off" name="captcha_answer" placeholder="Combien font ' . $question . ' ?" aria-describedby="captcha-help-' . e($action) . '">'
+            . '</label>'
+            . '<p class="form-help" id="captcha-help-' . e($action) . '">Pour confirmer que vous n’êtes pas un robot, répondez à cette question : combien font ' . $question . ' ?</p>'
+            . '</div>';
+    }
+
+    return '<div class="captcha-field" aria-label="Vérification anti-spam">'
+        . '<div class="cf-turnstile" data-sitekey="' . e((string) config('turnstile_site_key')) . '" data-action="' . e($action) . '"></div>'
+        . '<noscript><p class="form-help">Activez JavaScript pour compléter la vérification anti-spam.</p></noscript>'
+        . '</div>';
+}
+
+function verify_captcha(string $action = 'contact'): bool
+{
+    if (!captcha_is_configured()) {
+        $sessionKey = '_captcha_math_' . $action;
+        $expected = $_SESSION[$sessionKey]['answer'] ?? null;
+        $answer = trim((string) input('captcha_answer', ''));
+        unset($_SESSION[$sessionKey]);
+
+        return $expected !== null && $answer !== '' && hash_equals((string) $expected, $answer);
+    }
+
+    $token = trim((string) ($_POST['cf-turnstile-response'] ?? ''));
+    if ($token === '' || strlen($token) > 2048) {
+        return false;
+    }
+
+    $payload = http_build_query([
+        'secret' => (string) config('turnstile_secret_key'),
+        'response' => $token,
+        'remoteip' => $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '',
+    ]);
+
+    $response = null;
+    if (function_exists('curl_init')) {
+        $curl = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
+        curl_setopt_array($curl, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $payload,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 5,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded'],
+        ]);
+        $response = curl_exec($curl);
+        curl_close($curl);
+    } else {
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => "Content-Type: application/x-www-form-urlencoded\r\n",
+                'content' => $payload,
+                'timeout' => 5,
+            ],
+        ]);
+        $response = @file_get_contents('https://challenges.cloudflare.com/turnstile/v0/siteverify', false, $context);
+    }
+
+    $result = is_string($response) ? json_decode($response, true) : null;
+    if (!is_array($result) || ($result['success'] ?? false) !== true) {
+        error_log('[AtypikHouse captcha] Turnstile validation failed');
+        return false;
+    }
+
+    if (isset($result['action']) && $result['action'] !== $action) {
+        return false;
+    }
+
+    return true;
+}
+
+function flash(string $key, ?string $message = null): ?string
+{
+    if ($message !== null) {
+        $_SESSION['flash'][$key] = $message;
+        return null;
+    }
+
+    $value = $_SESSION['flash'][$key] ?? null;
+    unset($_SESSION['flash'][$key]);
+    return $value;
+}
+
+function old(string $key, mixed $default = ''): string
+{
+    return e($_SESSION['_old'][$key] ?? $default);
+}
+
+function remember_old(array $data): void
+{
+    $_SESSION['_old'] = $data;
+}
+
+function clear_old(): void
+{
+    unset($_SESSION['_old']);
+}
+
+function slugify(string $text): string
+{
+    $text = iconv('UTF-8', 'ASCII//TRANSLIT', $text);
+    $text = preg_replace('~[^\\pL\\d]+~u', '-', $text ?: '');
+    $text = trim((string) $text, '-');
+    $text = strtolower($text);
+    $text = preg_replace('~[^-a-z0-9]+~', '', $text);
+    return $text ?: 'item-' . time();
+}
+
+function input(string $key, mixed $default = null): mixed
+{
+    return $_POST[$key] ?? $_GET[$key] ?? $default;
+}
+
+function audit(?int $userId, string $action, string $entityType, ?int $entityId = null): void
+{
+    try {
+        $stmt = Database::connection()->prepare('INSERT INTO audit_logs (user_id, action, entity_type, entity_id, ip_address, created_at) VALUES (?, ?, ?, ?, ?, NOW())');
+        $stmt->execute([$userId, $action, $entityType, $entityId, $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1']);
+    } catch (Throwable) {
+        // Audit must never break the user journey.
+    }
+}
+
+function money(float|int|string $amount): string
+{
+    return number_format((float) $amount, 2, ',', ' ') . ' €';
+}
+
+function rating_stars(float|int|string $rating, string $label = 'Note'): string
+{
+    $value = max(0, min(5, (float) $rating));
+    $rounded = (int) round($value);
+    $stars = '';
+    for ($i = 1; $i <= 5; $i++) {
+        $stars .= '<span class="rating-stars__star' . ($i <= $rounded ? ' rating-stars__star--filled' : '') . '" aria-hidden="true">' . ($i <= $rounded ? '★' : '☆') . '</span>';
+    }
+    return '<span class="rating-stars" role="img" aria-label="' . e($label . ' : ' . number_format($value, 1, ',', ' ') . ' sur 5') . '">' . $stars . '</span>';
+}
+
+function nights_between(string $start, string $end): int
+{
+    try {
+        $startDate = new DateTimeImmutable($start);
+        $endDate = new DateTimeImmutable($end);
+        if ($endDate <= $startDate) {
+            return 0;
+        }
+        return (int) $startDate->diff($endDate)->days;
+    } catch (Throwable) {
+        return 0;
+    }
+}
+
+function valid_date(string $date): bool
+{
+    $value = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
+    return $value !== false && $value->format('Y-m-d') === $date;
+}
+
+function status_label(?string $status): string
+{
+    return [
+        'active' => 'Actif',
+        'pending' => 'En attente',
+        'rejected' => 'Refusé',
+        'suspended' => 'Suspendu',
+        'draft' => 'Brouillon',
+        'published' => 'Publié',
+        'rejected' => 'Refusé',
+        'archived' => 'Archivé',
+        'paused' => 'En pause',
+        'deleted' => 'Supprimé',
+        'pending_admin' => 'En attente de validation',
+        'pending_payment' => 'En attente de paiement',
+        'confirmed' => 'Confirmée',
+        'cancelled' => 'Annulée',
+        'completed' => 'Terminée',
+        'not_paid' => 'Non payé',
+        'test_paid' => 'Payé fictivement',
+        'test_failed' => 'Paiement fictif échoué',
+        'refunded' => 'Remboursé',
+        'test_pending' => 'Paiement fictif en attente',
+        'test_success' => 'Paiement fictif validé',
+        'test_refunded' => 'Remboursement fictif',
+        'approved' => 'Approuvé',
+        'read' => 'Lu',
+        'processed' => 'Traité',
+        'new' => 'Nouveau',
+    ][$status ?? ''] ?? (string) $status;
+}
+
+function role_label(?string $role): string
+{
+    return [
+        'tenant' => 'Locataire',
+        'owner' => 'Propriétaire',
+        'admin' => 'Administrateur',
+    ][$role ?? ''] ?? (string) $role;
+}
+
+function property_type_label(?string $type): string
+{
+    return [
+        'treehouse' => 'Cabane dans les arbres',
+        'yurt' => 'Yourte nature',
+        'floating_cabin' => 'Cabane flottante',
+        'tiny_house' => 'Tiny house',
+        'dome' => 'Dôme',
+        'other' => 'Autre insolite',
+    ][$type ?? ''] ?? (string) $type;
+}
+
+function current_url(): string
+{
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    return request_origin() . url($path);
+}
+
+function app_url(string $path = ''): string
+{
+    return request_origin() . url($path);
+}
+
+function request_origin(): string
+{
+    $configured = rtrim((string) config('base_url', ''), '/');
+    $isConfiguredForLocal = str_contains($configured, 'localhost') || str_contains($configured, '127.0.0.1');
+    $isPlaceholder = $configured === ''
+        || str_contains($configured, 'ton-url-render')
+        || str_contains($configured, 'CHANGE_ME')
+        || str_contains($configured, 'URL_RENDER')
+        || str_contains($configured, 'ton-site')
+        || str_contains($configured, 'atypikhouse.test');
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+
+    if (!$isPlaceholder && (!$isConfiguredForLocal || $host === '' || str_contains($host, 'localhost') || str_contains($host, '127.0.0.1'))) {
+        return $configured;
+    }
+
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
+        ? 'https'
+        : 'http';
+
+    return $host !== '' ? $scheme . '://' . $host : ($isPlaceholder ? 'https://atypikhouse-dsp-ddm-o24a-g4.onrender.com' : $configured);
+}
+
+function pagination_meta(int $total, int $page, int $perPage = 20): array
+{
+    $lastPage = max(1, (int) ceil($total / max(1, $perPage)));
+    $page = min(max(1, $page), $lastPage);
+
+    return [
+        'total' => $total,
+        'page' => $page,
+        'per_page' => $perPage,
+        'last_page' => $lastPage,
+        'offset' => ($page - 1) * $perPage,
+        'has_previous' => $page > 1,
+        'has_next' => $page < $lastPage,
+    ];
+}
+
+function pagination_url(int $page): string
+{
+    $params = $_GET;
+    $params['page'] = $page;
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    return url($path . '?' . http_build_query($params));
+}

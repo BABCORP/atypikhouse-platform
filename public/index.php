@@ -1,0 +1,59 @@
+<?php
+
+declare(strict_types=1);
+
+if (PHP_SAPI === 'cli-server') {
+    $requestedPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
+    if ($requestedPath !== '/' && is_file(__DIR__ . $requestedPath)) {
+        return false;
+    }
+}
+
+$requestedPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+if (in_array($requestedPath, ['/health', '/healthz'], true)) {
+    header('Content-Type: text/plain; charset=utf-8');
+    echo 'ok';
+    return;
+}
+
+ini_set('session.cookie_httponly', '1');
+ini_set('session.cookie_samesite', 'Lax');
+if (!empty($_SERVER['HTTPS']) || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') {
+    ini_set('session.cookie_secure', '1');
+}
+session_start();
+
+require dirname(__DIR__) . '/app/Helpers/functions.php';
+
+spl_autoload_register(function (string $class): void {
+    $prefix = 'App\\';
+    if (!str_starts_with($class, $prefix)) {
+        return;
+    }
+
+    $relative = str_replace('\\', '/', substr($class, strlen($prefix)));
+    $file = dirname(__DIR__) . '/app/' . $relative . '.php';
+    if (is_file($file)) {
+        require $file;
+    }
+});
+
+if (!config('debug')) {
+    ini_set('display_errors', '0');
+}
+
+header('X-Frame-Options: SAMEORIGIN');
+header('X-Content-Type-Options: nosniff');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()');
+
+$router = new App\Core\Router();
+require dirname(__DIR__) . '/routes/web.php';
+try {
+    $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+} catch (Throwable $exception) {
+    if (config('debug')) {
+        throw $exception;
+    }
+    (new App\Controllers\PublicController())->serverError();
+}
