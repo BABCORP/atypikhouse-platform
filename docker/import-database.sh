@@ -11,8 +11,40 @@ if [ "${APP_ENV:-local}" = "production" ] && [ "${DB_AUTO_IMPORT_FORCE:-false}" 
     exit 0
 fi
 
+DATABASE_CONNECTION_URL="${DATABASE_URL:-${MYSQL_URL:-${MYSQL_PUBLIC_URL:-}}}"
+
+if [ -n "$DATABASE_CONNECTION_URL" ]; then
+    eval "$(DATABASE_CONNECTION_URL="$DATABASE_CONNECTION_URL" php -r '
+        $url = getenv("DATABASE_CONNECTION_URL") ?: "";
+        $parsed = parse_url($url);
+        if (!is_array($parsed)) {
+            exit;
+        }
+        $map = [
+            "DB_HOST" => $parsed["host"] ?? null,
+            "DB_PORT" => isset($parsed["port"]) ? (string) $parsed["port"] : null,
+            "DB_USERNAME" => isset($parsed["user"]) ? urldecode((string) $parsed["user"]) : null,
+            "DB_PASSWORD" => isset($parsed["pass"]) ? urldecode((string) $parsed["pass"]) : null,
+            "DB_DATABASE" => isset($parsed["path"]) ? ltrim((string) $parsed["path"], "/") : null,
+        ];
+        foreach ($map as $key => $value) {
+            $current = getenv($key);
+            if ($value !== null && $value !== "" && ($current === false || $current === "")) {
+                echo "export " . $key . "=" . escapeshellarg($value) . ";\n";
+            }
+        }
+    ')"
+fi
+
+export DB_HOST="${DB_HOST:-${MYSQLHOST:-}}"
+export DB_PORT="${DB_PORT:-${MYSQLPORT:-3306}}"
+export DB_DATABASE="${DB_DATABASE:-${MYSQLDATABASE:-}}"
+export DB_USERNAME="${DB_USERNAME:-${MYSQLUSER:-}}"
+export DB_PASSWORD="${DB_PASSWORD:-${MYSQLPASSWORD:-}}"
+
 if [ -z "${DB_HOST:-}" ] || [ -z "${DB_PORT:-}" ] || [ -z "${DB_DATABASE:-}" ] || [ -z "${DB_USERNAME:-}" ] || [ -z "${DB_PASSWORD:-}" ]; then
     echo "DB_AUTO_IMPORT=true mais une variable DB_* manque. Requis: DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD." >&2
+    echo "Variables acceptées aussi: DATABASE_URL, MYSQL_URL, MYSQL_PUBLIC_URL, MYSQLHOST, MYSQLPORT, MYSQLDATABASE, MYSQLUSER, MYSQLPASSWORD." >&2
     exit 1
 fi
 

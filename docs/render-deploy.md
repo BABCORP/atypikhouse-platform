@@ -40,6 +40,7 @@ Variables optionnelles :
 
 ```text
 MYSQL_URL=mysql://USER:PASSWORD@HOST:3306/DATABASE
+MYSQL_PUBLIC_URL=mysql://USER:PASSWORD@PUBLIC_HOST:PUBLIC_PORT/DATABASE
 DB_SSL_CA=/chemin/ca.pem
 DB_SSL_VERIFY=false
 GA4_ID=
@@ -47,6 +48,8 @@ GTM_ID=
 BREVO_API_KEY=
 BREVO_LIST_ID=
 ```
+
+Si la base est hébergée sur Railway et le site sur Render, ne pas utiliser `mysql.railway.internal` dans Render : ce nom interne ne fonctionne que depuis Railway. Utiliser l’URL publique Railway (`MYSQL_PUBLIC_URL`) ou recopier ses valeurs dans `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME` et `DB_PASSWORD`.
 
 Ne pas mettre `.env` dans GitHub. Les secrets doivent rester dans Render.
 
