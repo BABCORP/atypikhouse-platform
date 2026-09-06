@@ -49,6 +49,14 @@ final class AuthController extends Controller
             flash('error', $user['status'] === 'rejected' ? 'Votre compte a été refusé par l’administration.' : 'Votre compte est suspendu.');
             $this->redirect('/connexion');
         }
+        if ($user['role'] === 'owner') {
+            $ownerProfile = $userModel->ownerProfile((int) $user['id']);
+            if ($user['status'] !== 'active' || !$ownerProfile || $ownerProfile['verification_status'] !== 'approved') {
+                audit((int) $user['id'], 'blocked_owner_pending_login', 'user', (int) $user['id']);
+                flash('error', 'Votre compte propriétaire est en attente de validation par l’administrateur. Vous pourrez accéder à votre espace après validation.');
+                $this->redirect('/connexion');
+            }
+        }
         unset($_SESSION['login_attempts']);
         Auth::login($user);
         audit((int) $user['id'], 'login_success', 'user', (int) $user['id']);

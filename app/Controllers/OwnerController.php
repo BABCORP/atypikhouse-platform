@@ -16,6 +16,7 @@ final class OwnerController extends Controller
     public function dashboard(): void
     {
         $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         $properties = (new Property())->ownerProperties((int) $user['id']);
         $bookings = (new Booking())->ownerBookings((int) $user['id']);
         $this->view('dashboard/owner-dashboard', ['title' => 'Espace propriétaire', 'properties' => $properties, 'bookings' => $bookings]);
@@ -24,6 +25,7 @@ final class OwnerController extends Controller
     public function properties(): void
     {
         $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         $this->view('dashboard/properties', ['title' => 'Mes logements', 'properties' => (new Property())->ownerProperties((int) $user['id'])]);
     }
 
@@ -235,6 +237,7 @@ final class OwnerController extends Controller
     public function reservations(): void
     {
         $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         $filters = [
             'property_id' => trim((string) input('property_id', '')),
             'status' => trim((string) input('status', '')),
@@ -253,12 +256,14 @@ final class OwnerController extends Controller
     public function profile(): void
     {
         $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         $this->view('dashboard/profile', ['title' => 'Profil propriétaire', 'user' => $user, 'ownerProfile' => (new User())->ownerProfile((int) $user['id'])]);
     }
 
     public function updateProfile(): void
     {
         $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         verify_csrf();
         $model = new User();
         $model->updateProfile((int) $user['id'], $_POST);
@@ -272,6 +277,7 @@ final class OwnerController extends Controller
     public function updatePassword(): void
     {
         $user = Auth::requireRole('owner');
+        $this->ensureApprovedOwner($user);
         verify_csrf();
         if (!password_verify((string) input('current_password'), $user['password_hash']) || strlen((string) input('password')) < 8 || input('password') !== input('password_confirmation')) {
             flash('error', 'La modification du mot de passe a échoué. Vérifiez les informations saisies.');
@@ -379,10 +385,15 @@ final class OwnerController extends Controller
 
     private function ensureApprovedOwner(array $user): void
     {
+        if (($user['role'] ?? '') !== 'owner') {
+            flash('error', 'Cet espace est réservé aux propriétaires.');
+            $this->redirect(($user['role'] ?? '') === 'admin' ? '/admin/dashboard' : '/connexion');
+        }
         $profile = (new User())->ownerProfile((int) $user['id']);
         if ($user['status'] !== 'active' || !$profile || $profile['verification_status'] !== 'approved') {
             flash('error', 'Votre compte propriétaire doit être validé par l’administrateur avant de proposer un logement.');
-            $this->redirect('/proprietaire/logements');
+            Auth::logout();
+            $this->redirect('/connexion');
         }
     }
 }
