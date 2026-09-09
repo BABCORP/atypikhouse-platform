@@ -20,23 +20,35 @@ final class Database
             ? sprintf('mysql:unix_socket=%s;dbname=%s;charset=%s', $config['socket'], $config['database'], $config['charset'])
             : sprintf('mysql:host=%s;port=%s;dbname=%s;charset=%s', $config['host'], $config['port'], $config['database'], $config['charset']);
 
-        try {
-            $options = [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES => false,
-            ];
+        $options = [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+            PDO::ATTR_TIMEOUT => 5,
+        ];
 
-            if (!empty($config['ssl_ca']) && defined('PDO::MYSQL_ATTR_SSL_CA')) {
-                $options[PDO::MYSQL_ATTR_SSL_CA] = $config['ssl_ca'];
+        if (!empty($config['ssl_ca']) && defined('PDO::MYSQL_ATTR_SSL_CA')) {
+            $options[PDO::MYSQL_ATTR_SSL_CA] = $config['ssl_ca'];
+        }
+
+        if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
+            $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = (bool) ($config['ssl_verify'] ?? false);
+        }
+
+        $lastException = null;
+        for ($attempt = 1; $attempt <= 3; $attempt++) {
+            try {
+                self::$pdo = new PDO($dsn, $config['username'], $config['password'], $options);
+                break;
+            } catch (PDOException $exception) {
+                $lastException = $exception;
+                if ($attempt < 3) {
+                    usleep(350000 * $attempt);
+                }
             }
+        }
 
-            if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
-                $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = (bool) ($config['ssl_verify'] ?? false);
-            }
-
-            self::$pdo = new PDO($dsn, $config['username'], $config['password'], $options);
-        } catch (PDOException $exception) {
+        if (!self::$pdo) {
             http_response_code(500);
             $appConfig = require dirname(__DIR__, 2) . '/config/app.php';
             $logDir = dirname(__DIR__, 2) . '/storage/logs';
@@ -45,12 +57,12 @@ final class Database
             }
             @file_put_contents(
                 $logDir . '/app.log',
-                sprintf("[%s] Database connection failed: %s\n", date('c'), $exception->getMessage()),
+                sprintf("[%s] Database connection failed after retries: %s\n", date('c'), $lastException?->getMessage() ?? 'unknown error'),
                 FILE_APPEND
             );
 
             if ($appConfig['debug']) {
-                exit('Erreur de connexion base de données : ' . htmlspecialchars($exception->getMessage(), ENT_QUOTES, 'UTF-8'));
+                exit('Erreur de connexion base de données : ' . htmlspecialchars($lastException?->getMessage() ?? 'erreur inconnue', ENT_QUOTES, 'UTF-8'));
             }
 
             exit(self::renderProductionDatabaseError());
