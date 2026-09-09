@@ -36,14 +36,15 @@ final class Database
         }
 
         $lastException = null;
-        for ($attempt = 1; $attempt <= 3; $attempt++) {
+        $maxAttempts = 5;
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
             try {
                 self::$pdo = new PDO($dsn, $config['username'], $config['password'], $options);
                 break;
             } catch (PDOException $exception) {
                 $lastException = $exception;
-                if ($attempt < 3) {
-                    usleep(350000 * $attempt);
+                if ($attempt < $maxAttempts) {
+                    usleep(500000 * $attempt);
                 }
             }
         }
@@ -74,13 +75,15 @@ final class Database
     private static function renderProductionDatabaseError(): string
     {
         return '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
-            . '<title>AtypikHouse - Configuration en cours</title>'
-            . '<style>body{margin:0;font-family:Arial,sans-serif;background:#fbf7f0;color:#173f2a}.wrap{max-width:760px;margin:12vh auto;padding:32px}.card{background:#fff;border:1px solid #eadfce;border-radius:14px;padding:28px;box-shadow:0 18px 50px rgba(23,63,42,.08)}h1{margin:0 0 12px;font-size:32px}p{line-height:1.6;color:#52645b}.hint{margin-top:18px;padding:14px 16px;background:#f2e6d8;border-radius:10px;font-weight:700}</style>'
+            . '<meta http-equiv="refresh" content="3">'
+            . '<title>AtypikHouse - Connexion en cours</title>'
+            . '<style>body{margin:0;font-family:Arial,sans-serif;background:#fbf7f0;color:#173f2a}.wrap{max-width:760px;margin:12vh auto;padding:32px}.card{background:#fff;border:1px solid #eadfce;border-radius:14px;padding:28px;box-shadow:0 18px 50px rgba(23,63,42,.08)}h1{margin:0 0 12px;font-size:32px}p{line-height:1.6;color:#52645b}.hint{margin-top:18px;padding:14px 16px;background:#f2e6d8;border-radius:10px;font-weight:700}.button{display:inline-block;margin-top:18px;padding:12px 18px;border-radius:10px;background:#173f2a;color:#fff;text-decoration:none;font-weight:700}</style>'
             . '</head><body><main class="wrap"><section class="card">'
-            . '<h1>Configuration de la base de données requise</h1>'
-            . '<p>Le service AtypikHouse est bien démarré, mais la connexion MySQL n’est pas encore disponible. Sur Render, vérifiez la variable <strong>DATABASE_URL</strong> ou les variables <strong>DB_HOST</strong>, <strong>DB_DATABASE</strong>, <strong>DB_USERNAME</strong> et <strong>DB_PASSWORD</strong>.</p>'
-            . '<p>Après configuration, importez <strong>database/schema.sql</strong> puis <strong>database/seed.sql</strong> dans la base MySQL et relancez le déploiement.</p>'
+            . '<h1>Connexion au site en cours</h1>'
+            . '<p>Le service AtypikHouse est bien démarré. La base de données met quelques secondes à répondre, souvent au réveil du service.</p>'
+            . '<p>La page va se relancer automatiquement. Si ce message reste affiché après plusieurs essais, vérifiez les variables <strong>DATABASE_URL</strong> ou <strong>DB_HOST</strong>, <strong>DB_DATABASE</strong>, <strong>DB_USERNAME</strong> et <strong>DB_PASSWORD</strong>.</p>'
             . '<div class="hint">Diagnostic rapide : ouvrez <code>/healthz</code>. Si la page affiche <code>ok</code>, Docker et Apache fonctionnent.</div>'
+            . '<a class="button" href="/">Réessayer maintenant</a>'
             . '</section></main></body></html>';
     }
 }
