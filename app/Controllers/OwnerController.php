@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Helpers\Upload;
 use App\Services\MailService;
 use RuntimeException;
+use Throwable;
 
 final class OwnerController extends Controller
 {
@@ -50,13 +51,22 @@ final class OwnerController extends Controller
             flash('error', $exception->getMessage());
             $this->redirect('/proprietaire/logements/ajouter');
         }
-        $id = (new Property())->create((int) $user['id'], $_POST, $image, $secondaryImages);
+        $propertyModel = new Property();
+        try {
+            $id = $propertyModel->create((int) $user['id'], $_POST, $image, $secondaryImages);
+        } catch (Throwable $exception) {
+            error_log('[AtypikHouse property create] ' . $exception->getMessage());
+            remember_old($_POST);
+            flash('error', 'Impossible de créer le logement pour le moment. Vérifiez les informations saisies et réessayez.');
+            $this->redirect('/proprietaire/logements/ajouter');
+        }
+        $createdProperty = $propertyModel->find($id);
         audit((int) $user['id'], 'property_published_by_owner', 'property', $id);
         $emailSent = (new MailService())->sendPropertyApprovedNotification(
             (string) $user['email'],
             trim((string) input('title')),
             (string) $user['first_name'],
-            slugify((string) input('title'))
+            (string) ($createdProperty['slug'] ?? slugify((string) input('title')))
         );
         audit((int) $user['id'], $emailSent ? 'email_property_published_sent' : 'email_property_published_failed', 'property', $id);
         flash('success', 'Votre logement a été publié. Il est visible dans le catalogue.');

@@ -150,7 +150,7 @@ final class Property extends Model
 
     public function create(int $ownerId, array $data, ?string $uploadedImage = null, array $secondaryImages = []): int
     {
-        $slug = slugify($data['title']);
+        $slug = $this->uniqueSlug((string) $data['title']);
         $stmt = $this->db->prepare('INSERT INTO properties (owner_id, title, slug, type, short_description, long_description, address, city, postal_code, region, country, latitude, longitude, capacity, bedrooms, beds, bathrooms, price_per_night, cleaning_fee, eco_score, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, "published", NOW(), NOW())');
         $stmt->execute([
             $ownerId,
@@ -183,10 +183,11 @@ final class Property extends Model
 
     public function update(int $id, int $ownerId, array $data, ?string $uploadedImage = null, array $secondaryImages = []): void
     {
+        $slug = $this->uniqueSlug((string) $data['title'], $id);
         $stmt = $this->db->prepare('UPDATE properties SET title = ?, slug = ?, type = ?, short_description = ?, long_description = ?, address = ?, city = ?, postal_code = ?, region = ?, country = ?, capacity = ?, bedrooms = ?, beds = ?, bathrooms = ?, price_per_night = ?, cleaning_fee = ?, eco_score = ?, updated_at = NOW() WHERE id = ? AND owner_id = ? AND status IN ("draft", "rejected", "pending", "published", "paused")');
         $stmt->execute([
             trim($data['title']),
-            slugify($data['title']),
+            $slug,
             $data['type'],
             trim($data['short_description']),
             trim($data['long_description']),
@@ -430,14 +431,19 @@ final class Property extends Model
         }
     }
 
-    private function uniqueSlug(string $title, int $ignoreId): string
+    private function uniqueSlug(string $title, ?int $ignoreId = null): string
     {
-        $base = slugify($title);
+        $base = substr(slugify($title), 0, 170);
         $slug = $base;
         $suffix = 2;
         while (true) {
-            $stmt = $this->db->prepare('SELECT COUNT(*) FROM properties WHERE slug = ? AND id <> ?');
-            $stmt->execute([$slug, $ignoreId]);
+            if ($ignoreId !== null) {
+                $stmt = $this->db->prepare('SELECT COUNT(*) FROM properties WHERE slug = ? AND id <> ?');
+                $stmt->execute([$slug, $ignoreId]);
+            } else {
+                $stmt = $this->db->prepare('SELECT COUNT(*) FROM properties WHERE slug = ?');
+                $stmt->execute([$slug]);
+            }
             if ((int) $stmt->fetchColumn() === 0) {
                 return $slug;
             }
