@@ -11,7 +11,7 @@ final class Property extends Model
         $sql = 'SELECT p.*, COALESCE(AVG(r.rating), 0) AS avg_rating, COUNT(r.id) AS reviews_count,
                 (SELECT image_path FROM property_images WHERE property_id = p.id ORDER BY is_main DESC, id ASC LIMIT 1) AS main_image
                 FROM properties p
-                LEFT JOIN reviews r ON r.property_id = p.id AND r.status = "published"
+                LEFT JOIN reviews r ON r.property_id = p.id AND r.status <> "rejected"
                 WHERE p.status = "published"';
         $params = [];
 

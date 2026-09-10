@@ -49,7 +49,7 @@ if (!is_string($favoriteRedirect) || !str_starts_with($favoriteRedirect, '/') ||
                         <p class="empty-state">Aucun équipement renseigné pour le moment.</p>
                     <?php endif; ?>
                 </section>
-                <section class="property-section">
+                <section class="property-section" id="avis">
                     <h2>Avis publiés</h2>
                     <?php foreach ($reviews as $review): ?>
                         <blockquote class="review-card">

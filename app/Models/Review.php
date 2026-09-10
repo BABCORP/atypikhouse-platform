@@ -8,14 +8,14 @@ final class Review extends Model
 {
     public function forProperty(int $propertyId): array
     {
-        $stmt = $this->db->prepare('SELECT r.*, u.first_name FROM reviews r JOIN users u ON u.id = r.tenant_id WHERE r.property_id = ? AND r.status = "published" ORDER BY r.created_at DESC');
+        $stmt = $this->db->prepare('SELECT r.*, u.first_name FROM reviews r JOIN users u ON u.id = r.tenant_id WHERE r.property_id = ? AND r.status <> "rejected" ORDER BY r.created_at DESC');
         $stmt->execute([$propertyId]);
         return $stmt->fetchAll();
     }
 
     public function summaryForProperty(int $propertyId): array
     {
-        $stmt = $this->db->prepare('SELECT COALESCE(AVG(rating), 0) AS avg_rating, COUNT(*) AS reviews_count FROM reviews WHERE property_id = ? AND status = "published"');
+        $stmt = $this->db->prepare('SELECT COALESCE(AVG(rating), 0) AS avg_rating, COUNT(*) AS reviews_count FROM reviews WHERE property_id = ? AND status <> "rejected"');
         $stmt->execute([$propertyId]);
         $summary = $stmt->fetch() ?: ['avg_rating' => 0, 'reviews_count' => 0];
         return [

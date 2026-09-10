@@ -228,8 +228,9 @@ final class BookingController extends Controller
         }
         (new Review())->create($booking, $rating, $comment);
         audit((int) $user['id'], 'review_submit', 'review');
-        flash('success', 'Votre avis a été publié.');
-        $this->redirect('/locataire/avis');
+        flash('success', 'Votre avis a été publié sur la fiche du logement.');
+        $slug = trim((string) ($booking['slug'] ?? ''));
+        $this->redirect($slug !== '' ? '/hebergements/' . $slug . '#avis' : '/locataire/avis');
     }
 
     private function requireTenantForBooking(): array
