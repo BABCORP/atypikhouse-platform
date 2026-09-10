@@ -156,6 +156,7 @@ document.querySelectorAll("[data-availability-calendar]").forEach((calendarRoot)
   today.setHours(0, 0, 0, 0);
   let visibleMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const formatter = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" });
+  let pendingRangeStart = "";
 
   const isoDate = (date) => {
     const year = date.getFullYear();
@@ -187,6 +188,8 @@ document.querySelectorAll("[data-availability-calendar]").forEach((calendarRoot)
       const hasOverride = availability && availability.price_override !== null;
       const unavailable = availability && Number(availability.is_available) === 0;
       const classes = ["calendar-day"];
+      const selectedStart = startInput?.value || "";
+      const selectedEnd = endInput?.value || "";
       let label = "Prix standard";
       let shortLabel = "Libre";
       let ariaLabel = `${iso} - disponible au prix standard`;
@@ -218,6 +221,13 @@ document.querySelectorAll("[data-availability-calendar]").forEach((calendarRoot)
         shortLabel = `${Number(availability.price_override).toLocaleString("fr-FR", { maximumFractionDigits: 0 })}€`;
         ariaLabel = `${iso} - disponible avec prix spécifique ${label}`;
       }
+      if (selectedStart && iso === selectedStart) {
+        classes.push("selected-start");
+      } else if (selectedStart && selectedEnd && iso > selectedStart && iso < selectedEnd) {
+        classes.push("selected-range");
+      } else if (selectedEnd && iso === selectedEnd) {
+        classes.push("selected-end");
+      }
 
       cells.push(`<button type="button" class="${classes.join(" ")}" data-calendar-date="${iso}" ${isPast || isBooked || unavailable ? "disabled" : ""} aria-label="${ariaLabel}" title="${ariaLabel}"><span>${day}</span><small>${shortLabel}</small></button>`);
     }
@@ -238,17 +248,24 @@ document.querySelectorAll("[data-availability-calendar]").forEach((calendarRoot)
     if (!button || button.hasAttribute("disabled")) return;
     const date = button.getAttribute("data-calendar-date");
     const isBookingCalendar = Boolean(calendarRoot.closest(".booking-box"));
-    if (startInput) startInput.value = date;
-    if (endInput) {
-      if (isBookingCalendar) {
+    if (!date) return;
+    if (isBookingCalendar && startInput && endInput) {
+      if (!pendingRangeStart || date <= pendingRangeStart) {
+        pendingRangeStart = date;
+        startInput.value = date;
         const nextDate = new Date(`${date}T00:00:00`);
         nextDate.setDate(nextDate.getDate() + 1);
         endInput.value = isoDate(nextDate);
       } else {
         endInput.value = date;
+        pendingRangeStart = "";
       }
+    } else {
+      if (startInput) startInput.value = date;
+      if (endInput) endInput.value = date;
     }
     startInput?.focus();
+    renderCalendar();
   });
   renderCalendar();
 });

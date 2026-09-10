@@ -1328,6 +1328,20 @@ th { background: var(--sand); }
 .calendar-day.booked, .calendar-day.past { background: #f1eee9; color: #786f65; cursor: not-allowed; opacity: .82; }
 .calendar-day.booked small, .calendar-day.unavailable small { color: var(--danger); }
 .calendar-day.override small { color: #8a4b0f; }
+.calendar-day.selected-start,
+.calendar-day.selected-end {
+  background: var(--forest);
+  border-color: var(--forest);
+  color: white;
+}
+.calendar-day.selected-start small,
+.calendar-day.selected-end small {
+  color: rgba(255, 255, 255, .86);
+}
+.calendar-day.selected-range {
+  background: #e4f3ea;
+  border-color: #9ecfb4;
+}
 .calendar-day:disabled { pointer-events: none; }
 .pagination { display: flex; align-items: center; justify-content: center; gap: .85rem; margin-top: 1.25rem; font-weight: 800; }
 .button.disabled { opacity: .5; pointer-events: none; }
