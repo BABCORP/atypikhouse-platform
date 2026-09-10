@@ -62,19 +62,19 @@ $demoNotice = config('academic_disclaimer');
 
             <section class="legal-section">
                 <h2>4. Hébergement</h2>
-                <p>Le site www.atypikhouse.fr est hébergé par OVHcloud, société OVH SAS :</p>
-                <p>2 rue Kellermann, 59100 Roubaix, France</p>
+                <p>Le site www.atypikhouse.fr est hébergé par Render, plateforme cloud opérée par Render Services, Inc. :</p>
+                <p>525 Brannan Street, Suite 300, San Francisco, CA 94107, États-Unis</p>
                 <h3>Détails techniques</h3>
                 <ul class="legal-list">
-                    <li>serveur dédié avec protection DDoS</li>
-                    <li>système de sauvegardes automatiques</li>
-                    <li>support technique disponible</li>
-                    <li>garantie de disponibilité du service : 99,9 % SLA</li>
+                    <li>service web Docker déployé sur Render</li>
+                    <li>base de données MySQL externe configurée par variables d’environnement</li>
+                    <li>certificat HTTPS géré par la plateforme d’hébergement</li>
+                    <li>déploiement automatisé depuis le dépôt GitHub du projet</li>
                 </ul>
-                <p>L’hébergeur garantit la disponibilité du service, la sécurité des données et la mise en place de sauvegardes régulières adaptées aux besoins de la plateforme.</p>
+                <p>Render assure l’exploitation de l’infrastructure cloud utilisée pour la démonstration en ligne. La configuration applicative, les sauvegardes de base de données et les variables d’environnement restent sous la responsabilité de l’équipe projet.</p>
                 <p>Pour toute question technique liée à l’hébergement :</p>
                 <ul class="legal-list">
-                    <li>support@ovh.com</li>
+                    <li>legal@render.com</li>
                 </ul>
             </section>
 
